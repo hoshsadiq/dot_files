@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+ps1_smiley() {
+  printf "%s" "${COLOR_RESET}─[\`if [[ \$? = "0" ]]; then echo "\\[\\033[32m\\]^_^"; else echo "\\[\\033[31m\\]O_O"; fi\`${COLOR_RESET}]"
+}
+
+ps1_pwd() {
+  printf "%s" "${COLOR_RESET}─[\[${COLOR_BRIGHT_BLUE}\]\W\[${COLOR_RESET}\]]"
+}
+
+ps1_usercolor()
+{
+  if (( $UID == 0 )) ; then
+    printf "%s" "${COLOR_RED}"
+  else
+    printf "%s" "${COLOR_GREEN}"
+  fi
+}
+
+ps1_user()
+{
+  printf "%s" "\[${COLOR_RESET}\]─[\[$(ps1_usercolor)\]\u\[${COLOR_RESET}\]@\[${COLOR_CYAN}\]\h\[${COLOR_RESET}\]]"
+}
+
+ps1_identity() {
+  printf "%s" "$(ps1_user)$(ps1_smiley)$(ps1_pwd)"
+}
+
+ps1_git()
+{
+  local branch="" sha1="" line="" attr="" color=0
+
+  shopt -s extglob # Important, for our nice matchers :)
+
+  command -v git >/dev/null 2>&1 || {
+    printf " \033[1;37m\033[41m[git not found]\033[m "
+    return 0
+  }
+
+  branch=$(git symbolic-ref -q HEAD 2>/dev/null) || return 0 # Not in git repo.
+  branch=${branch##refs/heads/}
+
+  # Now we display the branch.
+  sha1=$(git rev-parse --short --quiet HEAD)
+
+  case "${branch:-"(no branch)"}" in
+   production|prod) attr="1;37m\033[" ; color=41 ;; # red
+   master|deploy)   color=31                     ;; # red
+   stage|staging)   color=33                     ;; # yellow
+   dev|develop|development) color=34             ;; # blue
+   next)            color=36                     ;; # gray
+   *)
+     if [[ -n "${branch}" ]] ; then # Feature Branch :)
+       color=32 # green
+     else
+       color=0 # reset
+     fi
+     ;;
+  esac
+
+  [[ $color -gt 0 ]] &&
+    printf "${COLOR_RESET}─[${COLOR_MAGENTA}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(ps1_git_status):$sha1\033[0m] "
+}
+
+ps1_git_status()
+{
+  local git_status="$(git status 2>/dev/null)"
+
+  [[ "${git_status}" = *deleted* ]]                    && printf "%s" "-"
+  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && printf "%s" "+"
+  [[ "${git_status}" = *modified:* ]]                  && printf "%s" "*"
+}
+
+ps1_titlebar()
+{
+  case $TERM in
+    (xterm*|rxvt*)
+      printf "%s" "\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]"
+      ;;
+  esac
+}
+
+PS1="$(ps1_titlebar)\n\[${COLOR_RESET}\]┌$(ps1_identity)\$(ps1_git)\n└\$ "
+PS2="  \[\033[0;40m\]\[\033[0;33m\]> \[\033[1;37m\]\[\033[1m\]"
+PS4="+ \${FUNCNAME[0]:+\${FUNCNAME[0]}()}  \${LINENO} > "
