@@ -23,13 +23,13 @@ if command -v git > /dev/null; then
 	git clone git://github.com/amix/vimrc.git ~/.vim_runtime
 	/bin/bash ~/.vim_runtime/install_awesome_vimrc.sh
 else
-    echo "┌─────────────────────────────────────────────────────────────────────────┐"
+    echo    "┌─────────────────────────────────────────────────────────────────────────┐"
     echo -e "│ \033[31mgit is not installed. First install git and run the following commands:\033[0m │"
-    echo "├─────────────────────────────────────────────────────────────────────────┤"
-    echo "│ cd ~                                                                    │"
-    echo "│ git clone git://github.com/amix/vimrc.git ~/.vim_runtime                │"
-    echo "│ /bin/bash ~/.vim_runtime/install_awesome_vimrc.sh                       │"
-    echo "└─────────────────────────────────────────────────────────────────────────┘"
+    echo    "├─────────────────────────────────────────────────────────────────────────┤"
+    echo    "│ cd ~                                                                    │"
+    echo    "│ git clone git://github.com/amix/vimrc.git ~/.vim_runtime                │"
+    echo    "│ /bin/bash ~/.vim_runtime/install_awesome_vimrc.sh                       │"
+    echo    "└─────────────────────────────────────────────────────────────────────────┘"
 fi
 
 
@@ -46,3 +46,14 @@ ln -s $DIR/.profile ~/.profile
 ln -s $DIR/.wgetrc ~/.wgetrc
 ln -s $DIR/.ssh/config ~/.ssh/config
 chmod 700 $DIR/.ssh/config
+
+echo    "┌─────────────────────────────────────────────────────────────────────────┐"
+echo -e "│ \033[32mAll Linux configuration files are now installed.\033[0m                        │"
+echo    "├─────────────────────────────────────────────────────────────────────────┤"
+echo    "│ PhpStorm settings are available also.                                   │"
+echo    "│ Please import it manually using the following steps:                    │"
+echo -e "│  1. Launch \033[35mPhpStorm\033[0m                                                     │"
+echo -e "│  2. Click on \033[35mFile\033[0m                                                       │"
+echo -e "│  3. Click on \033[35mImport Settings...\033[0m                                         │"
+echo -e "│  4. Point the importer to \033[35m$DIR/PhpStorm.jar\033[0m"
+echo    "└─────────────────────────────────────────────────────────────────────────┘"
