@@ -1,9 +1,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-export CURRENT_OS=`lowercase $OSTYPE`
-readonly CURRENT_OS
-if [ "$CURRENT_OS" == "cygwin" ]; then
+if [ "$OSTYPE" == "cygwin" ]; then
 	export CYGWIN="ntsec"
 fi
 

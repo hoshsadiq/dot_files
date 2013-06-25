@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## assumes setup.exe is in root folder
-if ["$CURRENT_OS" == "cygwin"]; then
+if ["$OSTYPE" == "cygwin"]; then
 	alias cygsetup="cygstart /setup.exe"
 fi
 
@@ -32,7 +32,7 @@ alias la='ls -A'
 alias l='ls -CF'
 
 ## need a linux alternative!
-if [ "$CURRENT_OS" == "cygwin" ]; then
+if [ "$OSTYPE" == "cygwin" ]; then
 	alias ip="ipconfig | grep -v 127.0.0.1 | awk '/IPv4/ { print $NF }' | sed -e 's/^/\t\t/'"
 fi
 alias extip='curl ifconfig.me'
