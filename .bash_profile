@@ -14,7 +14,6 @@ PATH="$HOME/bin:$PATH"
 # include other files
 [[ -r /etc/bash_completion ]] && . /etc/bash_completion # custom autocompletion
 [[ -r ~/.bash_colors ]] && . ~/.bash_colors # colors
-[[ -r ~/.bashrc ]] && . ~/.bashrc # bashrc
 [[ -r ~/.bash_aliases ]] && . ~/.bash_aliases # aliases
 [[ -r ~/.bash_functions ]] && . ~/.bash_functions # functions
 [[ -r ~/.bash_prompt ]] && . ~/.bash_prompt # promps
