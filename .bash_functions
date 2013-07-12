@@ -58,7 +58,7 @@ mkcd() {
 # cygwin specific, opens windows explorer for a given path
 # if the path is not given, pwd will be used
 # todo: Maybe a *nix version of this?
-if ["$OSTYPE" == "cygwin"]; then
+if [ "$OSTYPE" == "cygwin" ]; then
   explore() {
      if [ "-"$1"-" = "--" ]; then
         local exp=`pwd`

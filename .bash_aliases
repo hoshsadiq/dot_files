@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## assumes setup.exe is in root folder
-if ["$OSTYPE" == "cygwin"]; then
+if [ "$OSTYPE" == "cygwin" ]; then
 	alias cygsetup="cygstart /setup.exe"
 fi
 
