@@ -51,7 +51,7 @@ chmod 700 $DIR/.ssh/config
 
 # irssi requires a bit more work
 ln -s $DIR/.irssi/config ~/.irssi/config
-ln -s $DIR/.irssi/default.theme ~/.ssh/default.theme
+ln -s $DIR/.irssi/default.theme ~/.irssi/default.theme
 
 [ ! -d ~/.irssi/scripts ] && mkdir ~/.irssi/scripts
 [ ! -d ~/.irssi/scripts/autorun ] && mkdir ~/.irssi/scripts/autorun
