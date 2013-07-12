@@ -18,6 +18,7 @@ PATH="$HOME/bin:$PATH"
 [[ -r ~/.bash_functions ]] && . ~/.bash_functions # functions
 [[ -r ~/.bash_prompt ]] && . ~/.bash_prompt # promps
 [[ -r ~/.bash_completion ]] && . ~/.bash_completion # custom bash completition
+[[ -r ~/.bash_local ]] && . ~/.bash_local # custom bash completition
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)" # see http://www-zeuthen.desy.de/~friebel/unix/lesspipe.html
 
 # change the default pager for man to most
