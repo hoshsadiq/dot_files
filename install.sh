@@ -46,6 +46,7 @@ ln -s $DIR/.git_completion ~/.git_completion
 ln -s $DIR/.gitconfig ~/.gitconfig
 ln -s $DIR/.profile ~/.profile
 ln -s $DIR/.wgetrc ~/.wgetrc
+ln -s $DIR/.inputrc ~/.inputrc
 ln -s $DIR/.ssh/config ~/.ssh/config
 chmod 700 $DIR/.ssh/config
 

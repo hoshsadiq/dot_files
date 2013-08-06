@@ -7,6 +7,8 @@ fi
 
 # Set a local bin path
 PATH="$HOME/bin:$PATH"
+export DISPLAY=:0.0
+
 
 # remove duplicate path entries
 #export PATH=$(echo $PATH | awk -F: '
