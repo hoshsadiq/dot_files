@@ -1,0 +1,6 @@
+export LAMP="/d/wamp"
+export WWW=$LAMP"/www"
+export PHPINSTALL=$LAMP"/bin/php/php5.4.12"
+export PHPMYADMIN=$LAMP"/apps/phpmyadmin"
+
+export PATH=$PATH:"/usr/share/bin":$PHPINSTALL

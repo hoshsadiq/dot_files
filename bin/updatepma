@@ -1,0 +1,108 @@
+#!/bin/bash
+
+
+# Script to automate PhpMyAdmin updates
+# To manually switch to another version, use...
+# bash pma-auto-update.sh version_number
+
+### Variables
+
+ADMIN_EMAIL=superaktieboy@gmail.com
+
+LOGDIR=/var/log
+LOGFILE=$LOGDIR/phpmyadmin-updates.log
+
+###### PLEASE DO NOT EDIT BELOW THIS LINE ######
+
+function send_email() {
+     # echo "PhpMyAdmin Update didn't go through on server $(hostname -f | awk -F. '{print $2"."$3}'), $(date)" | \
+     #        mail -s "ALERT: PhpMyAdmin Script Failed - Check the log file for more info" $ADMIN_EMAIL
+}
+
+if [ "$PHPMYADMIN" == "" ]; then
+	echo "\$PHPMYADMIN must be defined (perhaps in ~/.bash_local"
+	exit 1
+fi
+
+PMAOLD=${PHPMYADMIN}-old
+
+NEW_VERSION=$(wget -qO- http://phpmyadmin.net/home_page/version.php | head -q -n 1)
+if [ "$NEW_VERSION" == '' ]; then
+	echo 'Something wrong in identifying the new version' >> $LOGFILE
+	send_email
+fi
+
+CURRENT_VERSION=$(ls ${PHPMYADMIN}/RELEASE-DATE-* | sed 's:'${PHPMYADMIN}'/RELEASE-DATE-::'| sed 's/*$//')
+
+echo >> $LOGFILE
+
+# insert date and time of update
+echo 'Date: '$(date +%F)		>> $LOGFILE
+echo 'Time: '$(date +%H-%M-%S)	>> $LOGFILE
+
+echo 'Current Version: '$CURRENT_VERSION >> $LOGFILE
+echo 'New Version: '$NEW_VERSION >> $LOGFILE
+
+if [ "$1" == '' ]; then
+	if [ "$NEW_VERSION" == "$CURRENT_VERSION" ]; then
+		echo 'No updates available' >> $LOGFILE
+		echo >> $LOGFILE
+		exit 0
+	else
+		version=$NEW_VERSION
+		echo 'Updating PhpMyAdmin from '$CURRENT_VERSION' to '$NEW_VERSION'...' >> $LOGFILE
+	fi
+else
+	version=$1
+	echo 'Manually updating the version to '$1'...' >> $LOGFILE
+fi
+
+if [ ! -d "$PHPMYADMIN" ]; then
+	echo "PhpMyAdmin directory doesn't exist. Please modify the script and re-run." >> $LOGFILE
+	send_email
+	exit 1
+fi
+
+echo 'Upgrading PhpMyAdmin to '$version
+
+timestamp=`date +%s --date '-1 hour'`
+echo 'Hold on! Downloading the latest version...'
+wget -q "http://downloads.sourceforge.net/project/phpmyadmin/phpMyAdmin/"$version"/phpMyAdmin-"$version"-english.tar.gz?r=&ts="$timestamp"&use_mirror=kent" -O /tmp/phpmyadmin-$version.tar.gz
+if [ "$?" != '0' ]; then
+	echo 'Something wrent wrong while downloading the version - '${version} >> $LOGFILE
+	send_email
+	exit 1
+fi
+echo 'Done downloading'
+
+cd /tmp/
+tar xzf /tmp/phpmyadmin-$version.tar.gz && rm /tmp/phpmyadmin-$version.tar.gz
+cd - &> /dev/null
+
+if [ "$?" != '0' ]; then
+	echo 'Something wrent wrong, while extracting the archive!' >> $LOGFILE
+	send_email
+	exit 1
+fi
+
+# backup the installed version and switch to new version
+mv $PHPMYADMIN $PMAOLD && mv /tmp/phpMyAdmin-${version}-english $PHPMYADMIN
+ 
+if [ "$?" != '0' ]; then
+	echo 'Something wrent wrong, while moving directories!' >> $LOGFILE
+	send_email
+	exit 1
+fi
+
+cp ${PMAOLD}/config.inc.php ${PHPMYADMIN}/
+if [ "$?" != '0' ]; then
+	echo 'Something wrent wrong, while copying the config file!' >> $LOGFILE
+	send_email
+	exit 1
+fi
+
+# remove old files
+rm -rf $PMAOLD
+
+echo 'Done upgrading PhpMyadmin...' >> $LOGFILE
+echo >> $LOGFILE

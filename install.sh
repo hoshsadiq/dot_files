@@ -16,10 +16,12 @@ cd ~
 [ -f .vimrc ] &&  mv .vimrc .vimrc.bak
 [ -f .wgetrc ] &&  mv .wgetrc .wgetrc.bak
 [ -f .vimrc ] && mv .vimrc .vimrc.bak
+[ -f ~/bin/updatepma ] && mv ~/bin/updatepma ~/bin/updatepma.bak
 [ -d .ssh ] && mv .ssh .ssh.bak
 [ ! -d .ssh ] && mkdir .ssh && chmod 700 .ssh
 [ -d .irssi ] && mv .irssi .irssi.bak
 [ ! -d .irssi ] && mkdir .irssi
+[ ! -d ~/bin ] && mkdir ~/bin
 
 if command -v git > /dev/null; then 
 	git clone git://github.com/amix/vimrc.git ~/.vim_runtime
@@ -47,8 +49,10 @@ ln -s $DIR/.gitconfig ~/.gitconfig
 ln -s $DIR/.profile ~/.profile
 ln -s $DIR/.wgetrc ~/.wgetrc
 ln -s $DIR/.inputrc ~/.inputrc
+ln -s $DIR/bin/updatepma ~/bin/updatepma
 ln -s $DIR/.ssh/config ~/.ssh/config
 chmod 700 $DIR/.ssh/config
+chmod u+x ~/bin/updatepma
 
 # irssi requires a bit more work
 ln -s $DIR/.irssi/config ~/.irssi/config
