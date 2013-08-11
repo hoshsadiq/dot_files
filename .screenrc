@@ -1,0 +1,25 @@
+hardstatus alwayslastline "%?%{yk}%-Lw%?%{wb}%n*%f %t%?(%u)%?%?%{yk}%+Lw%?"
+startup_message off
+msgwait 2
+defscrollback 30000
+defutf8 on
+defnonblock on
+autodetach on
+bindkey -k k1 select 1
+bindkey -k k2 select 2
+bindkey -k k3 select 3
+bindkey -k k4 select 4
+bindkey -k k5 select 5
+bindkey -k k6 select 6
+bindkey -k k7 select 7
+bindkey -k k8 select 8
+bindkey -k k9 select 9
+bindkey -k k; select 10
+bindkey -k F1 select 11
+bindkey -k F2 select 12
+
+bindkey "^[[1;5I" next
+bindkey "^[[1;6I" prev
+
+
+
