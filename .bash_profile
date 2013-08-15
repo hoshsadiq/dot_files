@@ -30,7 +30,11 @@ export MANPAGER="/usr/bin/most -s"
 export EDITOR='vim'
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
-HISTCONTROL=ignoredups:ignorespace
+HISTCONTROL=ignoredups:ignorespace:erasedups
+# append to history instead of replacing
+shopt -s histappend
+# reload history after every command
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 
 # autocomplete for aliases
 complete -A alias alias unalias

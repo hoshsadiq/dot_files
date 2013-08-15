@@ -209,3 +209,19 @@ function remindme()
   sleep $1 && zenity --info --text "$2" &
 }
 
+
+
+### google search
+function google() {
+  if [[ $1 ]]; then
+    q="$@"
+    q=$(echo ${q//[^a-zA-Z0-9]/+})
+    if [ "$OSTYPE" == "cygwin" ]; then
+      cygstart firefox -new-tab "https://www.google.com/search?q="$q;
+    else
+      firefox -new-tab "https://www.google.com/search?q="$q;
+    fi
+  else
+    echo 'Usage: google seach terms';
+  fi
+}
