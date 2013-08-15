@@ -12,13 +12,13 @@ alias reload=". ~/.bash_profile"
 alias df='df -h'
 alias du='du -h'
 
-# Misc :)
-alias less='less -r'
+# Misc
+alias less='most'
+alias more='most'
 alias whence='type -a'
 alias grep='grep --color'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
-alias more='less'
 alias path='echo -e ${PATH//:/\\n}'
 
 # Some shortcuts for different directory listings
