@@ -62,4 +62,3 @@ if [ $UID -ne 0 ]; then
    alias shutdown='sudo shutdown -t3 -h now'
 fi
 
-alias back='cd $OLDPWD'
