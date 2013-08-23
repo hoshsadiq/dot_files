@@ -57,17 +57,25 @@ ps1_git()
      ;;
   esac
 
+  shaColor=""
+  echo `git status` | grep "nothing to commit" > /dev/null 2>&1;
+  if [ "$?" -eq "0" ]; then
+    shaColor="${COLOR_GREEN}"
+  else
+    shaColor="${COLOR_RED}"
+  fi
+
   [[ $color -gt 0 ]] &&
-    printf "${COLOR_RESET}─[${COLOR_MAGENTA}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(ps1_git_status):$sha1\033[0m] "
+    printf "${COLOR_RESET}─[${COLOR_MAGENTA}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(ps1_git_status)${COLOR_RESET}:${shaColor}$sha1\033[0m] "
 }
 
 ps1_git_status()
 {
   local git_status="$(git status 2>/dev/null)"
 
-  [[ "${git_status}" = *deleted* ]]                    && printf "%s" "-"
-  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && printf "%s" "+"
-  [[ "${git_status}" = *modified:* ]]                  && printf "%s" "*"
+  [[ "${git_status}" = *deleted* ]]                    && printf "%s" "${COLOR_RED}-"
+  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && printf "%s" "${COLOR_GREEN}+"
+  [[ "${git_status}" = *modified:* ]]                  && printf "%s" "${COLOR_YELLOW}*"
 }
 
 ps1_titlebar()
