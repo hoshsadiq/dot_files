@@ -13,8 +13,8 @@ alias df='df -h'
 alias du='du -h'
 
 # Misc
-alias less='most'
-alias more='most'
+alias less=$MANPAGER
+alias more=$MANPAGER
 alias whence='type -a'
 alias grep='grep --color'
 alias egrep='egrep --color=auto'
