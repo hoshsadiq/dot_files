@@ -41,9 +41,6 @@ complete -A alias alias unalias
 complete -W "$(echo `cat ~/.ssh/config | egrep '^Host ' | grep -v 'Host \*' | sort | uniq | sed 's/Host //' | tr ' ' '\n'`;)" scp sftp ssh
 complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e s/,.*//g | uniq | grep -v "\["`;)" scp sftp ssh
 
-NCPU=$(grep -c 'processor' /proc/cpuinfo) # Number of CPUs
-
-
 # Show the date
 #date +"%A %_d %B %Y"
 #------------------------------------------
