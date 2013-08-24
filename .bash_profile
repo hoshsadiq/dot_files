@@ -21,11 +21,9 @@ export DISPLAY=:0.0
 [[ -r ~/.bash_prompt ]] && . ~/.bash_prompt # promps
 [[ -r ~/.bash_completion ]] && . ~/.bash_completion # custom bash completition
 [[ -r ~/.bash_local ]] && . ~/.bash_local # custom bash completition
-#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)" # see http://www-zeuthen.desy.de/~friebel/unix/lesspipe.html
 
 # change the default pager for man to most
 export MANPAGER="/usr/bin/most -s"
-
 # bash settings
 export EDITOR='vim'
 # don't put duplicate lines in the history. See bash(1) for more options
@@ -40,11 +38,8 @@ export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 complete -A alias alias unalias
 
 # autocomplete ssh commands
-complete -W "$(echo `cat ~/.bash_history | egrep '^ssh ' | sort | uniq | sed 's/^ssh //'`;)" ssh
-# fix autocomplete sometimes not working properly for ssh hosts
-# requires ruby
-#complete -o default -o nospace -W "$(/usr/bin/env ruby -ne 'puts $_.split(/[,\s]+/)[1..-1].reject{|host| host.match(/\*|\?/)} if $_.match(/^\s*Host\s+/);' < $HOME/.ssh/config)" scp sftp ssh
-
+complete -W "$(echo `cat ~/.ssh/config | egrep '^Host ' | grep -v 'Host \*' | sort | uniq | sed 's/Host //' | tr ' ' '\n'`;)" scp sftp ssh
+complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e s/,.*//g | uniq | grep -v "\["`;)" scp sftp ssh
 
 NCPU=$(grep -c 'processor' /proc/cpuinfo) # Number of CPUs
 
@@ -72,5 +67,5 @@ echo -ne "${COLOR_RED}Up time            : ${COLOR_CYAN}";uptime 2>/dev/null | s
 # swap free: free -mo 2>/dev/null | awk '/Swap:/ { print $4 }'
 # processes running: ps -W | wc -l
 echo -e  "${COLOR_RED}Kernel Information : ${COLOR_CYAN}"`uname -smr`
-echo -e "\n${COLOR_RED}Memory stats        :${COLOR_CYAN} " ; free 2>/dev/null
+echo -e "\n${COLOR_RED}Memory stats       :${COLOR_CYAN} " ; free 2>/dev/null
 
