@@ -80,7 +80,7 @@
 # Aliases
 #
 # Some people use a different file for aliases
-# if [ -f "${HOME}/.bash_aliases" ]; then
+# if [[ -f "${HOME}/.bash_aliases" ]]; then
 #   source "${HOME}/.bash_aliases"
 # fi
 
@@ -125,7 +125,7 @@
 # Functions
 #
 # Some people use a different file for functions
-# if [ -f "${HOME}/.bash_functions" ]; then
+# if [[ -f "${HOME}/.bash_functions" ]]; then
 #   source "${HOME}/.bash_functions"
 # fi
 #

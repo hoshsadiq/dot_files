@@ -53,7 +53,7 @@ alias tab2space="find -name '*.php' -exec sed -i 's/\t/    /g' {} +"
 alias :q='read -s -n1 -p "Do you realy want to quit the shell? [y]|n "; if [ "$REPLY" = y -o "$REPLY" = Y -o "$REPLY" = " " -o "$REPLY" = "" ]; then exit; else echo; unset REPLY; fi'
 
 # privileged access
-if [ $UID -ne 0 ]; then
+if [[ $UID -ne 0 ]]; then
    #alias sudo='sudo '
    alias scat='sudo cat'
    alias svim='sudo vim'

@@ -1,7 +1,7 @@
 # extract files
 # Maybe add install instructions if not installed?
 extract () {
-   if [ -f $1 ] ; then
+   if [[ -f $1 ]] ; then
       case $1 in
          *.tar.bz2)   tar xvjf $1    ;;
          *.tar.gz)    tar xvzf $1    ;;
@@ -32,7 +32,7 @@ cdup(){
       d=$d/..
    done
    d=$(echo $d | sed 's/^\///')
-   if [ -z "$d" ]; then
+   if [[ -z "$d" ]]; then
       d=..
    fi
    cd $d
@@ -48,7 +48,7 @@ fawk() {
 
 # mkdir & cd
 mkcd() {
-   if [ $# != 1 ]; then
+   if [[ $# != 1 ]]; then
       echo "Usage: mkcd <dir>"
    else
       mkdir -p $1 && cd $1
@@ -58,9 +58,9 @@ mkcd() {
 # cygwin specific, opens windows explorer for a given path
 # if the path is not given, pwd will be used
 # todo: Maybe a *nix version of this?
-if [ "$OSTYPE" == "cygwin" ]; then
+if [[ "$OSTYPE" == "cygwin" ]]; then
   explore() {
-     if [ "-"$1"-" = "--" ]; then
+     if [[ "-"$1"-" = "--" ]]; then
         local exp=`pwd`
      else
         local exp=$1
@@ -80,13 +80,13 @@ calc() {
 # to view notes: note
 note () {
    #if file doesn't exist, create it
-   [ -f $HOME/.notes ] || touch $HOME/.notes
+   [[ -f $HOME/.notes ]] || touch $HOME/.notes
 
    #no arguments, print file
-   if [ $# = 0 ]; then
+   if [[ $# = 0 ]]; then
           cat $HOME/.notes
    #clear file
-   elif [ $1 = -c ]; then
+   elif [[ $1 = -c ]]; then
       > $HOME/.notes
    #add all arguments to file
    else
@@ -105,7 +105,7 @@ h () {
       file) FILE=`which "$ARG"`
         case `file --mime --dereference --brief "$FILE"` in
       text/*|application/x-sh)
-        if [ 50 -gt `wc -l <"$FILE"` ]; then cat "$FILE"
+        if [[ 50 -gt `wc -l <"$FILE"` ]]; then cat "$FILE"
         else echo "$FILE is quite a long text file. I will not cat it."; fi
         ;;
       application/*)
@@ -137,12 +137,12 @@ reqroot () {
 # requires root, if it does, it prompts to edit as root
 vi () {
   if [[ `reqroot "$@"` > 1 ]]; then /usr/bin/vim $@;
-  elif [ $1 = '' ]; then /usr/bin/vim;
-  elif [ ! -f $1 ] || [ -w $1 ]; then /usr/bin/vim $@;
+  elif [[ $1 = '' ]]; then /usr/bin/vim;
+  elif [[ ! -f $1 ]] || [[ -w $1 ]]; then /usr/bin/vim $@;
   else
     echo -n "File is readonly. Edit as root? (Y/n): "
     read -n 1 yn; echo;
-    if [ "$yn" = 'n' ] || [ "$yn" = 'N' ]; then /usr/bin/vim $*;
+    if [[ "$yn" = 'n' ]] || [[ "$yn" = 'N' ]]; then /usr/bin/vim $*;
     else sudo /usr/bin/vim $*;
     fi
   fi
@@ -179,7 +179,7 @@ function allhackingandshit()
 
 function hgg()
 {
-    if [ $# -lt 1 ] || [ $# -gt 1 ]; then
+    if [[ $# -lt 1 ]] || [[ $# -gt 1 ]]; then
         echo "search bash history"
         echo "usage: mg [search pattern]"
     else
@@ -216,7 +216,7 @@ function google() {
   if [[ $1 ]]; then
     q="$@"
     q=$(echo ${q//[^a-zA-Z0-9]/+})
-    if [ "$OSTYPE" == "cygwin" ]; then
+    if [[ "$OSTYPE" == "cygwin" ]]; then
       cygstart firefox -new-tab "https://www.google.com/search?q="$q;
     else
       firefox -new-tab "https://www.google.com/search?q="$q;

@@ -1,7 +1,7 @@
 # If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+[[ -z "$PS1" ]] && return
 
-if [ "$OSTYPE" == "cygwin" ]; then
+if [[ "$OSTYPE" == "cygwin" ]]; then
 	export CYGWIN="ntsec"
 fi
 

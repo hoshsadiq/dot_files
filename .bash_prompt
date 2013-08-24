@@ -22,60 +22,143 @@ ps1_user()
 }
 
 ps1_identity() {
-  printf "%s" "$(ps1_user)$(ps1_smiley)$(ps1_pwd)"
+  printf "%s" "$(ps1_user)$(ps1_smiley)"
+}
+
+# Display the count of each if non-zero:
+# - detached screens sessions and/or tmux sessions running on the host
+# - attached running jobs (started with $ myjob &)
+# - attached stopped jobs (suspended with Ctrl-Z)
+_ps1_jobcount_color()
+{
+    local running=$(( $(jobs -r | wc -l) ))
+    local stopped=$(( $(jobs -s | wc -l) ))
+    local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
+    local ret=""
+
+    if [[ $n_screen != "0" ]] ; then
+        ret="${ret}${COLOR_YELLOW}${n_screen}d"
+    fi
+
+    if [[ $running != "0" ]] ; then
+        if [[ $ret != "" ]] ; then ret="${ret}${COLOR_RESET}:"; fi
+        ret="${ret}${COLOR_YELLOW}${running}&"
+    fi
+
+    if [[ $stopped != "0" ]] ; then
+        if [[ $ret != "" ]] ; then ret="${ret}${COLOR_RESET}:"; fi
+        ret="${ret}${COLOR_YELLOW}${stopped}z"
+    fi
+
+    if [[ $ret != "" ]]; then
+      ret="${COLOR_RESET}─[${ret}${COLOR_RESET}]"
+    fi
+    echo -ne "$ret"
+}
+
+_ps1_permissions_color()
+{
+    if [[ -w "${PWD}" ]]; then
+        echo "${COLOR_GREEN}\$"
+    else
+        echo "${COLOR_RED}\$"
+    fi
+}
+
+_ps1_git_branch()
+{
+    local gitdir
+    gitdir="$([ $(git ls-files . 2>/dev/null | wc -l) -gt 0 ] && git rev-parse --git-dir 2>/dev/null)"
+    [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
+    local branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    if [[ $? -ne 0 || -z "$branch" ]] ; then
+        # In detached head state, use commit instead
+        branch="$(git rev-parse --short HEAD 2>/dev/null)"
+    fi
+    [[ $? -ne 0 || -z "$branch" ]] && return
+    branch="${branch#refs/heads/}"
+    printf "%q" "$branch"
 }
 
 ps1_git()
 {
-  local branch="" sha1="" line="" attr="" color=0
+  local branch="" sha1="" line="" attr="" gitColor="" remote="" color=0
 
   shopt -s extglob # Important, for our nice matchers :)
 
-  command -v git >/dev/null 2>&1 || {
+  if ! command -v git >/dev/null 2>&1 && [[ -d ./.git ]]; then
     printf " \033[1;37m\033[41m[git not found]\033[m "
     return 0
-  }
-
-  branch=$(git symbolic-ref -q HEAD 2>/dev/null) || return 0 # Not in git repo.
-  branch=${branch##refs/heads/}
-
-  # Now we display the branch.
-  sha1=$(git rev-parse --short --quiet HEAD)
-
-  case "${branch:-"(no branch)"}" in
-   production|prod) attr="1;37m\033[" ; color=41 ;; # red
-   master|deploy)   color=31                     ;; # red
-   stage|staging)   color=33                     ;; # yellow
-   dev|develop|development) color=34             ;; # blue
-   next)            color=36                     ;; # gray
-   *)
-     if [[ -n "${branch}" ]] ; then # Feature Branch :)
-       color=32 # green
-     else
-       color=0 # reset
-     fi
-     ;;
-  esac
-
-  shaColor=""
-  echo `git status` | grep "nothing to commit" > /dev/null 2>&1;
-  if [ "$?" -eq "0" ]; then
-    shaColor="${COLOR_GREEN}"
-  else
-    shaColor="${COLOR_RED}"
   fi
 
-  [[ $color -gt 0 ]] &&
-    printf "${COLOR_RESET}─[${COLOR_MAGENTA}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(ps1_git_status)${COLOR_RESET}:${shaColor}$sha1\033[0m] "
+  branch=$(_ps1_git_branch)
+  if [[ -n "$branch" ]] ; then
+    # Now we display the branch.
+    sha1=$(git rev-parse --short --quiet HEAD)
+
+    case "${branch:-"(no branch)"}" in
+     production|prod) attr="1;37m\033[" ; color=41 ;; # red
+     master|deploy)   color=31                     ;; # red
+     stage|staging)   color=33                     ;; # yellow
+     dev|develop|development) color=34             ;; # blue
+     next)            color=36                     ;; # gray
+     *)
+       if [[ -n "${branch}" ]] ; then # Feature Branch :)
+         color=32 # green
+       else
+         color=0 # reset
+       fi
+       ;;
+    esac
+
+    
+    echo `git status` | grep "nothing to commit" > /dev/null 2>&1;
+    if [[ "$?" -eq "0" ]]; then
+      gitColor="${COLOR_GREEN}"
+    else
+      gitColor="${COLOR_RED}"
+    fi
+
+    [[ $color -gt 0 ]] &&
+      printf "${COLOR_RESET}─[${gitColor}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(_ps1_git_around)$(ps1_git_status)${COLOR_RESET}\033[0m]"
+  fi
+}
+
+_ps1_git_around()
+{
+  local branch=$(_ps1_git_branch)
+  local remote="$(git config --get branch.${branch}.remote 2>/dev/null)"
+  local behind=$(git log --oneline HEAD..${remote} | wc -l)
+  local ahead=$(git log --oneline ${remote}..HEAD | wc -l)
+
+  local status=""
+
+  if [[ $behind -gt 0 ]] ; then
+      status="${COLOR_RED}<${behind}"
+  fi
+  if [[ $ahead -gt 0 ]] ; then
+      if [[ $status != "" ]] ; then status="${status}${COLOR_RESET}:"; fi
+      status="${status}${COLOR_GREEN}${ahead}>"
+  fi
+
+  [[ "$status" != "" ]] && status="${COLOR_RESET}:${status}"
+
+  printf "%s" "${status}"
+
 }
 
 ps1_git_status()
 {
-  local git_status="$(git status 2>/dev/null)"
+  local status="" git_status="$(git status 2>/dev/null)"
 
-  [[ "${git_status}" = *deleted* ]]                    && printf "%s" "${COLOR_RED}-"
-  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && printf "%s" "${COLOR_GREEN}+"
-  [[ "${git_status}" = *modified:* ]]                  && printf "%s" "${COLOR_YELLOW}*"
+  [[ "${git_status}" = *modified:* ]]                  && status="${status}${COLOR_YELLOW}*"
+  [[ "${git_status}" = *deleted* ]]                    && status="${status}${COLOR_RED}-"
+  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && status="${status}${COLOR_GREEN}+"
+  [[ -n "$(git stash list 2>/dev/null)" ]]             && status="${status}${COLOR_YELLOW}^"
+
+  [[ "$status" != "" ]] && status="${COLOR_RESET}:${status}"
+
+  printf "%s" "${status}"
 }
 
 ps1_titlebar()
@@ -87,6 +170,7 @@ ps1_titlebar()
   esac
 }
 
-PS1="$(ps1_titlebar)\n\[${COLOR_RESET}\]┌$(ps1_identity)\$(ps1_git)\n└\$ "
+
+PS1="$(ps1_titlebar)\n\[${COLOR_RESET}\]┌$(ps1_identity)\$(_ps1_jobcount_color)$(ps1_pwd)\$(ps1_git)\n└$(_ps1_permissions_color)${COLOR_RESET} "
 PS2="  \[\033[0;40m\]\[\033[0;33m\]> \[\033[1;37m\]\[\033[1m\]"
 PS4="+ \${FUNCNAME[0]:+\${FUNCNAME[0]}()}  \${LINENO} > "
