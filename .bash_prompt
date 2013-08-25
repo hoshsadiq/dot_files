@@ -129,7 +129,7 @@ ps1_git()
   [[ -n "$(git stash list 2>/dev/null)" ]]             && status_chars="${status_chars}${_color_yellow}…${_color_end}"
   if [[ "$status_chars" != "" ]]; then
     status_chars=":${status_chars}"
-  elif [[ $conflicts -eq 0 ]]; then
+  elif [[ "$ahead_behind" == "" ]]; then
     status_chars="${_color_green}✔${_color_end}"
   fi
 
