@@ -6,9 +6,8 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
 fi
 
 # Set a local bin path
-PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
 export DISPLAY=:0.0
-
 
 # remove duplicate path entries
 #export PATH=$(echo $PATH | awk -F: '
@@ -28,11 +27,11 @@ export MANPAGER="/usr/bin/most -s"
 export EDITOR='vim'
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
-HISTCONTROL=ignoredups:ignorespace:erasedups
+export HISTCONTROL=ignoredups:ignorespace:erasedups
 # append to history instead of replacing
 shopt -s histappend
 # reload history after every command
-export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+export PROMPT_COMMAND="history -a; history -c; history -r;"
 
 # autocomplete for aliases
 complete -A alias alias unalias
@@ -54,15 +53,10 @@ if command -v figlet > /dev/null; then
 else
 	echo "Welcome, " $USER;
 fi
-echo -e ""
-echo -ne "${COLOR_RED}Current date       : ${COLOR_CYAN}"; date
-echo -ne "${COLOR_RED}Up time            : ${COLOR_CYAN}";uptime 2>/dev/null | sed 's/.*up \([^,]*\), .*/\1/'
 # usage of /: df -h / | awk '/\// { print $5,"of",$2 }'
-# total mem: free -mo 2>/dev/null | awk '/Mem:/ { print $2 }'
-# total swap: free -mo 2>/dev/null | awk '/Swap:/ { print $2 }'
-# mem free: free -mo 2>/dev/null | awk '/Mem:/ { print $4 }'
-# swap free: free -mo 2>/dev/null | awk '/Swap:/ { print $4 }'
 # processes running: ps -W | wc -l
-echo -e  "${COLOR_RED}Kernel Information : ${COLOR_CYAN}"`uname -smr`
-echo -e "\n${COLOR_RED}Memory stats       :${COLOR_CYAN} " ; free 2>/dev/null
-
+echo -e ""
+echo -ne "${_color_red}Current date       :${_color_end} ${_color_cyan}";		echo -n $(date +"%A %_d %B %Y %H:%M");					echo -e  "${_color_end}"
+echo -ne "${_color_red}Up time            :${_color_end} ${_color_cyan}";		uptime 2>/dev/null | sed 's/.*up \([^,]*\), .*/\1/';	echo -ne "${_color_end}"
+echo -ne "${_color_red}Kernel Information :${_color_end} ${_color_cyan}";		uname -smr;												echo -ne "${_color_end}"
+echo -e "\n${_color_red}Memory stats       :${_color_end} ${_color_cyan}" ;		free 2>/dev/null;										echo -ne "${_color_end}"

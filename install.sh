@@ -18,6 +18,7 @@ cd ~
 [ -f .vimrc ] && mv .vimrc .vimrc.bak
 [ -f .screenrc ] && mv .screenrc .screenrc.bak
 [ -f .Xresources ] && mv .Xresources .Xresources.bak
+[ -f .minttyrc ] && mv .minttyrc .minttyrc.bak
 [ -f ~/bin/updatepma ] && mv ~/bin/updatepma ~/bin/updatepma.bak
 [ -d .ssh ] && mv .ssh .ssh.bak
 [ ! -d .ssh ] && mkdir .ssh && chmod 700 .ssh
@@ -53,10 +54,19 @@ ln -s $DIR/.wgetrc ~/.wgetrc
 ln -s $DIR/.inputrc ~/.inputrc
 ln -s $DIR/.screenrc ~/.screenrc
 ln -s $DIR/.Xresources ~/.Xresources
+ln -s $DIR/.minttyrc ~/.minttyrc
 ln -s $DIR/bin/updatepma ~/bin/updatepma
 ln -s $DIR/.ssh/config ~/.ssh/config
 chmod 700 $DIR/.ssh/config
 chmod u+x ~/bin/updatepma
+
+# apt-cyg to ~/bin if cygwin
+if [[ "$OSTYPE" == "cygwin" ]]; then
+	echo "We are cygwin! Installing apt-cyg..."
+	wget -P ~/bin http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
+	chmod +x ~/bin/apt-cyg
+fi
+
 
 # irssi requires a bit more work
 ln -s $DIR/.irssi/config ~/.irssi/config

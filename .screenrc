@@ -1,4 +1,11 @@
 hardstatus alwayslastline "%?%{yk}%-Lw%?%{wb}%n*%f %t%?(%u)%?%?%{yk}%+Lw%?"
+
+termcapinfo xterm* ti@:te@
+
+# termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'
+# defhstatus "screen ^E (^Et) | $USER@^EH"
+# hardstatus off
+
 startup_message off
 msgwait 2
 defscrollback 30000

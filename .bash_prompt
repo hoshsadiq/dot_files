@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
 ps1_smiley() {
-  printf "%s" "${COLOR_RESET}─[\`if [[ \$? = "0" ]]; then echo "\\[\\033[32m\\]^_^"; else echo "\\[\\033[31m\\]O_O"; fi\`${COLOR_RESET}]"
+  echo -n "─["
+  if [[ "$?" = "0" ]]; then
+    echo -ne "${_color_green}^_^${_color_end}";
+  else
+    echo -ne "${_color_red}O_O${_color_end}";
+  fi
+  echo -n "]"
 }
 
 ps1_pwd() {
-  printf "%s" "${COLOR_RESET}─[\[${COLOR_BRIGHT_BLUE}\]\W\[${COLOR_RESET}\]]"
-}
-
-ps1_usercolor()
-{
-  if (( $UID == 0 )) ; then
-    printf "%s" "${COLOR_RED}"
-  else
-    printf "%s" "${COLOR_GREEN}"
-  fi
-}
-
-ps1_user()
-{
-  printf "%s" "\[${COLOR_RESET}\]─[\[$(ps1_usercolor)\]\u\[${COLOR_RESET}\]@\[${COLOR_CYAN}\]\h\[${COLOR_RESET}\]]"
+  printf "%s" "─[${_color_bright_blue}\W${_color_end}]"
 }
 
 ps1_identity() {
-  printf "%s" "$(ps1_user)$(ps1_smiley)"
+  echo -n "─["
+
+  # user color
+  if [[ ${USER} == "root" ]]; then
+     echo -ne "${_color_red}"
+  elif [[ ${USER} != $(logname) ]]; then
+     echo -ne "${_color_bright_red}"
+  else
+     echo -ne "${_color_green}"
+  fi
+
+  echo -ne "\u${_color_end}" # username
+  echo -ne "@${_color_cyan}\h${_color_end}" # @hostname
+  echo -n "]"
 }
 
 # Display the count of each if non-zero:
@@ -31,58 +36,47 @@ ps1_identity() {
 # - attached stopped jobs (suspended with Ctrl-Z)
 _ps1_jobcount_color()
 {
-    local running=$(( $(jobs -r | wc -l) ))
-    local stopped=$(( $(jobs -s | wc -l) ))
-    local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
-    local ret=""
+  local running=$(( $(jobs -r | wc -l) ))
+  local stopped=$(( $(jobs -s | wc -l) ))
+  local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
+  local ret=""
 
-    if [[ $n_screen != "0" ]] ; then
-        ret="${ret}${COLOR_YELLOW}${n_screen}d"
-    fi
+  if [[ $n_screen != "0" ]] ; then
+      ret="${ret}${_color_yellow}${n_screen}d${_color_end}"
+  fi
 
-    if [[ $running != "0" ]] ; then
-        if [[ $ret != "" ]] ; then ret="${ret}${COLOR_RESET}:"; fi
-        ret="${ret}${COLOR_YELLOW}${running}&"
-    fi
+  if [[ $running != "0" ]] ; then
+      if [[ $ret != "" ]] ; then ret="${ret}:"; fi
+      ret="${ret}${_color_yellow}${running}&${_color_end}"
+  fi
 
-    if [[ $stopped != "0" ]] ; then
-        if [[ $ret != "" ]] ; then ret="${ret}${COLOR_RESET}:"; fi
-        ret="${ret}${COLOR_YELLOW}${stopped}z"
-    fi
+  if [[ $stopped != "0" ]] ; then
+      if [[ $ret != "" ]] ; then ret="${ret}:"; fi
+      ret="${ret}${_color_yellow}${stopped}z${_color_end}"
+  fi
 
-    if [[ $ret != "" ]]; then
-      ret="${COLOR_RESET}─[${ret}${COLOR_RESET}]"
-    fi
-    echo -ne "$ret"
+  if [[ $ret != "" ]]; then
+    ret="─[${ret}]"
+  fi
+  echo -ne "$ret"
 }
 
 _ps1_permissions_color()
 {
-    if [[ -w "${PWD}" ]]; then
-        echo "${COLOR_GREEN}\$"
-    else
-        echo "${COLOR_RED}\$"
-    fi
-}
-
-_ps1_git_branch()
-{
-    local gitdir
-    gitdir="$([ $(git ls-files . 2>/dev/null | wc -l) -gt 0 ] && git rev-parse --git-dir 2>/dev/null)"
-    [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
-    local branch="$(git symbolic-ref HEAD 2>/dev/null)"
-    if [[ $? -ne 0 || -z "$branch" ]] ; then
-        # In detached head state, use commit instead
-        branch="$(git rev-parse --short HEAD 2>/dev/null)"
-    fi
-    [[ $? -ne 0 || -z "$branch" ]] && return
-    branch="${branch#refs/heads/}"
-    printf "%q" "$branch"
+  echo -n "\$"
+  return
+  if [[ -w "${PWD}" ]]; then
+      echo -ne "${_color_green}\$${_color_end}"
+  else
+      echo -ne "${_color_red}\$${_color_end}"
+  fi
 }
 
 ps1_git()
 {
-  local branch="" sha1="" line="" attr="" gitColor="" remote="" color=0
+  local branch="" sha1="" line="" gitColor="" remote="" branch_color=""
+  local behind="" ahead="" ahead_behind="" git_status="" status_chars=""
+  local gitdir="" conflicts=0
 
   shopt -s extglob # Important, for our nice matchers :)
 
@@ -91,74 +85,55 @@ ps1_git()
     return 0
   fi
 
-  branch=$(_ps1_git_branch)
-  if [[ -n "$branch" ]] ; then
-    # Now we display the branch.
-    sha1=$(git rev-parse --short --quiet HEAD)
+  # get the branch name
+  # gitdir="$([ $(git ls-files . 2>/dev/null | wc -l) -gt 0 ] && git rev-parse --git-dir 2>/dev/null)"
+  # [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
+  # branch="$(git symbolic-ref HEAD 2>/dev/null)"
+  # if [[ $? -ne 0 || -z "$branch" ]] ; then
+  #     # In detached head state, use commit instead
+  #     branch="$(git rev-parse --short HEAD 2>/dev/null)❍"
+  # fi
+  branch="$(git symbolic-ref HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)"
 
-    case "${branch:-"(no branch)"}" in
-     production|prod) attr="1;37m\033[" ; color=41 ;; # red
-     master|deploy)   color=31                     ;; # red
-     stage|staging)   color=33                     ;; # yellow
-     dev|develop|development) color=34             ;; # blue
-     next)            color=36                     ;; # gray
-     *)
-       if [[ -n "${branch}" ]] ; then # Feature Branch :)
-         color=32 # green
-       else
-         color=0 # reset
-       fi
-       ;;
-    esac
+  [[ $? -ne 0 || -z "$branch" ]] && return
 
-    
-    echo `git status` | grep "nothing to commit" > /dev/null 2>&1;
-    if [[ "$?" -eq "0" ]]; then
-      gitColor="${COLOR_GREEN}"
-    else
-      gitColor="${COLOR_RED}"
-    fi
+  branch="${branch#refs/heads/}"
 
-    [[ $color -gt 0 ]] &&
-      printf "${COLOR_RESET}─[${gitColor}git${COLOR_RESET}:\033[${attr}${color}m${branch}$(_ps1_git_around)$(ps1_git_status)${COLOR_RESET}\033[0m]"
-  fi
-}
+  # branch name and color first
+  case "${branch:-"(no branch)"}" in
+   production|prod)         branch_color="${_color_red}"        ;; # red
+   master|deploy)           branch_color="${_color_red}"        ;; # red
+   stage|staging)           branch_color="${_color_yellow}"     ;; # yellow
+   dev|develop|development) branch_color="${_color_blue}"       ;; # blue
+   next)                    branch_color="${_color_cyan}"       ;; # gray
+   *)                       branch_color="${_color_green}"      ;; # green
+  esac
+  branch_color="${branch_color}${branch}${_color_end}"
 
-_ps1_git_around()
-{
-  local branch=$(_ps1_git_branch)
-  local remote="$(git config --get branch.${branch}.remote 2>/dev/null)"
-  local behind=$(git log --oneline HEAD..${remote} | wc -l)
-  local ahead=$(git log --oneline ${remote}..HEAD | wc -l)
+  # are we behind or ahead?
+  remote="$(git config --get branch.${branch}.remote 2>/dev/null)"
+  behind=$(git log --oneline HEAD..${remote} | wc -l)
+  ahead=$(git log --oneline ${remote}..HEAD | wc -l)
+  conflicts="$(git diff --name-only --diff-filter=U | wc -l)"
+  [[ $behind -gt 0 ]]           && ahead_behind="${_color_red}↓${behind}${_color_end}"
+  [[ $ahead -gt 0 ]]            && ahead_behind="${ahead_behind}${_color_green}↑${ahead}${_color_end}"
+  [[ $conflicts -gt 0 ]]        && ahead_behind="${ahead_behind}${_color_bg_red}❗${conflicts}${_color_end}"
+  [[ "$ahead_behind" != "" ]]   && ahead_behind=":${ahead_behind}"
 
-  local status=""
+  # git the current status
+  git_status="$(git status 2>/dev/null)"
 
-  if [[ $behind -gt 0 ]] ; then
-      status="${COLOR_RED}<${behind}"
-  fi
-  if [[ $ahead -gt 0 ]] ; then
-      if [[ $status != "" ]] ; then status="${status}${COLOR_RESET}:"; fi
-      status="${status}${COLOR_GREEN}${ahead}>"
+  [[ "${git_status}" = *modified:* ]]                  && status_chars="${_color_yellow}*${_color_end}"
+  [[ "${git_status}" = *deleted* ]]                    && status_chars="${status_chars}${_color_red}✘${_color_end}"
+  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && status_chars="${status_chars}${_color_green}+${_color_end}"
+  [[ -n "$(git stash list 2>/dev/null)" ]]             && status_chars="${status_chars}${_color_yellow}…${_color_end}"
+  if [[ "$status_chars" != "" ]]; then
+    status_chars=":${status_chars}"
+  elif [[ $conflicts -eq 0 ]]; then
+    status_chars="${_color_green}✔${_color_end}"
   fi
 
-  [[ "$status" != "" ]] && status="${COLOR_RESET}:${status}"
-
-  printf "%s" "${status}"
-
-}
-
-ps1_git_status()
-{
-  local status="" git_status="$(git status 2>/dev/null)"
-
-  [[ "${git_status}" = *modified:* ]]                  && status="${status}${COLOR_YELLOW}*"
-  [[ "${git_status}" = *deleted* ]]                    && status="${status}${COLOR_RED}-"
-  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && status="${status}${COLOR_GREEN}+"
-  [[ -n "$(git stash list 2>/dev/null)" ]]             && status="${status}${COLOR_YELLOW}^"
-
-  [[ "$status" != "" ]] && status="${COLOR_RESET}:${status}"
-
-  printf "%s" "${status}"
+  printf "─[${branch_color}${ahead_behind}${status_chars}]"
 }
 
 ps1_titlebar()
@@ -167,10 +142,14 @@ ps1_titlebar()
     (xterm*|rxvt*)
       printf "%s" "\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]"
       ;;
+    # (screen)
+    #     printf "\033k%s\033\\" "\W"
+    #     screen -X eval "at \\# title \W" "shelltitle \W"
+    #   ;;
   esac
 }
 
 
-PS1="$(ps1_titlebar)\n\[${COLOR_RESET}\]┌$(ps1_identity)\$(_ps1_jobcount_color)$(ps1_pwd)\$(ps1_git)\n└$(_ps1_permissions_color)${COLOR_RESET} "
-PS2="  \[\033[0;40m\]\[\033[0;33m\]> \[\033[1;37m\]\[\033[1m\]"
-PS4="+ \${FUNCNAME[0]:+\${FUNCNAME[0]}()}  \${LINENO} > "
+export PS1="$(ps1_titlebar)\n┌$(ps1_identity)\$(ps1_smiley)\$(_ps1_jobcount_color)$(ps1_pwd)\$(ps1_git)\n└\$(_ps1_permissions_color) "
+export PS2="  \[\033[0;40m\]\[\033[0;33m\]> \[\033[1;37m\]\[\033[1m\]"
+export PS4="+ \${FUNCNAME[0]:+\${FUNCNAME[0]}()}  \${LINENO} > "
