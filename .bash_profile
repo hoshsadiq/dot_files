@@ -20,6 +20,7 @@ export DISPLAY=:0.0
 [[ -r ~/.bash_prompt ]] && . ~/.bash_prompt # promps
 [[ -r ~/.bash_completion ]] && . ~/.bash_completion # custom bash completition
 [[ -r ~/.bash_local ]] && . ~/.bash_local # custom bash completition
+[[ -r ~/.bashrc ]] && . ~/.bashrc
 
 # change the default pager for man to most
 export MANPAGER="/usr/bin/most -s"

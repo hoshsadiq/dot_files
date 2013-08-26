@@ -196,5 +196,3 @@
 # }
 # 
 # alias cd=cd_func
-
-[[ -r ~/.bash_profile ]] && . ~/.bash_profile
