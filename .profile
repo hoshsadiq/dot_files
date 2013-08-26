@@ -24,7 +24,8 @@
 # User dependent .profile file
 
 # Set user-defined locale
-export LANG=$(locale -uU)
+# export LANG=$(locale -uU)
+export LANG="en_GB.UTF-8"
 
 if [[ "$OSTYPE" == "cygwin" ]]; then
 	export CYGWIN="ntsec"
