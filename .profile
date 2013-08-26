@@ -26,6 +26,10 @@
 # Set user-defined locale
 export LANG=$(locale -uU)
 
+if [[ "$OSTYPE" == "cygwin" ]]; then
+	export CYGWIN="ntsec"
+fi
+
 # This file is not read by bash(1) if ~/.bash_profile or ~/.bash_login
 # exists.
 #
@@ -35,3 +39,29 @@ if [ -n "${BASH_VERSION}" ]; then
     source "${HOME}/.bashrc"
   fi
 fi
+
+# change the default pager for man to most
+export MANPAGER="/usr/bin/most -s"
+# bash settings
+export EDITOR='vim'
+
+# Show the date
+#date +"%A %_d %B %Y"
+#------------------------------------------
+#------WELCOME MESSAGE---------------------
+# customize this first message with a message of your choice.
+# this will display the username, date, time, a calendar, the amount of users, and the up time.
+clear
+if command -v figlet > /dev/null; then
+	# Gotta love ASCII art with figlet
+	figlet "Welcome, " $USER;
+else
+	echo "Welcome, " $USER;
+fi
+# usage of /: df -h / | awk '/\// { print $5,"of",$2 }'
+# processes running: ps -W | wc -l
+echo -e ""
+echo -ne "${_color_red}Current date       :${_color_end} ${_color_cyan}";		echo -n $(date +"%A %_d %B %Y %H:%M");					echo -e  "${_color_end}"
+echo -ne "${_color_red}Up time            :${_color_end} ${_color_cyan}";		uptime 2>/dev/null | sed 's/.*up \([^,]*\), .*/\1/';	echo -ne "${_color_end}"
+echo -ne "${_color_red}Kernel Information :${_color_end} ${_color_cyan}";		uname -smr;												echo -ne "${_color_end}"
+echo -e "\n${_color_red}Memory stats       :${_color_end} ${_color_cyan}" ;		free 2>/dev/null;										echo -ne "${_color_end}"

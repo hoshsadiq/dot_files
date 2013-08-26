@@ -154,16 +154,6 @@ mktgz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
 mktbz() { tar cvjf "${1%%/}.tar.bz2" "${1%%/}/"; }
 
 
-
-##################################################
-# Download all images from a 4chan thread  #
-##################################################
-
-function 4chanimages()
-{
-    curl -s http://boards.4chan.org/wg/|sed -r 's/.*href="([^"]*).*/\1\n/g'|grep images|xargs wget
-}
-
 ##################################################
 # Add a function you've defined to .bashrc   #
 ##################################################
