@@ -1,3 +1,7 @@
-BoldAsFont=no
-SwitchShortcuts=no
+BoldAsFont=yes
 CursorType=block
+FontIsBold=yes
+SwitchShortcuts=no
+RightClickAction=menu
+Scrollbar=none
+PgUpDnScroll=yes
