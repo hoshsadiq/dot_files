@@ -9,11 +9,57 @@ ps1_smiley() {
   echo -n "]"
 }
 
-ps1_pwd() {
-  printf "%s" "─[${_color_bright_blue}\W${_color_end}]"
+function _ps1_realpath()
+{
+    f=$1
+ 
+    if [ -d $f ]; then
+        base=""
+        dir=$f
+    else
+        base="/$(basename $f)"
+        dir=$(dirname $f)
+    fi
+ 
+    dir=$(cd $dir && pwd)
+ 
+    echo "$dir$base"
+}
+ 
+# Set prompt path to max 2 levels for best compromise of readability and usefulness
+_ps1_pwd () {
+
+  realpwd=$(_ps1_realpath $PWD)
+  realhome=$(_ps1_realpath $HOME)
+ 
+  echo -ne "─[${_color_bright_blue}"
+  # if we are in the home directory
+  if echo $realpwd | grep -q "^$realhome"; then
+      path=$(echo $realpwd | sed "s|^$realhome|\~|")
+      if [ $path = "~" ] || [ $(dirname $path) = "~" ]; then
+          echo -n $path
+      else
+          echo -n $(basename $(dirname $path))/$(basename $path)
+      fi
+      echo -ne "${_color_end}]"
+      return
+  fi
+ 
+  path_dir=$(dirname $PWD)
+  # if our parent dir is a top-level directory, don't mangle it
+  if [ $(dirname $path_dir) = "/" ]; then
+      echo -n $PWD
+  else
+      path_parent=$(basename $path_dir)
+      path_base=$(basename $PWD)
+
+      echo -n $path_parent/$path_base
+  fi
+  echo -ne "${_color_end}]"
 }
 
-ps1_identity() {
+
+_ps1_identity() {
   echo -n "─["
 
   # user color
@@ -72,7 +118,7 @@ _ps1_permissions_color()
   fi
 }
 
-ps1_git()
+_ps1_git()
 {
   local branch="" sha1="" line="" gitColor="" remote="" branch_color=""
   local behind="" ahead="" ahead_behind="" git_status="" status_chars=""
@@ -115,28 +161,30 @@ ps1_git()
   behind=$(git log --oneline HEAD..${remote} | wc -l)
   ahead=$(git log --oneline ${remote}..HEAD | wc -l)
   conflicts="$(git diff --name-only --diff-filter=U | wc -l)"
-  [[ $behind -gt 0 ]]           && ahead_behind="${_color_red}↓${behind}${_color_end}"
-  [[ $ahead -gt 0 ]]            && ahead_behind="${ahead_behind}${_color_green}↑${ahead}${_color_end}"
-  [[ $conflicts -gt 0 ]]        && ahead_behind="${ahead_behind}${_color_bg_red}❗${conflicts}${_color_end}"
+  [[ $behind -gt 0 ]]           && ahead_behind="${_color_red}↓${behind}${_color_end}" # arrow down means behind
+  [[ $ahead -gt 0 ]]            && ahead_behind="${ahead_behind}${_color_green}↑${ahead}${_color_end}" # arrow up means ahead
+  [[ $conflicts -gt 0 ]]        && ahead_behind="${ahead_behind}${_color_bg_red}❗${conflicts}${_color_end}" # exclamation means conflicts
   [[ "$ahead_behind" != "" ]]   && ahead_behind=":${ahead_behind}"
 
   # git the current status
   git_status="$(git status 2>/dev/null)"
 
-  [[ "${git_status}" = *modified:* ]]                  && status_chars="${_color_yellow}*${_color_end}"
-  [[ "${git_status}" = *deleted* ]]                    && status_chars="${status_chars}${_color_red}✘${_color_end}"
-  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && status_chars="${status_chars}${_color_green}+${_color_end}"
-  [[ -n "$(git stash list 2>/dev/null)" ]]             && status_chars="${status_chars}${_color_yellow}…${_color_end}"
+  [[ "${git_status}" = *modified:* ]]                  && status_chars="${_color_yellow}*${_color_end}" # star means modified files
+  [[ "${git_status}" = *deleted* ]]                    && status_chars="${status_chars}${_color_red}✘${_color_end}" # cross means deleted files
+  [[ "${git_status}" = *Untracked[[:space:]]files:* ]] && status_chars="${status_chars}${_color_green}+${_color_end}" # plus means added files
+  [[ -n "$(git stash list 2>/dev/null)" ]]             && status_chars="${status_chars}${_color_yellow}…${_color_end}" # multidots means we have code stashed
+
+  # separate status characters
   if [[ "$status_chars" != "" ]]; then
     status_chars=":${status_chars}"
   elif [[ "$ahead_behind" == "" ]]; then
-    status_chars="${_color_green}✔${_color_end}"
+    status_chars="${_color_green}✔${_color_end}" # clean repo means green tickmark!
   fi
 
   printf "─[${branch_color}${ahead_behind}${status_chars}]"
 }
 
-ps1_titlebar()
+_ps1_titlebar()
 {
   case $TERM in
     (xterm*|rxvt*)
@@ -150,6 +198,6 @@ ps1_titlebar()
 }
 
 
-export PS1="$(ps1_titlebar)\n┌$(ps1_identity)\$(ps1_smiley)\$(_ps1_jobcount_color)$(ps1_pwd)\$(ps1_git)\n└\$(_ps1_permissions_color) "
+export PS1="$(_ps1_titlebar)\n┌$(_ps1_identity)\$(ps1_smiley)\$(_ps1_jobcount_color)\$(_ps1_pwd)\$(_ps1_git)\n└\$(_ps1_permissions_color) "
 export PS2="  \[\033[0;40m\]\[\033[0;33m\]> \[\033[1;37m\]\[\033[1m\]"
 export PS4="+ \${FUNCNAME[0]:+\${FUNCNAME[0]}()}  \${LINENO} > "
