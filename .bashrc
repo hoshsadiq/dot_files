@@ -46,14 +46,22 @@ export DISPLAY=:0.0
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
 export HISTCONTROL=ignoredups:ignorespace:erasedups
-# append to history instead of replacing
-shopt -s histappend
+
+# bash options
+shopt -s histappend # append to history instead of replacing
+shopt -s checkwinsize # check window size
+shopt -s completion_strip_exe # foo.exe = foo
+shopt -s nocaseglob # ignore case
+
 # reload history after every command
 export PROMPT_COMMAND="history -a; history -c; history -r;"
 
-# autocomplete for aliases
-complete -A alias alias unalias
 
-# autocomplete ssh commands
+# autocomplete
+
+
+# for aliases
+complete -A alias alias unalias
+# ssh commands
 [[ -r ~/.ssh/config ]] && complete -W "$(echo `cat ~/.ssh/config | egrep '^Host ' | grep -v 'Host \*' | sort | uniq | sed 's/Host //' | tr ' ' '\n'`;)" scp sftp ssh
 [[ -r ~/.ssh/known_hosts ]] && complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e s/,.*//g | uniq | grep -v "\["`;)" scp sftp ssh
