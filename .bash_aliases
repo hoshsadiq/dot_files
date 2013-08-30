@@ -6,7 +6,7 @@ if [ "$OSTYPE" == "cygwin" ]; then
 fi
 
 alias grep="grep --color"
-alias reload=". ~/.bash_profile"
+# alias reload=". ~/.bash_profile"
 
 # Default to human readable figures
 alias df='df -h'

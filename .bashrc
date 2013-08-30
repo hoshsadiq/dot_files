@@ -50,8 +50,11 @@ export HISTCONTROL=ignoredups:ignorespace:erasedups
 # bash options
 shopt -s histappend # append to history instead of replacing
 shopt -s checkwinsize # check window size
-shopt -s completion_strip_exe # foo.exe = foo
 shopt -s nocaseglob # ignore case
+if [ "$OSTYPE" == "cygwin" ]; then
+	shopt -s completion_strip_exe # foo.exe = foo
+	EXECIGNORE=*.dll
+fi
 
 # reload history after every command
 export PROMPT_COMMAND="history -a; history -c; history -r;"

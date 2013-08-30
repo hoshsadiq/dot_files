@@ -19,9 +19,8 @@ cd ~
 [ -f .screenrc ] && mv .screenrc .screenrc.bak
 [ -f .Xresources ] && mv .Xresources .Xresources.bak
 [ -f .minttyrc ] && mv .minttyrc .minttyrc.bak
+[ -d .ssh ] && mv .ssh/config .ssh/config.bak
 [ -f ~/bin/updatepma ] && mv ~/bin/updatepma ~/bin/updatepma.bak
-[ -d .ssh ] && mv .ssh .ssh.bak
-[ ! -d .ssh ] && mkdir .ssh && chmod 700 .ssh
 [ -d .irssi ] && mv .irssi .irssi.bak
 [ ! -d .irssi ] && mkdir .irssi
 [ ! -d ~/bin ] && mkdir ~/bin
