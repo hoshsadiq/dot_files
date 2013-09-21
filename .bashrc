@@ -26,22 +26,8 @@
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
-# Set a local bin path
-export PATH="$PATH:$HOME/bin"
-export DISPLAY=:0.0
-
 # remove duplicate path entries
 #export PATH=$(echo $PATH | awk -F: '
-
-# include other files
-[[ -r /etc/bash_completion ]] && . /etc/bash_completion # custom autocompletion
-[[ -r ~/.bash_colors ]] && . ~/.bash_colors # colors
-[[ -r ~/.bash_aliases ]] && . ~/.bash_aliases # aliases
-[[ -r ~/.bash_functions ]] && . ~/.bash_functions # functions
-[[ -r ~/.bash_prompt ]] && . ~/.bash_prompt # promps
-[[ -r ~/.bash_completion ]] && . ~/.bash_completion # custom bash completition
-[[ -r ~/.bash_profile ]] && . ~/.bash_profile
-[[ -r ~/.bash_local ]] && . ~/.bash_local # custom bash completition
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
@@ -59,9 +45,7 @@ fi
 # reload history after every command
 export PROMPT_COMMAND="history -a; history -c; history -r;"
 
-
 # autocomplete
-
 
 # for aliases
 complete -A alias alias unalias

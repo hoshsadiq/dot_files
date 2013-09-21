@@ -31,20 +31,14 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
 	export CYGWIN="ntsec"
 fi
 
-# This file is not read by bash(1) if ~/.bash_profile or ~/.bash_login
-# exists.
-#
-# if running bash
-if [ -n "${BASH_VERSION}" ]; then
-  if [ -f "${HOME}/.bashrc" ]; then
-    source "${HOME}/.bashrc"
-  fi
-fi
-
 # change the default pager for man to most
-export MANPAGER="/usr/bin/most -s"
+export MANPAGER="/usr/bin/most -s" 
 # bash settings
 export EDITOR='vim'
+# Set a local bin path
+export PATH="$PATH:$HOME/bin"
+# X Server display
+export DISPLAY=:0.0
 
 # Show the date
 #date +"%A %_d %B %Y"
@@ -52,7 +46,7 @@ export EDITOR='vim'
 #------WELCOME MESSAGE---------------------
 # customize this first message with a message of your choice.
 # this will display the username, date, time, a calendar, the amount of users, and the up time.
-clear
+# clear
 if command -v figlet > /dev/null; then
 	# Gotta love ASCII art with figlet
 	figlet "Welcome, " $USER;

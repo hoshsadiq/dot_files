@@ -31,4 +31,4 @@ bindkey "^[[1;5I" next
 bindkey "^[[1;6I" prev
 
 
-
+shell -$SHELL

@@ -11,14 +11,14 @@ ps1_smiley() {
 
 function _ps1_realpath()
 {
-    f=$1
+    f="$1"
  
     if [ -d $f ]; then
         base=""
-        dir=$f
+        dir="$f"
     else
         base="/$(basename $f)"
-        dir=$(dirname $f)
+        dir="$(dirname $f)"
     fi
  
     dir=$(cd $dir && pwd)
@@ -29,31 +29,38 @@ function _ps1_realpath()
 # Set prompt path to max 2 levels for best compromise of readability and usefulness
 _ps1_pwd () {
 
-  realpwd=$(_ps1_realpath $PWD)
-  realhome=$(_ps1_realpath $HOME)
- 
+  realpwd="$(_ps1_realpath $PWD)"
+  realhome="$(_ps1_realpath $HOME)"
+
   echo -ne "─[${_color_bright_blue}"
   # if we are in the home directory
   if echo $realpwd | grep -q "^$realhome"; then
       path=$(echo $realpwd | sed "s|^$realhome|\~|")
-      if [ $path = "~" ] || [ $(dirname $path) = "~" ]; then
-          echo -n $path
+
+      if [ "$path" = "~" ] || [ $(dirname "$path") = "~" ]; then
+          echo -n "$path"
       else
-          echo -n $(basename $(dirname $path))/$(basename $path)
+          echo -n $(basename "$(dirname $path)")/$(basename "$path")
       fi
       echo -ne "${_color_end}]"
       return
   fi
- 
-  path_dir=$(dirname $PWD)
-  # if our parent dir is a top-level directory, don't mangle it
-  if [ $(dirname $path_dir) = "/" ]; then
-      echo -n $PWD
-  else
-      path_parent=$(basename $path_dir)
-      path_base=$(basename $PWD)
 
-      echo -n $path_parent/$path_base
+  # npwd="$PWD"
+  # if [[ "$OSTYPE" == "cygwin" ]]; then
+  #     npwd=$(echo $npwd | sed -r "s|^/cygdrive/([a-z]+)|\U\1:|")
+  # fi
+
+  path_dir="$(dirname "$npwd")"
+
+  # if our parent dir is a top-level directory, don't mangle it
+  if [ "$(dirname $path_dir)" = "/" ]; then
+      echo -n "$PWD"
+  else
+      path_parent="$(basename "$path_dir")"
+      path_base="$(basename "$PWD")"
+
+      echo -n "$path_parent/$path_base"
   fi
   echo -ne "${_color_end}]"
 }
@@ -84,7 +91,8 @@ _ps1_jobcount_color()
 {
   local running=$(( $(jobs -r | wc -l) ))
   local stopped=$(( $(jobs -s | wc -l) ))
-  local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
+  # local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
+  local n_screen=0
   local ret=""
 
   if [[ $n_screen != "0" ]] ; then
@@ -158,8 +166,8 @@ _ps1_git()
 
   # are we behind or ahead?
   remote="$(git config --get branch.${branch}.remote 2>/dev/null)"
-  behind=$(git log --oneline HEAD..${remote} | wc -l)
-  ahead=$(git log --oneline ${remote}..HEAD | wc -l)
+  behind=$(git log --oneline HEAD..${remote} 2>/dev/null | wc -l)
+  ahead=$(git log --oneline ${remote}..HEAD 2>/dev/null | wc -l)
   conflicts="$(git diff --name-only --diff-filter=U | wc -l)"
   [[ $behind -gt 0 ]]           && ahead_behind="${_color_red}↓${behind}${_color_end}" # arrow down means behind
   [[ $ahead -gt 0 ]]            && ahead_behind="${ahead_behind}${_color_green}↑${ahead}${_color_end}" # arrow up means ahead
