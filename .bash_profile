@@ -1,6 +1,7 @@
 # If not running interactively, don't do anything
 
-[[ -z "$PS1" ]] && echo "Not Interactive"
+[[ -z "$PS1" ]] && return
+[[ $TERM != "screen" ]] && screen
 
 # include other files
 [[ -r ~/.bash_colors ]] && . ~/.bash_colors # colors

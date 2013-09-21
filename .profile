@@ -46,7 +46,7 @@ export DISPLAY=:0.0
 #------WELCOME MESSAGE---------------------
 # customize this first message with a message of your choice.
 # this will display the username, date, time, a calendar, the amount of users, and the up time.
-# clear
+clear
 if command -v figlet > /dev/null; then
 	# Gotta love ASCII art with figlet
 	figlet "Welcome, " $USER;
