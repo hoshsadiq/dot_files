@@ -2,4 +2,13 @@
         Ctrl ~Shift <Key>Tab: string(0x1b) string("[27;5;9~") \n \
         Ctrl Shift <Key>Tab: string(0x1b) string("[27;6;9~") \n
 
+
 Xterm*loginShell: true
+
+
+! Setting this to false prevents my xterms from polling X for session
+! management, which reduces CPU usage on my laptop a bit.
+XTerm.sessionMgt: false
+
+! Don't copy trailing spaces.
+XTerm*TrimSelection: true

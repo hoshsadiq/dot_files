@@ -3,3 +3,10 @@
 	email = superaktieboy@gmail.com
 [core]
 	autocrlf = false
+[color]
+	diff = auto
+	ui = auto
+[branch]
+	autosetupmerge = true
+[alias]
+	unstage = reset HEAD --

@@ -1,9 +1,24 @@
 # If not running interactively, don't do anything
 
 [[ -z "$PS1" ]] && return
-[[ $TERM != "screen" ]] && screen
 
 # include other files
+if [[ $TERM != "screen" ]]; then
+	### Launch Screen automatically ###  
+	echo
+	for i in 3 2 1 ; do
+		printf "\rStarting screen in %d seconds, press Q to cancel." $i
+		read -n 1 -t 1 -s a && break
+	done
+
+	set a = $a | tr '[A-Z]' '[a-z]'
+	if [ "$a" != "q" ]; then
+		screen -D -R main
+		logout
+	fi
+	echo "Canceled"
+fi
+
 [[ -r ~/.bash_colors ]] && . ~/.bash_colors # colors
 [[ -r ~/.bash_aliases ]] && . ~/.bash_aliases # aliases
 [[ -r ~/.bash_functions ]] && . ~/.bash_functions # functions
