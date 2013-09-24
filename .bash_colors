@@ -33,6 +33,11 @@ _color_bg_reset="\e[;49m"
 
 _color_end="\e[m"
 
+# todo
+_color() {
+   color="$1"
+}
+
 # testing function
 color_test() {
    ## normal

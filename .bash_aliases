@@ -6,15 +6,15 @@ if [ "$OSTYPE" == "cygwin" ]; then
 fi
 
 alias grep="grep --color"
-alias reload=". ~/.bash_profile"
+# alias reload=". ~/.bash_profile"
 
 # Default to human readable figures
 alias df='df -h'
 alias du='du -h'
 
 # Misc
-alias less=$MANPAGER
-alias more=$MANPAGER
+alias less='most -s'
+alias more='most -s'
 alias whence='type -a'
 alias grep='grep --color'
 alias egrep='egrep --color=auto'

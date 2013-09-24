@@ -1,34 +1,49 @@
-hardstatus alwayslastline "%?%{yk}%-Lw%?%{wb}%n*%f %t%?(%u)%?%?%{yk}%+Lw%?"
+hardstatus off
+backtick 1 1200 1200 whoami
+caption always "%c | %-Lw%{= kw}%50>%n* %t%{-}%+Lw%<"
 
-termcapinfo xterm* ti@:te@
+# Add stuff to xterm (and cousins) title bars.  This is a moderate abuse of the
+# hardstatus feature--it just puts the hardstatus stuff into an xterm title
+# bar.
+termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'
+defhstatus "^Et(^E) | $USER@^EH"
+hardstatus off
 
-# termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'
-# defhstatus "screen ^E (^Et) | $USER@^EH"
-# hardstatus off
-
+# I know about screen.  I don't need to see it every time I start the program.
+# (Which is, admittedly, rarely.)
 startup_message off
+
 msgwait 2
+# I like a large scrollback
 defscrollback 30000
+# Run everything in UTF-8.
 defutf8 on
+# If a window goes unresponsive, don't block the whole session waiting for it.
 defnonblock on
+# Never, ever turn this off.
 autodetach on
+# I like to hear the beep.
+vbell off
 
-# These break htop
-#bindkey -k k1 select 1
-#bindkey -k k2 select 2
-#bindkey -k k3 select 3
-#bindkey -k k4 select 4
-#bindkey -k k5 select 5
-#bindkey -k k6 select 6
-#bindkey -k k7 select 7
-#bindkey -k k8 select 8
-#bindkey -k k9 select 9
-#bindkey -k k; select 10
-#bindkey -k F1 select 11
-#bindkey -k F2 select 12
-
+# Ctrl+tab and Ctrl+shift+tab switch windows
 bindkey "^[[1;5I" next
 bindkey "^[[1;6I" prev
 
 
+# Make shift-PgUp and shift-PgDn work like they do in xterm.  (Note that this
+# requires xterm to be configured to pass those keys through, and not try to
+# act on them itself.)
+bindkey "^[[5;2~" eval "copy" "stuff ^u"
+bindkey -m "^[[5;2~" stuff ^u
+bindkey -m "^[[6;2~" stuff ^d
 
+# Window numbering starts at 1, not 0.
+bind c screen 1
+bind 0 select 10
+
+
+# Per host screenrc, perhaps to be used later?
+# source ~/.screenrc-${HOST}
+
+# load a login shell
+shell -$SHELL

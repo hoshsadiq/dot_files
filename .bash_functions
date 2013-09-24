@@ -215,3 +215,9 @@ function google() {
     echo 'Usage: google seach terms';
   fi
 }
+
+function json_pretty() {
+  php -r "echo json_encode(json_decode(file_get_contents('$1')), JSON_PRETTY_PRINT);"
+}
+
+
