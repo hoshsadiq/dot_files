@@ -45,6 +45,7 @@ fi
 export MANPAGER="/usr/bin/most -s"
 # bash settings
 export EDITOR='vim'
+export GIT_EDITOR="$EDITOR"
 
 # Show the date
 #date +"%A %_d %B %Y"
