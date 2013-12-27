@@ -33,6 +33,10 @@
 # ... or force ignoredups and ignorespace
 export HISTCONTROL=ignoredups:ignorespace:erasedups
 
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# HISTSIZE=1000
+# HISTFILESIZE=2000
+
 # bash options
 shopt -s histappend # append to history instead of replacing
 shopt -s checkwinsize # check window size
@@ -41,6 +45,9 @@ if [ "$OSTYPE" == "cygwin" ]; then
 	shopt -s completion_strip_exe # foo.exe = foo
 	EXECIGNORE=*.dll
 fi
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # reload history after every command
 export PROMPT_COMMAND="history -a; history -c; history -r;"

@@ -5,9 +5,6 @@ if [ "$OSTYPE" == "cygwin" ]; then
 	alias cygsetup="cygstart /setup.exe"
 fi
 
-alias grep="grep --color"
-# alias reload=". ~/.bash_profile"
-
 # Default to human readable figures
 alias df='df -h'
 alias du='du -h'
@@ -16,24 +13,26 @@ alias du='du -h'
 alias less='most -s'
 alias more='most -s'
 alias whence='type -a'
-alias grep='grep --color'
+alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias path='echo -e ${PATH//:/\\n}'
 
 # Some shortcuts for different directory listings
-alias ls='ls -hF --color=tty --group-directories-first'
+alias ls='ls -hF --color=auto --group-directories-first'
 alias dir='ls --color=auto --format=vertical'
 alias vdir='ls --color=auto --format=long'
 alias ll='ls -l'
-#alias lsd='ll | `which grep` --color=never "^d"'
+alias lsd='ll | grep --color=never "^d"'
 alias lla='ll -a'
 alias la='ls -A'
 alias l='ls -CF'
 
-## need a linux alternative!
+# todo: fix linux alternative
 if [ "$OSTYPE" == "cygwin" ]; then
 	alias ip="ipconfig | grep -v 127.0.0.1 | awk '/IPv4/ { print $NF }' | sed -e 's/^/\t\t/'"
+else:
+	alias ip="ifconfig | grep "inet addr" | awk '{ print $3 }' | awk -F ':' '{ print $2 }'"
 fi
 alias extip='curl ifconfig.me'
 alias ipinfo='curl ifconfig.me/all'
@@ -52,6 +51,10 @@ alias tab2space="find -name '*.php' -exec sed -i 's/\t/    /g' {} +"
 #:q for bash
 alias :q='read -s -n1 -p "Do you realy want to quit the shell? [y]|n "; if [ "$REPLY" = y -o "$REPLY" = Y -o "$REPLY" = " " -o "$REPLY" = "" ]; then exit; else echo; unset REPLY; fi'
 
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
 # privileged access
 if [[ $UID -ne 0 ]]; then
    #alias sudo='sudo '
@@ -62,3 +65,4 @@ if [[ $UID -ne 0 ]]; then
    alias shutdown='sudo shutdown -t3 -h now'
 fi
 
+[[ -r ~/.bash_local_aliases ]] && . ~/.bash_local_aliases # local aliases

@@ -21,8 +21,6 @@ cd ~
 [ -f .minttyrc ] && mv .minttyrc .minttyrc.bak
 [ -d .ssh ] && mv .ssh/config .ssh/config.bak
 [ -f ~/bin/updatepma ] && mv ~/bin/updatepma ~/bin/updatepma.bak
-[ -d .irssi ] && mv .irssi .irssi.bak
-[ ! -d .irssi ] && mkdir .irssi
 [ ! -d ~/bin ] && mkdir ~/bin
 
 if command -v git > /dev/null; then 
@@ -37,7 +35,6 @@ else
     echo "│ /bin/bash ~/.vim_runtime/install_awesome_vimrc.sh                       │"
     echo "└─────────────────────────────────────────────────────────────────────────┘"
 fi
-
 
 ln -s $DIR/.bashrc ~/.bashrc
 ln -s $DIR/.bash_aliases ~/.bash_aliases
@@ -65,30 +62,3 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
 	wget -P ~/bin http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
 	chmod +x ~/bin/apt-cyg
 fi
-
-
-# irssi requires a bit more work
-ln -s $DIR/.irssi/config ~/.irssi/config
-ln -s $DIR/.irssi/default.theme ~/.irssi/default.theme
-
-[ ! -d ~/.irssi/scripts ] && mkdir ~/.irssi/scripts
-[ ! -d ~/.irssi/scripts/autorun ] && mkdir ~/.irssi/scripts/autorun
-ln -s $DIR/.irssi/scripts/hilightwin.pl ~/.irssi/scripts/hilightwin.pl
-ln -s $DIR/.irssi/scripts/irssinotifier.pl ~/.irssi/scripts/irssinotifier.pl
-ln -s $DIR/.irssi/scripts/nickcolor.pl ~/.irssi/scripts/nickcolor.pl
-ln -s $DIR/.irssi/scripts/usercount.pl ~/.irssi/scripts/usercount.pl
-ln -s ~/.irssi/scripts/hilightwin.pl ~/.irssi/scripts/autorun/hilightwin.pl
-ln -s ~/.irssi/scripts/irssinotifier.pl ~/.irssi/scripts/autorun/irssinotifier.pl
-ln -s ~/.irssi/scripts/nickcolor.pl ~/.irssi/scripts/autorun/nickcolor.pl
-ln -s ~/.irssi/scripts/usercount.pl ~/.irssi/scripts/autorun/usercount.pl
-
-echo "┌─────────────────────────────────────────────────────────────────────────┐"
-echo -e "│ \033[32mAll Linux configuration files are now installed.\033[0m                        │"
-echo "├─────────────────────────────────────────────────────────────────────────┤"
-echo "│ PhpStorm settings are available also.                                   │"
-echo "│ Please import it manually using the following steps:                    │"
-echo -e "│  1. Launch \033[35mPhpStorm\033[0m                                                     │"
-echo -e "│  2. Click on \033[35mFile\033[0m                                                       │"
-echo -e "│  3. Click on \033[35mImport Settings...\033[0m                                         │"
-echo -e "│  4. Point the importer to \033[35m$DIR/PhpStorm.jar\033[0m"
-echo "└─────────────────────────────────────────────────────────────────────────┘"
