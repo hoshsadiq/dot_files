@@ -10,7 +10,6 @@ cd ~
 [ -f .bash_functions ] &&  mv .bash_functions .bash_functions.bak
 [ -f .bash_profile ] &&  mv .bash_profile .bash_profile.bak
 [ -f .bash_prompt ] &&  mv .bash_prompt .bash_prompt.bak
-[ -f .git_completion ] &&  mv .git_completion .git_completion.bak
 [ -f .gitconfig ] &&  mv .gitconfig .gitconfig.bak
 [ -f .profile ] &&  mv .profile .profile.bak
 [ -f .vimrc ] &&  mv .vimrc .vimrc.bak
@@ -43,7 +42,6 @@ ln -s $DIR/.bash_completion ~/.bash_completion
 ln -s $DIR/.bash_functions ~/.bash_functions
 ln -s $DIR/.bash_profile ~/.bash_profile
 ln -s $DIR/.bash_prompt ~/.bash_prompt
-ln -s $DIR/.git_completion ~/.git_completion
 ln -s $DIR/.gitconfig ~/.gitconfig
 ln -s $DIR/.profile ~/.profile
 ln -s $DIR/.wgetrc ~/.wgetrc
