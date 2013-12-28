@@ -10,8 +10,8 @@ alias df='df -h'
 alias du='du -h'
 
 # Misc
-alias less='most -s'
-alias more='most -s'
+# alias less='most -s'
+alias more='less'
 alias whence='type -a'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
