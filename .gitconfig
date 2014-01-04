@@ -1,16 +1,32 @@
 [user]
-	name = hoshsadiq
-	email = superaktieboy@gmail.com
+    name = hoshsadiq
+    email = superaktieboy@gmail.com
 [core]
-	autocrlf = input
+    autocrlf = input
 [color]
-	diff = auto
-	ui = auto
+    diff = auto
+    ui = auto
 [push]
-	default = simple
+    default = simple
 [branch]
-	autosetupmerge = true
+    autosetupmerge = true
 [alias]
-	unstage = reset HEAD --
-	graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
-	root = !pwd
+    unstage = reset HEAD --
+    graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
+    root = !pwd
+    co = checkout
+    ci = commit
+    st = status
+    br = branch
+    hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+    type = cat-file -t
+    dump = cat-file -p
+    ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+    ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+    le = log --oneline --decorate
+    filelog = log -u
+    fl = log -u
+    dl = "!git ll -1"
+    dlc = diff --cached HEAD^

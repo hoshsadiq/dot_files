@@ -28,6 +28,13 @@ alias lla='ll -a'
 alias la='ls -A'
 alias l='ls -CF'
 
+# you're a git!!!
+alias gits='git status'
+
+alias got='git'
+alias gut='git'
+alias get='git'
+
 # todo: fix linux alternative
 if [ "$OSTYPE" == "cygwin" ]; then
 	alias ip="ipconfig | grep -v 127.0.0.1 | awk '/IPv4/ { print $NF }' | sed -e 's/^/\t\t/'"
@@ -46,6 +53,7 @@ alias folders="find . -maxdepth 1 -type d -print | xargs du -sk | sort -rn"
 # assumes file exist. maybe create in install.sh?
 alias trash='mv -t ~/.local/share/Trash/files --backup=t'
 
+# Converts tabs to spaces in PHP files
 alias tab2space="find -name '*.php' -exec sed -i 's/\t/    /g' {} +"
 
 #:q for bash

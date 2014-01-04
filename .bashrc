@@ -34,8 +34,12 @@
 export HISTCONTROL=ignoredups:ignorespace:erasedups
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-# HISTSIZE=1000
-# HISTFILESIZE=2000
+export HISTSIZE=10000
+export HISTFILESIZE=200000
+
+# Highlight less
+export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
+export LESS=' -R'
 
 # bash options
 shopt -s histappend # append to history instead of replacing
@@ -47,7 +51,8 @@ if [ "$OSTYPE" == "cygwin" ]; then
 fi
 
 # make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# disabled because it will interfere with highlighting less
+# [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # reload history after every command
 export PROMPT_COMMAND="history -a; history -c; history -r;"

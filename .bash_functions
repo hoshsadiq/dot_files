@@ -40,9 +40,7 @@ cdup(){
 
 # easier column printing with awk
 fawk() {
-   first="awk '{print "
-   last="}'"
-   cmd="${first}\$${1}${last}"
+   cmd="awk '{print \$${1}${last}}'"
    eval $cmd
 }
 
@@ -124,7 +122,7 @@ h () {
 }
 
 
-#test if a file should be opened normally, or as root (vi)
+# test if a file should be opened normally, or as root (vi)
 reqroot () {
   count=0;
   for arg in "$@"; do
@@ -148,20 +146,28 @@ vi () {
   fi
 }
 
-# --// Creates an archive from given directory //--
+# Creates an archive from given directory
 mktar() { tar cvf  "${1%%/}.tar"     "${1%%/}/"; }
 mktgz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
 mktbz() { tar cvjf "${1%%/}.tar.bz2" "${1%%/}/"; }
 
+# Touchscreen toggling
+function touchscreen() {
+  local devid="$(xinput | grep Touchscreen | awk '{ print $5 }' | awk -F '=' '{ print $2 }')"
+  case "$1" in
+    "off")
+      xinput set-prop $devid 'Device Enabled' 0
+      ;;
+    *)
+      xinput set-prop $devid 'Device Enabled' 1
+      ;;
+  esac
+}
 
-##################################################
-# Add a function you've defined to .bashrc   #
-##################################################
+# Add defined function in bash to ~/.bash_functions
+function addfunction() { declare -f $1 >> ~/.bash_functions ; }
 
-function addfunction() { declare -f $1 >> ~/.bashrc ; }
-
-
-###### pretend to be busy in office to enjoy a cup of coffee
+# pretend to be busy in office to enjoy a cup of coffee
 function allhackingandshit()
 {
   cat /dev/urandom | hexdump -C | grep --color=auto "ca fe"
@@ -177,31 +183,21 @@ function hgg()
     fi
 }
 
-
-
-##################################################
-# Lists unique IPs currently connected to    #
-# logged-in system & how many concurrent   #
-# connections each IP has      #
-##################################################
-
+# Lists unique IPs currently connected to
+# logged-in system & how many concurrent
+# connections each IP has
 function connections()
 {
   "netstat -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n"
 }
 
-##################################################
-# Reminder for whatever whenever     #
-##################################################
-
+# Reminder for whatever whenever
 function remindme()
 {
   sleep $1 && zenity --info --text "$2" &
 }
 
-
-
-### google search
+# google search
 function google() {
   if [[ $1 ]]; then
     q="$@"
@@ -219,5 +215,3 @@ function google() {
 function json_pretty() {
   php -r "echo json_encode(json_decode(file_get_contents('$1')), JSON_PRETTY_PRINT);"
 }
-
-
