@@ -215,3 +215,9 @@ function google() {
 function json_pretty() {
   php -r "echo json_encode(json_decode(file_get_contents('$1')), JSON_PRETTY_PRINT);"
 }
+
+# out puts the pid of the first grepped process
+greppid () 
+{ 
+    ps aux | grep --color=auto $1 | head -n 1 | awk '{ print $2 }'
+}
