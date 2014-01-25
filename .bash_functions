@@ -217,7 +217,21 @@ function json_pretty() {
 }
 
 # out puts the pid of the first grepped process
-greppid () 
-{ 
-    ps aux | grep --color=auto $1 | head -n 1 | awk '{ print $2 }'
+function greppid () {
+  local context=0
+  local proc=$1
+  if [[ "$1" == "--context" ]]; then
+    context=1
+    proc=$2
+  else
+    if [[ "$2" == "--context" ]]; then
+      context=1
+    fi
+  fi
+
+  if [[ "$context" == "1" ]]; then
+    ps aux | grep $proc | head -n 1
+  else
+    ps aux | grep $proc | head -n 1 | awk '{ print $2 }'
+  fi
 }
