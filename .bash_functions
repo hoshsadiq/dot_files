@@ -235,3 +235,12 @@ function greppid () {
     ps aux | grep $proc | head -n 1 | awk '{ print $2 }'
   fi
 }
+
+
+function ask() {
+  read -p "$@ [y/N] " ans
+  case "$ans" in
+    y|Y|yes|Yes) return 0;;
+    *) return 1;;
+  esac
+}

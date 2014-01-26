@@ -64,3 +64,8 @@ complete -A alias alias unalias
 # ssh commands
 [[ -r ~/.ssh/config ]] && complete -W "$(echo `cat ~/.ssh/config | egrep '^Host ' | grep -v 'Host \*' | sort | uniq | sed 's/Host //' | tr ' ' '\n'`;)" scp sftp ssh
 [[ -r ~/.ssh/known_hosts ]] && complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e s/,.*//g | uniq | grep -v "\["`;)" scp sftp ssh
+
+
+
+[[ -r ~/.bashrc_local ]] && . ~/.bashrc_local # local bashrc
+

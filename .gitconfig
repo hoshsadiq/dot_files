@@ -3,9 +3,14 @@
     email = superaktieboy@gmail.com
 [core]
     autocrlf = input
+    editor = vim
 [color]
     diff = auto
     ui = auto
+    status = auto
+    branch = auto
+    interactive = auto
+    pager = true
 [push]
     default = simple
 [branch]
