@@ -1,9 +1,7 @@
-[user]
-    name = hoshsadiq
-    email = superaktieboy@gmail.com
 [core]
     autocrlf = input
     editor = vim
+    excludesfile = ~/.gitignore
 [color]
     diff = auto
     ui = auto
@@ -35,3 +33,7 @@
     fl = log -u
     dl = "!git ll -1"
     dlc = diff --cached HEAD^
+    prune = fetch --prune
+    undo = reset --soft HEAD^
+    stash-all = stash save --include-untracked
+    glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
