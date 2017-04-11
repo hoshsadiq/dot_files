@@ -1,3 +1,12 @@
+kubectl() {
+  local namespace
+  if [ ! -z "$KUBECTL_NAMESPACE" ]; then
+    /usr/local/bin/kubectl --namespace "$KUBECTL_NAMESPACE" "$@"
+  else
+    /usr/local/bin/kubectl "$@"
+  fi
+}
+
 # extract files
 # Maybe add install instructions if not installed?
 extract () {
@@ -90,35 +99,6 @@ note () {
    else
       echo "$@" >> $HOME/.notes
    fi
-}
-
-# outputs stuff to figure out what a command does
-h () {
-  for ARG; do
-    case `type -t "$ARG"` in 
-      alias) alias "$ARG";;
-      keyword) type $ARG;;
-      function) type $ARG;;
-      builtin) help $ARG;;
-      file) FILE=`which "$ARG"`
-        case `file --mime --dereference --brief "$FILE"` in
-      text/*|application/x-sh)
-        if [[ 50 -gt `wc -l <"$FILE"` ]]; then cat "$FILE"
-        else echo "$FILE is quite a long text file. I will not cat it."; fi
-        ;;
-      application/*)
-        if man "$ARG" >/dev/null 2>&1; then
-          man "$ARG"
-        else
-          echo "$FILE is a compiled executable or unsupported format."
-          echo "It does not have a man page installed. Try '$FILE --help' or '-h'."
-        fi
-        ;;
-    esac
-    ;;
-      *) echo "Error: '$ARG' not recognized." 1>&2;;
-    esac
-  done
 }
 
 

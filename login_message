@@ -1,0 +1,26 @@
+
+# Show the date
+#date +"%A %_d %B %Y"
+#------------------------------------------
+#------WELCOME MESSAGE---------------------
+# customize this first message with a message of your choice.
+
+# usage of /: df -h / | awk '/\// { print $5,"of",$2 }'
+# processes running: ps -W | wc -l
+echo -e ""
+
+echo -ne "$fg[red]Current date       :$fg[white] $fg[cyan]";
+echo -n $(date +"%A %_d %B %Y %H:%M");
+echo -e  "$fg[white]"
+
+echo -ne "$fg[red]Up time            :$fg[white] $fg[cyan]";
+uptime 2>/dev/null | sed 's/.*up \([^,]*\), .*/\1/';
+echo -ne "$fg[white]"
+
+echo -ne "$fg[red]Kernel Information :$fg[white] $fg[cyan]";
+uname -smr;
+echo -ne "$fg[white]"
+
+echo -e "\n$fg[red]Memory stats       :$fg[white] $fg[cyan]";
+free 2>/dev/null;
+echo -ne "$fg[white]"

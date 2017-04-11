@@ -1,0 +1,27 @@
+# If you come from bash you might have to change your $PATH.
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+export PATH=$HOME/bin:$PATH
+export PATH=$JAVA_HOME/bin:$PATH
+export SDKMAN_DIR="$HOME/.sdkman"
+export ZSH="$HOME/.oh-my-zsh"
+
+# Highlight less
+export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
+export LESS=' -R'
+
+export LC_ALL=en_GB.UTF-8
+export LANG=en_GB.UTF-8
+export LOCALE=en_GB.UTF-8
+
+# editor
+export EDITOR='vim'
+export GIT_EDITOR="$EDITOR"
+
+export HISTCONTROL=ignoredups
+
+# X Server display
+export DISPLAY=:0.0
+
+if [[ "$OSTYPE" == "cygwin" ]]; then
+	export CYGWIN="ntsec"
+fi

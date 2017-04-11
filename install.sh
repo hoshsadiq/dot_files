@@ -19,10 +19,9 @@ cd ~
 [ -f .Xresources ] && mv .Xresources .Xresources.bak
 [ -f .minttyrc ] && mv .minttyrc .minttyrc.bak
 [ -d .ssh ] && mv .ssh/config .ssh/config.bak
-[ -f ~/bin/updatepma ] && mv ~/bin/updatepma ~/bin/updatepma.bak
 [ ! -d ~/bin ] && mkdir ~/bin
 
-if command -v git > /dev/null; then 
+if command -v git > /dev/null; then
 	git clone git://github.com/amix/vimrc.git ~/.vim_runtime
 	/bin/bash ~/.vim_runtime/install_awesome_vimrc.sh
 else
@@ -51,6 +50,7 @@ ln -s $DIR/.Xresources ~/.Xresources
 ln -s $DIR/.minttyrc ~/.minttyrc
 ln -s $DIR/bin/updatepma ~/bin/updatepma
 ln -s $DIR/.ssh/config ~/.ssh/config
+ln -s $DIR/dot_files/.zshrc ~/.zshrc
 chmod 700 $DIR/.ssh/config
 chmod u+x ~/bin/updatepma
 
