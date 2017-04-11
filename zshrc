@@ -41,3 +41,5 @@ bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
 
 [ -f /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
+
+source "$DOT_FILES/login_message"
