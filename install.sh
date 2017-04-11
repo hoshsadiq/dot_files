@@ -25,13 +25,15 @@ else
 	exit 1;
 fi
 
-echo "Installing vim_runtime"
-git clone git://github.com/amix/vimrc.git "$HOME/.vim_runtime"
-/bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
+if [ ! -d "$HOME/.vim_runtime" ]; then
+	echo "Installing vim_runtime"
+	git clone git://github.com/amix/vimrc.git "$HOME/.vim_runtime"
+	/bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
+fi
 
 echo "Setting up dot_files"
 DOT_FILES="$HOME/dot_files"
-git clone git@github.com/hoshsadiq/dot_files.git "$DOT_FILES"
+git clone "git://github.com/hoshsadiq/dot_files.git" "$DOT_FILES"
 
 declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv")
 

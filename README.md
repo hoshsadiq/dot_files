@@ -5,7 +5,7 @@ Probably more to come
 
 ## Install
 ```
-curl "https://raw.githubusercontent.com/hoshsadiq/dot_files/zsh/install.sh?`date +%Y%m%d%H%m%s`" | bash
+curl "https://raw.githubusercontent.com/hoshsadiq/dot_files/zsh/install.sh?`date +%Y%m%d%H%m%s`" -s | bash
 ```
 
 ## Bugs
