@@ -2,7 +2,7 @@
 
 # todo: install relevant packages
 if [ "$OSTYPE" == "linux-gnu" ]; then
-	if cat /etc/*release | grep ^NAME | grep Ubuntu; then
+	if cat /etc/*release | grep -q ^NAME | grep Ubuntu; then
 		sudo apt-get install git zsh
 		sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 	else
