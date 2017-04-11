@@ -33,13 +33,17 @@ fi
 
 echo "Setting up dot_files"
 DOT_FILES="$HOME/dot_files"
-git clone "git://github.com/hoshsadiq/dot_files.git" "$DOT_FILES"
+if [ ! -d "$DOT_FILES" ]; then
+	git clone "git://github.com/hoshsadiq/dot_files.git" "$DOT_FILES"
+fi
+
+(cd "$DOT_FILES" && git pull)
 
 declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv")
 
 ## now loop through the above array
 for file in "${files[@]}"
 do
-   [ -f "$HOME/.$file" ] &&  mv "$HOME/.$file" "$HOME/.$file"
+   [ -f "$HOME/.$file" ] &&  mv "$HOME/.$file" "$DOT_FILES/.$file"
 	 ln -s "$DOT_FILES/$file" "$HOME/.$file"
 done
