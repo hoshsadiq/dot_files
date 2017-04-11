@@ -29,8 +29,8 @@ plugins=(\
     zsh-syntax-highlighting\
     zsh-history-substring-search)
 
-source "$DOT_FILES/.powerlevel9k_config"
-source "$DOT_FILES/.zsh_exports"
+source "$DOT_FILES/powerlevel9k_config"
+source "$DOT_FILES/zsh_exports"
 source "$ZSH/oh-my-zsh.sh"
 # source $HOME/bashrc_enhancements/files/ssh
 
