@@ -5,8 +5,7 @@ Probably more to come
 
 ## Install
 ```
-git clone git://github.com/hoshsadiq/dot_files.git ~/dot_files
-sh ~/dot_files/install.sh
+curl "https://raw.githubusercontent.com/hoshsadiq/dot_files/zsh/install.sh?`date +%Y%m%d%H%m%s`" | bash
 ```
 
 ## Bugs
