@@ -31,6 +31,11 @@ if [ ! -d "$HOME/.vim_runtime" ]; then
 	/bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
 fi
 
+powerlevel9k="$HOME/.oh-my-zsh/custom/themes/powerlevel9k"
+if [ ! -d "$powerlevel9k" ]; then
+	git clone https://github.com/bhilburn/powerlevel9k.git "$powerlevel9k"
+fi
+
 echo "Setting up dot_files"
 DOT_FILES="$HOME/dot_files"
 if [ ! -d "$DOT_FILES" ]; then
