@@ -13,6 +13,7 @@ echo -ne "$fg[red]Current date       :$fg[white] $fg[cyan]";
 echo -n $(date +"%A %_d %B %Y %H:%M");
 echo -e  "$fg[white]"
 
+# todo: WSL reports 0 when starting a new sessions
 echo -ne "$fg[red]Up time            :$fg[white] $fg[cyan]";
 uptime 2>/dev/null | sed 's/.*up \([^,]*\), .*/\1/';
 echo -ne "$fg[white]"

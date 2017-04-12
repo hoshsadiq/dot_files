@@ -2,7 +2,7 @@
 
 set -e
 
-# todo install kubectl, awscli, awesome-patched fonts
+# todo install kubectl, awscli, awesome-patched fonts, git-crypt
 # todo ssh config
 
 if [ "$OSTYPE" == "linux-gnu" ]; then
@@ -30,6 +30,7 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
 	exit 1;
 elif [[ "$OSTYPE" == "darwin"* ]]; then
 	kubectlSuffix="windows/amd64/kubectl.exe"
+	brew install git-crypt
 	echo "Implement MacOS"
 	exit 1;
 else
@@ -54,9 +55,9 @@ if [ ! -d "$zshHistorySubstringSearch" ]; then
 	ln -s "$zshHistorySubstringSearch/zsh-history-substring-search.zsh" "$zshHistorySubstringSearch/zsh-history-substring-search.plugin.zsh"
 fi
 
-zshSyntaxGighlighting="$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-if [ ! -d "$zshSyntaxGighlighting" ]; then
-	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zshSyntaxGighlighting"
+fastSyntaxHighlighting="$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
+if [ ! -d "$fastSyntaxHighlighting" ]; then
+	git clone https://github.com/zdharma/fast-syntax-highlighting.git "$fastSyntaxHighlighting"
 fi
 
 echo "Setting up dot_files"

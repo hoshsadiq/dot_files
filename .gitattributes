@@ -1,0 +1,1 @@
+.kube/config filter=git-crypt diff=git-crypt
