@@ -68,15 +68,15 @@ fi
 
 (cd "$DOT_FILES" && git pull)
 
-declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv")
+declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv" "powerlevel9k_config")
 
 ## now loop through the above array
 for file in "${files[@]}"; do
 		echo ".$file"
-		[ -f "$HOME/.$file" ] &&  mv "$HOME/.$file" "$DOT_FILES/.$file"
+		[ -f "$HOME/.$file" ] &&  mv "$HOME/.$file" "$DOT_FILES/backup/.$file"
 		ln -s "$DOT_FILES/$file" "$HOME/.$file"
 done
 
 echo ".oh-my-zsh/custom/plugins/hosh"
-[ -d "$HOME/.oh-my-zsh/custom/plugins/hosh"
+[ -d "$HOME/.oh-my-zsh/custom/plugins/hosh" ] && mv "$HOME/.oh-my-zsh/custom/plugins/hosh" "$DOT_FILES/backup/zsh_plugin"
 ln -s "$DOT_FILES/zsh_plugin/hosh" "$HOME/.oh-my-zsh/custom/plugins/hosh"
