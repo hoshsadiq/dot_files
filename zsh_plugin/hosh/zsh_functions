@@ -7,6 +7,19 @@ kubectl() {
   fi
 }
 
+remux_mkv2mp4 {
+  input="$1"
+  ext="$(echo $input | awk -F. '{print $NF}')"
+
+  if [ "$ext" != "mkv" ]; then
+    print "Input file must be of type .mkv"
+  fi
+
+  dir="$(dirname $input)"
+  output="$dir/$(basename $input ".mkv").mp4"
+  ffmpeg -i "$input" -c:v copy -c:a copy "$output"
+}
+
 # extract files
 # Maybe add install instructions if not installed?
 extract () {
