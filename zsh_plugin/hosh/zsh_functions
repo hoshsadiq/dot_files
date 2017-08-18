@@ -7,7 +7,37 @@ kubectl() {
   fi
 }
 
-remux_mkv2mp4 {
+vault_encrypt() {
+    file="$1"
+
+    if [ ! -f "$file" ]; then
+        echo "file $file does not exist"
+        return 1
+    fi
+
+    ansible-vault encrypt --vault-password-file=~/.vault-credentials --output "$file.enc" "$file"
+}
+
+vault_decrypt() {
+    file="$1"
+
+    if [ ! -f "$file" ]; then
+        echo "file $file does not exist"
+        return 1
+    fi
+
+    ansible-vault decrypt --vault-password-file=~/.vault-credentials --output "$file" "$file.enc"
+}
+
+check_gpg_pass() {
+    if [ "$1x" == "x" ]; then
+        echo "check_gpg_pass <key-id>"
+        return 1
+    fi
+    echo "1234" | gpg --batch -o /dev/null --local-user "$1" -as - 2>&1 && echo "The correct passphrase was entered for this key"
+}
+
+remux_mkv2mp4() {
   input="$1"
   ext="$(echo $input | awk -F. '{print $NF}')"
 
