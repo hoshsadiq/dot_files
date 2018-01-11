@@ -20,6 +20,7 @@ if [ "$OSTYPE" == "linux-gnu" ]; then
 		echo "Platform not supported"
 		exit 1;
 	fi
+
 elif [[ "$OSTYPE" == "cygwin" ]]; then
 	echo "We are cygwin! Installing apt-cyg..."
 	wget -P ~/bin http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
@@ -29,7 +30,9 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
 	echo "Cygwin implementation not finalised"
 	exit 1;
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	kubectlSuffix="windows/amd64/kubectl.exe"
+	kubectlSuffix="darwin/amd64/kubectl.exe"
+
+	brew install byobu
 	brew install git-crypt
 	echo "Implement MacOS"
 	exit 1;

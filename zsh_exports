@@ -1,7 +1,16 @@
+ANDROID_BIN_PATH=$HOME/apps/android-bin/
+GO_BIN_PATH=$HOME/go/bin/
+AURORA_BIN_PATH=$HOME/Workspace/tesco/aurora-core/aurora-core/bin
+
 # If you come from bash you might have to change your $PATH.
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+
 export PATH=$HOME/bin:$PATH
 export PATH=$JAVA_HOME/bin:$PATH
+export PATH=$PATH:$GO_BIN_PATH
+export PATH=$PATH:$ANDROID_BIN_PATH
+export PATH=$PATH:$AURORA_BIN_PATH
+
 export SDKMAN_DIR="$HOME/.sdkman"
 export ZSH="$HOME/.oh-my-zsh"
 

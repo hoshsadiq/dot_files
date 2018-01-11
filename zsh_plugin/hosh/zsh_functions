@@ -1,18 +1,84 @@
-kubectl() {
-  local namespace
-  if [ ! -z "$KUBECTL_NAMESPACE" ]; then
-    /usr/local/bin/kubectl --namespace "$KUBECTL_NAMESPACE" "$@"
+ssh-priv-to-pub() {
+  sshPrivKey="$1"
+  ssh-keygen -y -f "$sshPrivKey"
+}
+
+ssh-gen-deploy-key() {
+  output="$1"
+  comment="$2"
+  bytes="${3:-4096}"
+
+  if [ ! -z "$comment" ]; then
+    comment="-C $comment"
+  fi
+  ssh-keygen -t rsa -b "$bytes" -f "$output" -N '' $comment
+}
+
+ssh-get-fingerprint() {
+  keyFile="$1" # can be either public or private key
+  hash="${2:-md5}"
+  ssh-keygen -E "$hash" -lf "$keyFile"
+}
+
+download-helm-chart() {
+    chart="$1"
+    targetDir="$2"
+
+    if [ "$chart" = "" ] && [ "$targetDir" = "" ]; then
+        echo "Usage: $0 <chart-name> <target-dir>"
+    fi
+
+    tmpdir="$(mktemp -d -t helm)"
+
+    curl -sSL -o "$tmpdir/helm-charts.zip" https://github.com/kubernetes/charts/archive/master.zip
+
+    unzip "$tmpdir/helm-charts.zip" "charts-master/stable/$chart*" -d $tmpdir
+    mv "$tmpdir/charts-master/stable/$chart" "$targetDir/$chart-helm-chart"
+}
+
+kubectl_pod() {
+    # todo add --namespace support
+    kubectl get pods | awk "/^$1/{print \$1}"
+}
+
+proxy() {
+  action="$1"
+
+  if [ $action = "enable" ]; then
+    export http_proxy="http://uk-webproxy.edmz.tesco.org:80"
+    export https_proxy="http://uk-webproxy.edmz.tesco.org:80"
+    echo "Proxy enabled"
+  elif [ "$action" = "disable" ]; then
+    export http_proxy=""
+    export https_proxy=""
+    echo "Proxy disabled"
   else
-    /usr/local/bin/kubectl "$@"
+    echo "$0 enable|disable"
   fi
 }
 
 vault_encrypt() {
     file="$1"
 
+    if [ -z "$file" ]; then
+        echo "Usage:"
+        echo "  $0 /path/to/file"
+        return 1
+    fi
+
     if [ ! -f "$file" ]; then
         echo "file $file does not exist"
         return 1
+    fi
+
+    if [ -f "$file.enc" ]; then
+      encryptedData="$(ansible-vault decrypt --vault-password-file=~/.vault-credentials --output - "$file.enc")"
+      unencryptedData="$(cat "$file")"
+
+      if cmp -s <(echo $encryptedData) <(echo $unencryptedData); then
+        echo "Encrypted file is identical to unencrypted file... skipping"
+        return 1
+      fi
     fi
 
     ansible-vault encrypt --vault-password-file=~/.vault-credentials --output "$file.enc" "$file"
@@ -21,8 +87,14 @@ vault_encrypt() {
 vault_decrypt() {
     file="$1"
 
-    if [ ! -f "$file" ]; then
-        echo "file $file does not exist"
+    if [ -z "$file" ]; then
+        echo "Usage:"
+        echo "  $0 /path/to/file"
+        return 1
+    fi
+
+    if [ ! -f "$file.enc" ]; then
+        echo "file $file.enc does not exist"
         return 1
     fi
 

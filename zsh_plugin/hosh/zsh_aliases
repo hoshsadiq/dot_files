@@ -52,3 +52,4 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 alias tolower='tr "[:upper:]" "[:lower:]"'
 alias toupper='tr "[:lower:]" "[:upper:]"'
 alias rmnl='awk '\''BEGIN{ORS="";} {print}'\'
+alias ecr_login="eval $(aws ecr get-login --no-include-email --region eu-west-1)"
