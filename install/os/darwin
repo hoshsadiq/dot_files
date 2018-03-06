@@ -1,0 +1,6 @@
+kubectlSuffix="darwin/amd64/kubectl.exe"
+
+brew install byobu
+brew install git-crypt
+echo "Implement MacOS"
+exit 1;

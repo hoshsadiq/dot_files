@@ -10,6 +10,7 @@ alias du='du -h'
 
 # Misc
 alias more='less'
+alias nano='vim'
 alias path='echo -e ${PATH//:/\\n}'
 
 # Some shortcuts for different directory listings
@@ -52,4 +53,8 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 alias tolower='tr "[:upper:]" "[:lower:]"'
 alias toupper='tr "[:lower:]" "[:upper:]"'
 alias rmnl='awk '\''BEGIN{ORS="";} {print}'\'
-alias ecr_login="eval $(aws ecr get-login --no-include-email --region eu-west-1)"
+
+# pyenv aliases
+alias aws="$PYENV/awscli/bin/aws"
+
+alias ecr_login='eval $(aws ecr get-login --no-include-email --region eu-west-1)'

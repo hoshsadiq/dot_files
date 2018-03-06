@@ -1,0 +1,5 @@
+[profiles]
+  [[default]]
+    font = SourceCodePro Nerd Font 12
+    scrollback_infinite = True
+    use_system_font = False

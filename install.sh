@@ -2,54 +2,26 @@
 
 set -e
 
-# todo install kubectl, awscli, awesome-patched fonts, git-crypt
+# todo install awesome-patched fonts, git-crypt
 # todo ssh config
 
-if [ "$OSTYPE" == "linux-gnu" ]; then
-	if cat /etc/*release | grep ^NAME | grep -q Ubuntu; then
-		sudo apt-get update
-		sudo apt-get install git zsh
-		sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+GOLANG_PKG="golang-1.9"
 
-		echo "Installing kubectl"
-		kubectlLatest="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
-		kubectlUrl="https://storage.googleapis.com/kubernetes-release/release/$kubectlLatest/bin/linux/amd64/kubectl"
-		sudo curl -L "$kubectlUrl" -s -o /usr/local/bin/kubectl
-		sudo chmod +x /usr/local/bin/kubectl
-	else
-		echo "Platform not supported"
-		exit 1;
-	fi
-
-elif [[ "$OSTYPE" == "cygwin" ]]; then
-	echo "We are cygwin! Installing apt-cyg..."
-	wget -P ~/bin http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
-	chmod +x ~/bin/apt-cyg
-
-
-	echo "Cygwin implementation not finalised"
-	exit 1;
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-	kubectlSuffix="darwin/amd64/kubectl.exe"
-
-	brew install byobu
-	brew install git-crypt
-	echo "Implement MacOS"
-	exit 1;
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	source "install/os/darwin.sh"
+elif [ -f "install/os/$OSTYPE.sh" ]; then
+	source "install/os/$OSTYPE.sh"
 else
 	echo "Platform not supported"
 	exit 1;
 fi
 
+source "install/generic.sh"
+
 if [ ! -d "$HOME/.vim_runtime" ]; then
 	echo "Installing vim_runtime"
 	git clone git://github.com/amix/vimrc.git "$HOME/.vim_runtime"
 	/bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
-fi
-
-powerlevel9k="$HOME/.oh-my-zsh/custom/themes/powerlevel9k"
-if [ ! -d "$powerlevel9k" ]; then
-	git clone https://github.com/bhilburn/powerlevel9k.git "$powerlevel9k"
 fi
 
 zshHistorySubstringSearch="$HOME/.oh-my-zsh/custom/plugins/zsh-history-substring-search"
@@ -71,7 +43,7 @@ fi
 
 (cd "$DOT_FILES" && git pull)
 
-declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv" "powerlevel9k_config")
+declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv")
 
 ## now loop through the above array
 for file in "${files[@]}"; do
@@ -80,6 +52,11 @@ for file in "${files[@]}"; do
 		ln -s "$DOT_FILES/$file" "$HOME/.$file"
 done
 
+mkdir -p "$HOME/.config/terminator"
+ln -s "$DOT_FILES/terminator_config" "$HOME/.config/terminator/config"
+
 echo ".oh-my-zsh/custom/plugins/hosh"
 [ -d "$HOME/.oh-my-zsh/custom/plugins/hosh" ] && mv "$HOME/.oh-my-zsh/custom/plugins/hosh" "$DOT_FILES/backup/zsh_plugin"
 ln -s "$DOT_FILES/zsh_plugin/hosh" "$HOME/.oh-my-zsh/custom/plugins/hosh"
+
+mkdir "$HOME/Workspace"

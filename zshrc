@@ -5,7 +5,7 @@
 # todo: determine dot_files dir
 DOT_FILES="$HOME/dot_files"
 
-ZSH_THEME="powerlevel9k/powerlevel9k"
+ZSH_THEME="robbyrussell"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
@@ -45,11 +45,13 @@ plugins=(\
     zsh-syntax-highlighting\
     zsh-history-substring-search)
 
-source "$DOT_FILES/powerlevel9k_config"
 source "$DOT_FILES/zsh_exports"
 source "$ZSH/oh-my-zsh.sh"
-source "$HOME/apps/google-cloud-sdk/completion.zsh.inc"
-source "$HOME/apps/google-cloud-sdk/path.zsh.inc"
+
+if [ -d "$HOME/apps/google-cloud-sdk" ]; then
+  source "$HOME/apps/google-cloud-sdk/completion.zsh.inc"
+  source "$HOME/apps/google-cloud-sdk/path.zsh.inc"
+fi
 # source $HOME/bashrc_enhancements/files/ssh
 
 [ -f "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
@@ -61,5 +63,18 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 [ -f /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
 
 source "$DOT_FILES/login_message"
+
+GBT_CAR_DIR_DEPTH='2'
+GBT_RCARS='Time'
+GBT_CAR_SIGN_WRAP='1'
+
+# precmd() {
+#   LEFT='$(gbt $?)'
+#   RIGHT='$(gbt -right)'
+#   RIGHTWIDTH=$(($COLUMNS-${#LEFT}))
+#   print $LEFT${(l:$RIGHTWIDTH:: :)RIGHT}
+# }
+PROMPT='$(gbt $?)'
+# RPROMPT='$(gbt -right)'
 
 [ ! -z "$ZSH_START_TIMINGS" ] && zprof
