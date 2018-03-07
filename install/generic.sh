@@ -1,4 +1,6 @@
 if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
+	pip install pip --upgrade
+
 	pip install pip-autoremove --user --upgrade
 	pip install --user virtualenv --upgrade
 

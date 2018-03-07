@@ -1,0 +1,12 @@
+{
+  "Profiles": [
+    {
+      "Normal Font" : "SauceCodeProNerdFontCM-Regular 16",
+      "Option Key Sends" : 2,
+      "Unlimited Scrollback" : true,
+      "Name" : "dot-files",
+      "Guid" : "AD7ECFE1-602F-467F-9047-224068C372DC",
+      "Custom Directory" : "Recycle"
+    }
+  ]
+}

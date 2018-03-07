@@ -8,16 +8,18 @@ mkdir -p $HOME/bin
 
 export GOLANG_VERSION="1.9"
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-	source "install/os/darwin.sh"
-elif [ -f "install/os/$OSTYPE.sh" ]; then
-	source "install/os/$OSTYPE.sh"
-else
-	echo "Platform not supported"
-	exit 1;
-fi
+mkdir ~/bin
 
-source "install/generic.sh"
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+# 	source "install/os/darwin.sh"
+# elif [ -f "install/os/$OSTYPE.sh" ]; then
+# 	source "install/os/$OSTYPE.sh"
+# else
+# 	echo "Platform not supported"
+# 	exit 1;
+# fi
+#
+# source "install/generic.sh"
 
 if [ ! -d "$HOME/.vim_runtime" ]; then
 	echo "Installing vim_runtime"
@@ -28,7 +30,6 @@ fi
 zshHistorySubstringSearch="$HOME/.oh-my-zsh/custom/plugins/zsh-history-substring-search"
 if [ ! -d "$zshHistorySubstringSearch" ]; then
 	git clone https://github.com/zsh-users/zsh-history-substring-search.git "$zshHistorySubstringSearch"
-	ln -s "$zshHistorySubstringSearch/zsh-history-substring-search.zsh" "$zshHistorySubstringSearch/zsh-history-substring-search.plugin.zsh"
 fi
 
 fastSyntaxHighlighting="$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
@@ -60,4 +61,4 @@ echo ".oh-my-zsh/custom/plugins/hosh"
 [ -d "$HOME/.oh-my-zsh/custom/plugins/hosh" ] && mv "$HOME/.oh-my-zsh/custom/plugins/hosh" "$DOT_FILES/backup/zsh_plugin"
 ln -s "$DOT_FILES/zsh_plugin/hosh" "$HOME/.oh-my-zsh/custom/plugins/hosh"
 
-mkdir "$HOME/Workspace"
+mkdir -p "$HOME/Workspace"
