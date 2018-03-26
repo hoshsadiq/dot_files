@@ -58,3 +58,7 @@ alias rmnl='awk '\''BEGIN{ORS="";} {print}'\'
 alias aws="$PYENV/awscli/bin/aws"
 
 alias ecr_login='eval $(aws ecr get-login --no-include-email --region eu-west-1)'
+
+if command -v xdg-open >/dev/null 2>&1; then
+  alias open="xdg-open"
+fi

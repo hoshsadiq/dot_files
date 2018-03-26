@@ -7,5 +7,5 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
 	for app in awscli; do
 		virtualenv "$PYENV/$app"
 		"$PYENV/$app/bin/pip" install "$app" --upgrade
-	don
+	done
 fi

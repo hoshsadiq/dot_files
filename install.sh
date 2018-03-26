@@ -2,10 +2,11 @@
 
 set -e
 
-# todo install awesome-patched fonts, git-crypt
+mkdir -p $HOME/bin
+
 # todo ssh config
 
-GOLANG_PKG="golang-1.9"
+export GOLANG_VERSION="1.9"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
 	source "install/os/darwin.sh"

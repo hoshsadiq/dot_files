@@ -42,7 +42,7 @@ plugins=(\
     hosh\
     docker\
     brew\
-    zsh-syntax-highlighting\
+    fast-syntax-highlighting\
     zsh-history-substring-search)
 
 source "$DOT_FILES/zsh_exports"
@@ -53,8 +53,6 @@ if [ -d "$HOME/apps/google-cloud-sdk" ]; then
   source "$HOME/apps/google-cloud-sdk/path.zsh.inc"
 fi
 # source $HOME/bashrc_enhancements/files/ssh
-
-[ -f "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
 zmodload zsh/terminfo
 bindkey "$terminfo[kcuu1]" history-substring-search-up

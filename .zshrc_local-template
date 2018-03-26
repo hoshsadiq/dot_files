@@ -1,6 +1,4 @@
-export LAMP="/d/wamp"
-export WWW=$LAMP"/www"
-export PHPINSTALL=$LAMP"/bin/php/php5.4.12"
-export PHPMYADMIN=$LAMP"/apps/phpmyadmin"
+export JAVA_HOME='/usr/lib/jvm/java-9-oracle'
 
-export PATH=$PATH:"/usr/share/bin":$PHPINSTALL
+export PATH=/usr/lib/go-1.9/bin:$PATH
+export PATH=$JAVA_HOME/bin:$PATH

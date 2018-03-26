@@ -3,22 +3,15 @@ export PYENV="$HOME/Workspace/pyenv"
 
 ANDROID_BIN_PATH=$HOME/apps/android-bin/
 
+# possible different for mac
 PIP_LOCAL_BIN="$HOME/.local/bin"
-
-# If you come from bash you might have to change your $PATH.
-# export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
 
 export PATH=$HOME/bin:$PATH
 export PATH=$JAVA_HOME/bin:$PATH
-export PATH=/usr/lib/go-1.9/bin:$PATH
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$ANDROID_BIN_PATH
-
-# different for mac
 export PATH=$PATH:$PIP_LOCAL_BIN
 
-
-export SDKMAN_DIR="$HOME/.sdkman"
 export ZSH="$HOME/.oh-my-zsh"
 
 # Highlight less
@@ -38,10 +31,11 @@ export HISTCONTROL=ignoredups
 # X Server display
 export DISPLAY=:0.0
 
+# GBT
 export GBT_CAR_DIR_DEPTH='2'
 export GBT_RCARS='Time'
 export GBT_CAR_SIGN_WRAP='1'
 
-if [[ "$OSTYPE" == "cygwin" ]]; then
+if [ "$OSTYPE" = "cygwin" ]; then
 	export CYGWIN="ntsec"
 fi
