@@ -8,9 +8,6 @@ if cat /etc/*release | grep ^NAME | grep -iq ubuntu; then
     # todo move this to a separate file
     gobin="$(dirname $(dpkg -L "golang-$GOLANG_VERSION-go | grep 'bin/go$'))"
 
-    $gobin/go get -u github.com/jtyr/gbt/cmd/gbt
-    $gobin/go get -u github.com/suntong/cascadia
-
     echo "export PATH=$gobin:\$PATH" >> ~/.zshrc_local
 
     # Section "InputClass"

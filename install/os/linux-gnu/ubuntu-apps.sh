@@ -35,8 +35,6 @@ mkdir -p "$HOME/.local/share/fonts/"
 unzip /tmp/sourceCodePro.zip -d "$HOME/.local/share/fonts/"
 fc-cache -f -v
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
 sudo snap install spotify
 sudo snap install vlc
 sudo snap install skype --classic

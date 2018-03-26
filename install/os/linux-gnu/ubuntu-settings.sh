@@ -17,6 +17,9 @@ mkdir -p $HOME/.IntelliJIdea2017.3/config $HOME/.local/share/JetBrains/consentOp
 ln -s $HOME/dot_files/config/jetbrains/intellij-idea-ultimate/config/disabled_plugins.txt $HOME/.IntelliJIdea2017.3/config/disabled_plugins.txt
 ln -s $HOME/dot_files/config/jetbrains/consentOptions/accepted $HOME/.local/share/JetBrains/consentOptions/accepted
 
+mkdir -p "$HOME/.config/terminator"
+ln -s "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
+
 echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> ~/.zshrc_local
 
 # system tweaks

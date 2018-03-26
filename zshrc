@@ -63,7 +63,7 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 source "$DOT_FILES/login_message"
 
 GBT_CAR_DIR_DEPTH='2'
-GBT_RCARS='Time'
+# GBT_RCARS='Time'
 GBT_CAR_SIGN_WRAP='1'
 
 # precmd() {
@@ -72,7 +72,19 @@ GBT_CAR_SIGN_WRAP='1'
 #   RIGHTWIDTH=$(($COLUMNS-${#LEFT}))
 #   print $LEFT${(l:$RIGHTWIDTH:: :)RIGHT}
 # }
+
+# source "$(brew --prefix kube-ps1)/share/kube-ps1.sh"
+
+# export GBT_CAR_CUSTOM_CMD="echo 'test'"
+# export GBT_CAR_CUSTOM_DISPLAY_CMD="echo YES"
+# # export GBT_CAR_CUSTOM_BG="default"
+# # export GBT_CAR_CUSTOM_FG="default"
+# export GBT_CARS='Status, Os, Hostname, Dir, Git, Custom, Sign'
+# export GBT_DEBUG='0'
+
 PROMPT='$(gbt $?)'
 # RPROMPT='$(gbt -right)'
+
+unalias grv
 
 [ ! -z "$ZSH_START_TIMINGS" ] && zprof

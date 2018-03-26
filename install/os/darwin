@@ -4,8 +4,6 @@ brew install byobu
 brew install git-crypt
 
 echo "export JAVA_HOME='$(/usr/libexec/java_home)'" >> ~/.zshrc_local
-go get -u github.com/jtyr/gbt/cmd/gbt
-go get -u github.com/suntong/cascadia
 
 echo "Implement MacOS"
 exit 1;

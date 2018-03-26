@@ -54,9 +54,6 @@ for file in "${files[@]}"; do
 		ln -s "$DOT_FILES/$file" "$HOME/.$file"
 done
 
-mkdir -p "$HOME/.config/terminator"
-ln -s "$DOT_FILES/terminator_config" "$HOME/.config/terminator/config"
-
 echo ".oh-my-zsh/custom/plugins/hosh"
 [ -d "$HOME/.oh-my-zsh/custom/plugins/hosh" ] && mv "$HOME/.oh-my-zsh/custom/plugins/hosh" "$DOT_FILES/backup/zsh_plugin"
 ln -s "$DOT_FILES/zsh_plugin/hosh" "$HOME/.oh-my-zsh/custom/plugins/hosh"

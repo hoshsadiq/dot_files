@@ -48,7 +48,13 @@ alias tab2space="find -name '*.php' -exec sed -i 's/\t/    /g' {} +"
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 # todo: allow for MacOS
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+#if [[ "$OSTYPE" == "darwin"* ]]; then
+#  alert() {
+#    /usr/bin/osascript -e 'display notification system attribute "X"'
+#  }
+#else
+  alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+#fi
 
 alias tolower='tr "[:upper:]" "[:lower:]"'
 alias toupper='tr "[:lower:]" "[:upper:]"'
@@ -56,6 +62,9 @@ alias rmnl='awk '\''BEGIN{ORS="";} {print}'\'
 
 # pyenv aliases
 alias aws="$PYENV/awscli/bin/aws"
+
+# Docker aliases
+alias sipcalc="docker run --rm sipcalc"
 
 alias ecr_login='eval $(aws ecr get-login --no-include-email --region eu-west-1)'
 
