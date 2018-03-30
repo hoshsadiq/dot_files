@@ -1,3 +1,7 @@
+function diff() {
+    git diff --no-index --color-words "$@";
+}
+
 ssh-priv-to-pub() {
   sshPrivKey="$1"
   ssh-keygen -y -f "$sshPrivKey"

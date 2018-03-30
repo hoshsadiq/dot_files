@@ -4,6 +4,9 @@ if [ "$OSTYPE" = "cygwin" ]; then
     alias cygsetup="cygstart /setup.exe"
 fi
 
+# Reload the shell completely
+alias shreload="exec ${SHELL}"
+
 # Default to human readable figures
 alias df='df -h'
 alias du='du -h'
@@ -20,6 +23,11 @@ alias lla='ll -a'
 # git
 alias gits="git status"
 alias gds="git diff --staged"
+
+# Intuitive map function
+# For example, to list all directories that contain a certain file:
+# find . -name .gitattributes | map dirname
+alias map="xargs -n1"
 
 # IP stuff
 # todo: Fix linux alternative
@@ -65,6 +73,12 @@ alias shyaml="$PYENV/shyaml/bin/shyaml"
 alias sipcalc="docker run --rm sipcalc"
 
 alias ecr_login='eval $(aws ecr get-login --no-include-email --region eu-west-1)'
+
+# macOS has no `md5sum` and `sha1sum`, so fallback on `md5` and `shasum`
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    command -v md5sum > /dev/null || alias md5sum="md5"
+    command -v sha1sum > /dev/null || alias sha1sum="shasum"
+fi
 
 if command -v xdg-open >/dev/null 2>&1; then
   alias open="xdg-open"
