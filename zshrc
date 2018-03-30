@@ -43,6 +43,7 @@ plugins=(\
     docker\
     brew\
     fast-syntax-highlighting\
+    zsh-autosuggestions\
     zsh-history-substring-search)
 
 source "$DOT_FILES/zsh_exports"

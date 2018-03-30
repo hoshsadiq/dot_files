@@ -6,7 +6,7 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
 
 	PYENV="$HOME/Workspace/pyenv"
 
-	for app in awscli; do
+	for app in awscli shyaml; do
 		virtualenv "$PYENV/$app"
 		"$PYENV/$app/bin/pip" install "$app" --upgrade
 	done
