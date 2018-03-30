@@ -29,7 +29,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
 else:
     alias ip="ifconfig | grep "inet addr" | awk '{ print $3 }' | awk -F ':' '{ print $2 }'"
 fi
-alias extip='curl ifconfig.me'
+alias extip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias ipinfo='curl ifconfig.me/all'
 
 # This is GOLD for finding out what is taking so much space on your drives!

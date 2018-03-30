@@ -1,6 +1,8 @@
 # todo this is untested.
 
 if cat /etc/*release | grep ^NAME | grep -iq ubuntu; then
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
     source ./linux-gnu/ubuntu-preapps.sh
     source ./linux-gnu/ubuntu-apps.sh
     source ./linux-gnu/ubuntu-settings.sh

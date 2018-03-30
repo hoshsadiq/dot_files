@@ -1,1 +1,8 @@
-/ovpn
+# Mac
+.DS_Store
+
+# IntelliJ IDEA
+.idea
+*.iml
+*.iws
+.idea-compl

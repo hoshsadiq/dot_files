@@ -8,18 +8,16 @@ mkdir -p $HOME/bin
 
 export GOLANG_VERSION="1.9"
 
-mkdir ~/bin
-
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-# 	source "install/os/darwin.sh"
-# elif [ -f "install/os/$OSTYPE.sh" ]; then
-# 	source "install/os/$OSTYPE.sh"
-# else
-# 	echo "Platform not supported"
-# 	exit 1;
-# fi
+#if [[ "$OSTYPE" == "darwin"* ]]; then
+#	source "install/os/darwin.sh"
+#elif [ -f "install/os/$OSTYPE.sh" ]; then
+#	source "install/os/$OSTYPE.sh"
+#else
+#	echo "Platform not supported"
+#	exit 1;
+#fi
 #
-# source "install/generic.sh"
+#source "install/generic.sh"
 
 if [ ! -d "$HOME/.vim_runtime" ]; then
 	echo "Installing vim_runtime"
@@ -27,15 +25,21 @@ if [ ! -d "$HOME/.vim_runtime" ]; then
 	/bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
 fi
 
-zshHistorySubstringSearch="$HOME/.oh-my-zsh/custom/plugins/zsh-history-substring-search"
-if [ ! -d "$zshHistorySubstringSearch" ]; then
-	git clone https://github.com/zsh-users/zsh-history-substring-search.git "$zshHistorySubstringSearch"
-fi
+(cd "$HOME/.vim_runtime" && git pull)
 
-fastSyntaxHighlighting="$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
-if [ ! -d "$fastSyntaxHighlighting" ]; then
-	git clone https://github.com/zdharma/fast-syntax-highlighting.git "$fastSyntaxHighlighting"
-fi
+typeset -a zshPlugins
+zshPlugins=(\
+    zdharma/fast-syntax-highlighting\
+    zsh-users/zsh-history-substring-search\
+    zsh-users/zsh-autosuggestions\
+)
+for zshPlugin in "${zshPlugins[@]}"; do
+    pluginDir="$HOME/.oh-my-zsh/custom/plugins/$(basename "$zshPlugin")"
+    if [ ! -d "$pluginDir" ]; then
+        git clone "https://github.com/$zshPlugin.git" "$pluginDir"
+    fi
+    (cd "$pluginDir" && git pull)
+done
 
 echo "Setting up dot_files"
 DOT_FILES="$HOME/dot_files"
@@ -45,9 +49,7 @@ fi
 
 (cd "$DOT_FILES" && git pull)
 
-declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "inputrc" "screenrc" "Xresources" "zshenv")
-
-## now loop through the above array
+declare -a files=("gitconfig" "minttyrc" "zshrc" "gitignore" "gitattributes" "inputrc" "screenrc" "Xresources" "zshenv")
 for file in "${files[@]}"; do
 		echo ".$file"
 		[ -f "$HOME/.$file" ] &&  mv "$HOME/.$file" "$DOT_FILES/backup/.$file"

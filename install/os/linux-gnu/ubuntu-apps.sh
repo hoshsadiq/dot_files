@@ -17,17 +17,19 @@ sudo apt-get install -y \
     # allow mounting exfat filesystems
     exfat-fuse exfat-utils
 
-echo "Installing kubectl"
-kubectlLatest="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
-kubectlUrl="https://storage.googleapis.com/kubernetes-release/release/$kubectlLatest/bin/linux/amd64/kubectl"
-curl -fsSL "$kubectlUrl" -s -o $HOME/bin/kubectl
-chmod +x $HOME/bin/kubectl
 
-curl -fsSL https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 -s -o $HOME/bin/minikube
-chmod +x $HOME/bin/minikube
-
-curl -fsSL https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -s -o $HOME/bin/jq
-chmod +x $HOME/bin/jq
+kubectlDownloadUri="https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+typeset -A binApps
+binApps=(\
+    kubectl ${kubectlDownloadUri}\
+    minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64\
+    jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64\
+    diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy\
+)
+for app downloadUrl in ${(kv)binApps}; do
+    curl -fsSL "$downloadUrl" -o "$HOME/bin/$app"
+    chmod +x "$HOME/bin/$app"
+done
 
 sourceCodeUrl="$(curl -s https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest | jq -r '.assets[] | select( .name == "SourceCodePro.zip" ) | .browser_download_url')"
 curl -fsSL "$sourceCodeUrl" -o /tmp/sourceCodePro.zip

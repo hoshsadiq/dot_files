@@ -1,7 +1,15 @@
+[user]
+	name = Hosh Sadiq
+
 [core]
-    autocrlf = input
     editor = vim
+    autocrlf = input
     excludesfile = ~/.gitignore
+    attributesfile = ~/.gitattributes
+
+[fetch]
+    prune = true
+
 [color]
     diff = auto
     ui = auto
@@ -9,10 +17,13 @@
     branch = auto
     interactive = auto
     pager = true
+
 [push]
     default = simple
+
 [branch]
     autosetupmerge = true
+
 [alias]
     unstage = reset HEAD --
     graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
@@ -37,5 +48,46 @@
     undo = reset --soft HEAD^
     stash-all = stash save --include-untracked
     glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
-[user]
-	name = Hosh Sadiq
+
+[diff]
+    tool = vimdiff
+    compactionHeuristic = true
+    indentHeuristic = true
+
+[difftool]
+    prompt = false
+
+[diff "json"]
+    textconv = python -m json.tool
+
+[pager]
+    diff = diff-so-fancy | less --tabs=4 -RFX
+    show = diff-so-fancy | less --tabs=4 -RFX
+
+[color "diff"]
+    meta = yellow bold
+    commit = green bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "diff-highlight"]
+    oldNormal = red bold
+    oldHighlight = "red bold 52"
+    newNormal = "green bold"
+    newHighlight = "green bold 22"
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[apply]
+    # Detect whitespace errors when applying a patch
+    whitespace = fix
