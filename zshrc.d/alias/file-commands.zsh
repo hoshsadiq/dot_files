@@ -1,0 +1,6 @@
+alias mkdir="mkdir -pv"
+alias rm="rm -rfv"
+alias cp="cp -v"
+alias ln="ln -v"
+alias rmdir="rmdir -pv"
+alias mv="mv -v"

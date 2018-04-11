@@ -1,16 +1,19 @@
 [ ! -z "$ZSH_START_TIMINGS" ] && zmodload zsh/zprof
 
-[ -f ~/.zshrc_local ] && source ~/.zshrc_local
-
 # todo: determine dot_files dir
 DOT_FILES="$HOME/dot_files"
 
+if [ -d "$DOT_FILES/zshrc.d" ]; then
+  for file in $HOME/dot_files/**/*.zsh; do
+    source $file
+  done
+fi
+
+[ ! -z "$ZSH_START_TIMINGS" ] && zprof
+
 ZSH_THEME="robbyrussell"
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-HIST_STAMPS="mm/dd/yyyy"
+HIST_STAMPS="dd/mm/yyyy"
 
 setopt BANG_HIST                 # Treat the '!' character specially during expansion.
 setopt EXTENDED_HISTORY          # Write the history file in the ":start:elapsed;command" format.
@@ -87,5 +90,3 @@ PROMPT='$(gbt $?)'
 # RPROMPT='$(gbt -right)'
 
 unalias grv
-
-[ ! -z "$ZSH_START_TIMINGS" ] && zprof

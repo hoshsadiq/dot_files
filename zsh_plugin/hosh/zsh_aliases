@@ -32,11 +32,12 @@ alias map="xargs -n1"
 # IP stuff
 # todo: Fix linux alternative
 # todo: Add MacOS alternative
-if [ "$OSTYPE" = "cygwin" ]; then
-    alias ip="ipconfig | grep -v 127.0.0.1 | awk '/IPv4/ { print $NF }' | sed -e 's/^/\t\t/'"
-else
-    alias ip="ifconfig | grep "inet addr" | awk '{ print $3 }' | awk -F ':' '{ print $2 }'"
-fi
+# interferes with /bin/ip now
+# if [ "$OSTYPE" = "cygwin" ]; then
+#     alias ip="ipconfig | grep -v 127.0.0.1 | awk '/IPv4/ { print $NF }' | sed -e 's/^/\t\t/'"
+# else
+#     alias ip="ifconfig | grep "inet addr" | awk '{ print $3 }' | awk -F ':' '{ print $2 }'"
+# fi
 alias extip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias ipinfo='curl ifconfig.me/all'
 
@@ -79,6 +80,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     command -v md5sum > /dev/null || alias md5sum="md5"
     command -v sha1sum > /dev/null || alias sha1sum="shasum"
 fi
+
+# usage:
+# - cat myfile C
+# - cat myfile.json JSON
+# if the letters are needed as real arguments, simply
+alias -g C='| clipcopy'
+alias -g L='| less -R'
+alias -g G='| grep'
+alias -g J='| jq'
 
 if command -v xdg-open >/dev/null 2>&1; then
   alias open="xdg-open"

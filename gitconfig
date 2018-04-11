@@ -2,6 +2,7 @@
 	name = Hosh Sadiq
 
 [core]
+    pager = less -FRSX
     editor = vim
     autocrlf = input
     excludesfile = ~/.gitignore

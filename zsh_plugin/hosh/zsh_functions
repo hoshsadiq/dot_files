@@ -1,4 +1,4 @@
-function diff() {
+diff() {
     git diff --no-index --color-words "$@";
 }
 
@@ -251,7 +251,7 @@ mktgz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
 mktbz() { tar cvjf "${1%%/}.tar.bz2" "${1%%/}/"; }
 
 # Touchscreen toggling
-function touchscreen() {
+touchscreen() {
   local devid="$(xinput | grep Touchscreen | awk '{ print $5 }' | awk -F '=' '{ print $2 }')"
   case "$1" in
     "off")
@@ -263,16 +263,16 @@ function touchscreen() {
   esac
 }
 
-# Add defined function in bash to ~/.bash_functions
-function addfunction() { declare -f $1 >> ~/.bash_functions ; }
+# Add defined in bash to ~/.bash_functions
+addfunction() { declare -f $1 >> ~/.bash_functions ; }
 
 # pretend to be busy in office to enjoy a cup of coffee
-function allhackingandshit()
+allhackingandshit()
 {
   cat /dev/urandom | hexdump -C | grep --color=auto "ca fe"
 }
 
-function hgg()
+hgg()
 {
     if [[ $# -lt 1 ]] || [[ $# -gt 1 ]]; then
         echo "search bash history"
@@ -285,19 +285,19 @@ function hgg()
 # Lists unique IPs currently connected to
 # logged-in system & how many concurrent
 # connections each IP has
-function connections()
+connections()
 {
   "netstat -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n"
 }
 
 # Reminder for whatever whenever
-function remindme()
+remindme()
 {
   sleep $1 && zenity --info --text "$2" &
 }
 
 # google search
-function google() {
+google() {
   if [[ $1 ]]; then
     q="$@"
     q=$(echo ${q//[^a-zA-Z0-9]/+})
@@ -311,12 +311,8 @@ function google() {
   fi
 }
 
-function json_pretty() {
-  php -r "echo json_encode(json_decode(file_get_contents('$1')), JSON_PRETTY_PRINT);"
-}
-
 # out puts the pid of the first grepped process
-function greppid () {
+greppid () {
   local context=0
   local proc=$1
   if [[ "$1" == "--context" ]]; then
@@ -336,10 +332,20 @@ function greppid () {
 }
 
 
-function ask() {
+ask() {
   read -p "$@ [y/N] " ans
   case "$ans" in
     y|Y|yes|Yes) return 0;;
     *) return 1;;
   esac
 }
+
+
+#### docker functions
+# docker_run_attach() {
+  # docker run -it --name my-running-irssi -e TERM -u $(id -u):$(id -g) \
+    # --log-driver=none \
+    # -v $HOME/.irssi:/home/user/.irssi:ro \
+    # -v /etc/localtime:/etc/localtime:ro \
+    # irssi"
+# }

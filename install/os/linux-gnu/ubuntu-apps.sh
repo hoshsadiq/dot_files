@@ -44,5 +44,6 @@ sudo snap install intellij-idea-ultimate --classic
 
 #https://dl.google.com/android/repository/platform-tools-latest-linux.zip
 sudo apt autoremove --purge thunderbird
+sudo apt autoremove --purge
 
 sudo apt clean
