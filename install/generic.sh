@@ -9,9 +9,13 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
 	for app in awscli shyaml; do
 		virtualenv "$PYENV/$app"
 		"$PYENV/$app/bin/pip" install "$app" --upgrade
+
 	done
 
-    go get -u github.com/jtyr/gbt/cmd/gbt
+	ln -s $PYENV/awscli/bin/aws $HOME/bin/aws
+	ln -s $PYENV/awscli/bin/aws_completer $HOME/bin/aws_completer
+
+  go get -u github.com/jtyr/gbt/cmd/gbt
 	go get -u github.com/simplealpine/json2yaml
 	go get -u github.com/simplealpine/yaml2json
 fi

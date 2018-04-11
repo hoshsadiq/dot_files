@@ -90,3 +90,8 @@ PROMPT='$(gbt $?)'
 # RPROMPT='$(gbt -right)'
 
 unalias grv
+
+export SDKMAN_DIR="/Users/hoshang.sadiq/.sdkman"
+[[ -s "/Users/hoshang.sadiq/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/hoshang.sadiq/.sdkman/bin/sdkman-init.sh"
+
+[ ! -z "$ZSH_START_TIMINGS" ] && zprof

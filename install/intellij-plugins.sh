@@ -1,7 +1,27 @@
-# what about macos?
-pluginPath="$HOME/.$(grep '\-Didea.paths.selector' /snap/intellij-idea-ultimate/current/bin/idea.sh | awk '{print $1}' | awk -F'=' '{print $2}')/config/plugins"
+buildFile=""
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	getStringFromInfoPlist() {
+		key="$1"
+		path="$2"
+		/usr/bin/grep "$key" -A1 "$path" | /usr/bin/grep -o '<string>.*</string>' | /usr/bin/tr -d '\n' | /usr/bin/sed -E 's#(<string>|</string>)##g'
+	}
 
-buildNumber="$(sed -E 's/IU-([0-9]+(\.[0-9]+)?)(\.([0-9]+))?/\1\4/' /snap/intellij-idea-ultimate/current/build.txt)"
+	intellijInstallPath="$(getStringFromInfoPlist JetBrainsToolboxApp "$HOME/Applications/JetBrains Toolbox/IntelliJ IDEA Ultimate.app/Contents/Info.plist")"
+	prefix="$(getStringFromInfoPlist 'idea.paths.selector' "$intellijInstallPath/Contents/Info.plist")"
+
+	pluginPath="$HOME/Library/Application Support/$prefix"
+	buildFile="$intellijInstallPath/Contents/Resources/build.txt"
+else
+	pluginPath="$HOME/.$(grep '\-Didea.paths.selector' /snap/intellij-idea-ultimate/current/bin/idea.sh | awk '{print $1}' | awk -F'=' '{print $2}')/config/plugins"
+	buildFile="/snap/intellij-idea-ultimate/current/build.txt"
+fi
+
+if [ -z "$buildFile" ]; then
+	echo "Could not find build file"
+	exit 1
+fi
+
+buildNumber="$(sed -E 's/IU-([0-9]+(\.[0-9]+)?)(\.([0-9]+))?/\1\4/' "$buildFile")"
 
 typeset -A plugins
 plugins=(\

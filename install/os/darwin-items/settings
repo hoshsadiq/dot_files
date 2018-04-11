@@ -110,4 +110,7 @@ defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 # Disable iTunes
-sudo chmod -x /Applications/iTunes.app
+sudo chmod -x /Applications/iTunes.app/Contents/MacOS/iTunes
+
+# auto start easy move resize on boot
+$DOT_FILES/scripts/easymoveresize.sh
