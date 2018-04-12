@@ -13,10 +13,6 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "[
 
 gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'terminator.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
 
-mkdir -p $HOME/.IntelliJIdea2017.3/config $HOME/.local/share/JetBrains/consentOptions
-ln -s $HOME/dot_files/config/jetbrains/intellij-idea-ultimate/config/disabled_plugins.txt $HOME/.IntelliJIdea2017.3/config/disabled_plugins.txt
-ln -s $HOME/dot_files/config/jetbrains/consentOptions/accepted $HOME/.local/share/JetBrains/consentOptions/accepted
-
 mkdir -p "$HOME/.config/terminator"
 ln -s "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
 

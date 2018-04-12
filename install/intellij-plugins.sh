@@ -11,9 +11,13 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
 	pluginPath="$HOME/Library/Application Support/$prefix"
 	buildFile="$intellijInstallPath/Contents/Resources/build.txt"
+	configPath="$HOME/Library/Preferences/$prefix"
+	consentOptionsPath="$HOME/Library/Application Support/JetBrains/consentOptions"
 else
 	pluginPath="$HOME/.$(grep '\-Didea.paths.selector' /snap/intellij-idea-ultimate/current/bin/idea.sh | awk '{print $1}' | awk -F'=' '{print $2}')/config/plugins"
 	buildFile="/snap/intellij-idea-ultimate/current/build.txt"
+	configPath="$HOME/.IntelliJIdea2017.3/config"
+	consentOptionsPath="$HOME/.local/share/JetBrains/consentOptions"
 fi
 
 if [ -z "$buildFile" ]; then
@@ -22,6 +26,13 @@ if [ -z "$buildFile" ]; then
 fi
 
 buildNumber="$(sed -E 's/IU-([0-9]+(\.[0-9]+)?)(\.([0-9]+))?/\1\4/' "$buildFile")"
+
+echo "Installing plugins for buildNumber $buildNumber to $pluginPath"
+
+mkdir -p "$configPath" "$consentOptionsPath"
+
+ln -fs "$HOME/dot_files/config/jetbrains/intellij-idea-ultimate/config/disabled_plugins.txt" "$configPath/disabled_plugins.txt"
+ln -fs "$HOME/dot_files/config/jetbrains/consentOptions/accepted" "$consentOptionsPath/accepted"
 
 typeset -A plugins
 plugins=(\
@@ -50,8 +61,8 @@ for id name in ${(kv)plugins}; do
 	echo "$id > $name"
 	updateId="$(curl -fsSL "https://plugins.jetbrains.com/plugin/updates?pluginId=$id&channel=&start=0&size=20" | jq -r --arg buildNumber $buildNumber "$jqQuery")"
 	if [ "$updateId" != "null" ]; then
-	    echo "adding $name, $id, $updateId"
-        #curl -fsSL "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=$updateId" -o "/tmp/intellij-plugin-$name.zip"
-        #unzip -o "/tmp/intellij-plugin-$name.zip" -d "$pluginPath"
+	    echo "adding plugin $name with ID: $id, updateID: $updateId"
+			curl -fsSL "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=$updateId" -o "/tmp/intellij-plugin-$name.zip"
+			unzip -o "/tmp/intellij-plugin-$name.zip" -d "$pluginPath"
 	fi
 done

@@ -11,10 +11,6 @@ fi
 
 [ ! -z "$ZSH_START_TIMINGS" ] && zprof
 
-ZSH_THEME="robbyrussell"
-
-HIST_STAMPS="dd/mm/yyyy"
-
 setopt BANG_HIST                 # Treat the '!' character specially during expansion.
 setopt EXTENDED_HISTORY          # Write the history file in the ":start:elapsed;command" format.
 setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
@@ -28,26 +24,6 @@ setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in the history 
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
-
-plugins=(\
-    git\
-    gitfast\
-    git-extras\
-    aws\
-    command-not-found\
-    composer\
-    common-aliases\
-    mvn\
-    osx\
-    pip\
-    virtualenv\
-    kubectl\
-    hosh\
-    docker\
-    brew\
-    fast-syntax-highlighting\
-    zsh-autosuggestions\
-    zsh-history-substring-search)
 
 source "$DOT_FILES/zsh_exports"
 source "$ZSH/oh-my-zsh.sh"
