@@ -8,11 +8,13 @@ sudo apt-get install -y \
     clamav \
     clamtk-gnome \
     docker-ce \
+    net-tools \
     python-pip \
     source-highlight \
     golang-$GOLANG_VERSION \
     gnome-tweak-tool \
     chrome-gnome-shell \
+    network-manager-openvpn network-manager-openvpn-gnome \
     oracle-java9-installer oracle-java9-set-default oracle-java9-unlimited-jce-policy \
     # allow mounting exfat filesystems
     exfat-fuse exfat-utils
