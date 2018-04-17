@@ -5,7 +5,7 @@ DOT_FILES="$HOME/dot_files"
 
 if [ -d "$DOT_FILES/zshrc.d" ]; then
   for file in $HOME/dot_files/**/*.zsh; do
-    # echo source $file
+    echo source $file
     source $file
   done
 fi
