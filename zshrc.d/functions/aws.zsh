@@ -33,3 +33,7 @@ aws-export-session-env() {
     fi
   done
 }
+
+ecr_login() {
+  eval $(aws ecr get-login --no-include-email "$@")
+}

@@ -9,16 +9,16 @@ mkdir -p "$HOME/Workspace"
 
 export GOLANG_VERSION="1.9"
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-   source "install/os/darwin.sh"
-elif [ -f "install/os/$OSTYPE.sh" ]; then
-   source "install/os/$OSTYPE.sh"
-else
-   echo "Platform not supported"
-   exit 1;
-fi
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+#    source "install/os/darwin.sh"
+# elif [ -f "install/os/$OSTYPE.sh" ]; then
+#    source "install/os/$OSTYPE.sh"
+# else
+#    echo "Platform not supported"
+#    exit 1;
+# fi
 
-source "install/generic.sh"
+# source "install/generic.sh"
 
 if [ ! -d "$HOME/.vim_runtime" ]; then
     echo "Installing vim_runtime"

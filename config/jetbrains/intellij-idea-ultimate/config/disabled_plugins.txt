@@ -77,6 +77,7 @@ com.intellij.velocity
 com.jetbrains.plugins.webDeployment
 com.jetbrains.restClient
 com.jetbrains.restWebServices
+com.vladsch.idea.multimarkdown
 cucumber-groovy
 cucumber-java
 hg4idea
