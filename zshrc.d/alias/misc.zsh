@@ -1,5 +1,5 @@
 # Reload the shell completely
-alias shreload="exec ${SHELL}"
+alias shreload="exec $SHELL -l"
 
 # Default to human readable figures
 alias df='df -h'
@@ -18,3 +18,6 @@ alias lla='ll -a'
 # For example, to list all directories that contain a certain file:
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
+
+# edits dot files
+alias edots="atom $DOT_FILES $ZSH $GBT__HOME $PYENV"

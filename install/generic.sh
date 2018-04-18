@@ -13,6 +13,7 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
 
   ln -s $PYENV/awscli/bin/aws $HOME/bin/aws
   ln -s $PYENV/awscli/bin/aws_completer $HOME/bin/aws_completer
+  ln -s $PYENV/awscli/bin/aws_zsh_completer.sh $HOME/bin/aws_zsh_completer.sh
   ln -s $PYENV/shyaml/bin/shyaml $HOME/bin/shyaml
 
   go get -u github.com/jtyr/gbt/cmd/gbt

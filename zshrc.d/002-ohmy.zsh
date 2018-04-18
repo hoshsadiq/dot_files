@@ -12,12 +12,11 @@ plugins=(\
     command-not-found\
     composer\
     common-aliases\
-    mvn\
+    golang \
     osx\
     pip\
     virtualenv\
     kubectl\
-    hosh\
     docker\
     brew\
     fast-syntax-highlighting\
