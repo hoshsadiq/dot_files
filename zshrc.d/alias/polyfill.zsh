@@ -4,6 +4,10 @@ if stringContains "darwin" "$OSTYPE"; then
     command -v sha1sum &>/dev/null || alias sha1sum="shasum"
 fi
 
+if command -v open &>/dev/null; then
+  alias firefox="open -a Firefox"
+fi
+
 if command -v xdg-open &>/dev/null; then
   alias open="xdg-open"
 fi
