@@ -16,7 +16,8 @@ gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org
 mkdir -p "$HOME/.config/terminator"
 ln -s "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
 
-echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> ~/.zshrc_local
+echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc_local
+echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc_local
 
 # system tweaks
 sudo sed -i -E '/^GRUB_TIMEOUT/s/=[0-9]+$/=3/' /etc/default/grub
