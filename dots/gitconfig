@@ -1,5 +1,6 @@
 [user]
   name = Hosh Sadiq
+  signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
 
 [core]
   pager = less -FRSX
@@ -96,3 +97,5 @@
 [apply]
   # Detect whitespace errors when applying a patch
   whitespace = fix
+[commit]
+  gpgSign = true
