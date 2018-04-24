@@ -1,0 +1,94 @@
+# Installations
+
+xcode-select --install
+
+curl -fsSL -o /tmp/go1.9.pkg https://dl.google.com/go/go1.9.darwin-amd64.pkg
+sudo installer -pkg /tmp/go1.9.pkg -target /
+
+# Check for Homebrew,
+# Install if we don't have it
+if test ! $(which brew); then
+  echo "Installing homebrew..."
+  yes | ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+brew analytics off
+
+brew update
+brew upgrade
+
+brew install vim --override-system-vi
+brew install git
+brew install zsh
+brew install watch
+# brew install kube-ps1
+brew install grv
+
+brew tap caskroom/versions
+
+brew cask install --appdir="~/Applications" iterm2
+brew cask install --appdir="~/Applications" atom
+brew cask install --appdir="~/Applications" virtualbox
+brew cask install --appdir="~/Applications" jetbrains-toolbox
+brew cask install --appdir="~/Applications" google-chrome
+brew cask install --appdir="~/Applications" tunnelblick
+brew cask install --appdir="~/Applications" spotify
+brew cask install --appdir="~/Applications" spotify-notifications
+brew cask install --appdir="~/Applications" itsycal
+brew cask install --appdir="~/Applications" protonmail-bridge
+brew cask install --appdir="~/Applications" karabiner-elements
+brew cask install --appdir="~/Applications" bettertouchtool
+brew cask install --appdir="~/Applications" easy-move-plus-resize
+
+brew cask install java
+
+brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv qlimagesize webpquicklook suspicious-package
+
+brew cleanup
+
+
+sourceCodeUrl="$(curl -s https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest | jq -r '.assets[] | select( .name == "SourceCodePro.zip" ) | .browser_download_url')"
+curl -fsSL "$sourceCodeUrl" -o /tmp/sourceCodePro.zip
+unzip /tmp/sourceCodePro.zip -d "$HOME/Library/Fonts/"
+ln -s "$HOME/dot_files/config/iterm2/iterm2.json" "$HOME/Library/Application Support/iTerm2/DynamicProfiles/default.json"
+defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "AD7ECFE1-602F-467F-9047-224068C372DC"
+defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+
+defaults write com.apple.menuextra.clock DateForm -string "HH:mm"
+defaults write com.mowglii.ItsycalApp ShowMonthInIcon -int 1
+defaults write com.mowglii.ItsycalApp ShowDayOfWeekInIcon -int 1
+
+
+ln -fs $HOME/dot_files/config/karabiner $HOME/.config/karabiner
+launchctl kickstart -k gui/`id -u`/org.pqrs.karabiner.karabiner_console_user_server
+sudo /Library/Application\ Support/org.pqrs/Karabiner-Elements/bin/karabiner_cli --copy-current-profile-to-system-default-profile
+
+open "$HOME/Applications/BetterTouchTool.app"
+open "$HOME/Applications/Easy Move+Resize.app"
+open "$HOME/Applications/Itsycal.app"
+open "$HOME/Applications/Spotify Notifications.app"
+open "$HOME/Applications/Spotify.app"
+open "$HOME/Applications/iTerm.app"
+
+curl -fsSLo "$HOME/bin/jq" "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-osx-amd64"
+chmod +x "$HOME/bin/jq"
+
+curl -fsSLo "$HOME/bin/kops" "https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-darwin-amd64"
+chmod +x "$HOME/bin/kops"
+
+echo "Installing kubectl"
+kubectlLatest="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+kubectlUrl="https://storage.googleapis.com/kubernetes-release/release/$kubectlLatest/bin/darwin/amd64/kubectl"
+curl -L "$kubectlUrl" -s -o $HOME/bin/kubectl
+chmod +x $HOME/bin/kubectl
+
+
+curl -s "https://get.sdkman.io" | bash
+echo 'source "$HOME/.sdkman/bin/sdkman-init.sh"' >> "$HOME/.zsh_local"
+
+echo "Need to install:"
+echo "- Docker"
+
+echo 'PATH="$PATH:$HOME/Library/Python/3.6/bin"'
+echo "JAVA_HOME=$(/usr/libexec/java_home)"

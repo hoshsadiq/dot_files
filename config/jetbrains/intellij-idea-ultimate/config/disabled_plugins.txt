@@ -4,7 +4,6 @@ ByteCodeViewer
 CVS
 CloudBees
 CloudFoundry
-Coverage
 DevKit
 Emma
 Geronimo

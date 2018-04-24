@@ -15,4 +15,4 @@ fi
 # source $HOME/bashrc_enhancements/files/ssh
 
 # todo what does path_helper do?
-[ -f /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
+# [ -f /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
