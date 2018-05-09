@@ -1,10 +1,17 @@
 [global_config]
   enabled_plugins = LaunchpadCodeURLHandler, APTURLHandler, LaunchpadBugURLHandler
 [keybindings]
+  cycle_next = <Primary>Page_Down
+  cycle_prev = <Primary>Page_Up
+  full_screen = <Alt>Return
+  new_tab = <Primary>t
+  next_tab = <Primary>Tab
+  prev_tab = <Primary><Shift>Tab
 [layouts]
   [[default]]
     [[[child1]]]
       parent = window0
+      profile = default
       type = Terminal
     [[[window0]]]
       parent = ""

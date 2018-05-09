@@ -7,7 +7,7 @@ mkdir -p "$HOME/Workspace"
 
 # todo ssh config
 
-export GOLANG_VERSION="1.9"
+export GOLANG_VERSION="1.10"
 
 # if [[ "$OSTYPE" == "darwin"* ]]; then
 #    source "install/os/darwin.sh"

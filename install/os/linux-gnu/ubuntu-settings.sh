@@ -22,8 +22,7 @@ echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc_l
 # system tweaks
 sudo sed -i -E '/^GRUB_TIMEOUT/s/=[0-9]+$/=3/' /etc/default/grub
 
-echo vm.swappiness=10 | sudo tee /etc/sysctl.d/10-swappiness.conf
+echo vm.swappiness=10 | sudo tee /etc/sysctl.d/60-swappiness.conf
 
-# disable annoying notification when extract files in the GUI
-sudo mv /usr/bin/file-roller /usr/bin/file-roller_orig
-sudo ln -s $HOME/dot_files/app_override/usr/bin/file-roller /usr/bin/file-roller
+# fix spotify HiDPI scaling
+sudo sed -i -E '/^Exec/s/$/ --force-device-scale-factor=2/g' /var/lib/snapd/desktop/applications/spotify_spotify.desktop

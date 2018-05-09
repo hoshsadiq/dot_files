@@ -4,13 +4,11 @@ savefunction() {
 }
 
 # pretend to be busy in office to enjoy a cup of coffee
-allhackingandshit()
-{
+allhackingandshit() {
   cat /dev/urandom | hexdump -C | grep --color=auto "ca fe"
 }
 
-hgg()
-{
+hgg() {
     if [[ $# -lt 1 ]] || [[ $# -gt 1 ]]; then
         echo "search bash history"
         echo "usage: mg [search pattern]"
@@ -22,14 +20,12 @@ hgg()
 # Lists unique IPs currently connected to
 # logged-in system & how many concurrent
 # connections each IP has
-connections()
-{
+connections() {
   netstat -ntu | awk '{print $5}' | cut -d: -f1 -s | sort | uniq -c | sort -n -r
 }
 
 # Reminder for whatever whenever
-remindme()
-{
+remindme() {
   nohup sleep $1 && zenity --info --text "$2" &
 }
 
@@ -93,4 +89,8 @@ note () {
    else
       echo "$@" >> $HOME/.notes
    fi
+}
+
+is-port-open() {
+  bash -c "echo >/dev/tcp/192.168.1.108/12"
 }
