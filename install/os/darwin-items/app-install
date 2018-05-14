@@ -21,6 +21,7 @@ brew install vim --override-system-vi
 brew install git
 brew install zsh
 brew install watch
+brew install dos2unix
 # brew install kube-ps1
 brew install grv
 

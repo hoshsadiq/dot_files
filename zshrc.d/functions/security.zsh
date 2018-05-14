@@ -38,17 +38,15 @@ gen-pass() {
 
   while [ $# != 0 ]; do
     case "$1" in
-      --no-alphabet) alphabet=false ;;
-      --alphabet) alphabet=true ;;
-      --no-uppercase) uppercase=false ;;
-      --uppercase) uppercase=true ;;
-      --no-numbers) numbers=false ;;
-      --numbers) numbers=true;;
-      --uppercase) uppercase=true ;;
-      --no-specials) specials=false ;;
-      --specials) specials=true;;
-      --uppercase) uppercase=true ;;
-      --length*)
+      -na|--no-alphabet) alphabet=false ;;
+      -a|--alphabet) alphabet=true ;;
+      -nu|--no-uppercase) uppercase=false ;;
+      -u|--uppercase) uppercase=true ;;
+      -nn|--no-numbers) numbers=false ;;
+      -n|--numbers) numbers=true;;
+      -ns|--no-specials) specials=false ;;
+      -s|--specials) specials=true;;
+      -l*|--length*)
         # todo ensure value is numbers only
         if stringContains "=" "$1"; then
           length="${1#*=}"
@@ -75,5 +73,5 @@ gen-pass() {
     regex="${regex}!\"#$%&'()*+,-./:;<=>?@\[\]^_\`{\|}~"
   fi
 
-  head /dev/urandom | tr -dc "$regex" | head -c "$length"
+  LC_ALL=C tr -dc "$regex" < /dev/urandom | head -c "$length"
 }

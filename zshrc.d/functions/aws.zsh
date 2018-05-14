@@ -34,6 +34,25 @@ aws-export-session-env() {
   done
 }
 
-ecr_login() {
+aws-ecr-login() {
   eval $(aws ecr get-login --no-include-email "$@")
+}
+
+# example:
+# aws-get-region-map --filters 'Name=name,Values=amzn2-ami-hvm-2017.12.0.20180328.1-x86_64-ebs' 'Name=architecture,Values=x86_64'
+aws-get-region-map() {
+  regionMap=""
+  for region in $(aws ec2 describe-regions --profile sandbox --query 'Regions[].RegionName' --output text); do
+    images="$(aws ec2 describe-images --owners amazon --region $region "$@" --query 'Images[].ImageId' --output text)"
+    imageCount="$(echo "$images" | wc -w | xargs echo -n)"
+
+    if [ "$imageCount" != "1" ]; then
+      echo "Found $imageCount AMI for region $region"
+      return 1
+    fi
+
+    regionMap="$regionMap\n$region:\n    \"64\": $images";
+  done
+
+  echo "$regionMap"
 }

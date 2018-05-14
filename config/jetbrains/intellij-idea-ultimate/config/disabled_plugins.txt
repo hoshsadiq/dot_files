@@ -9,6 +9,7 @@ Emma
 Geronimo
 GlassFish
 Heroku
+IdeaVIM
 JBoss
 JSR45Plugin
 JUnit
