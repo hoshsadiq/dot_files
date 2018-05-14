@@ -51,7 +51,7 @@ aws-get-region-map() {
       return 1
     fi
 
-    regionMap="$regionMap\n$region:\n    \"64\": $images";
+    regionMap="$regionMap\n$region:\n  \"64\": $images";
   done
 
   echo "$regionMap"
