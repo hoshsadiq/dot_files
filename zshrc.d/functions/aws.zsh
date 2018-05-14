@@ -42,7 +42,7 @@ aws-ecr-login() {
 # aws-get-region-map --filters 'Name=name,Values=amzn2-ami-hvm-2017.12.0.20180328.1-x86_64-ebs' 'Name=architecture,Values=x86_64'
 aws-get-region-map() {
   regionMap=""
-  for region in $(aws ec2 describe-regions --profile sandbox --query 'Regions[].RegionName' --output text); do
+  for region in $(aws ec2 describe-regions --profile sandbox --query 'Regions[].RegionName' --output text | tr "\t" "\n" | LC_ALL=C sort --human-numeric-sort); do
     images="$(aws ec2 describe-images --owners amazon --region $region "$@" --query 'Images[].ImageId' --output text)"
     imageCount="$(echo "$images" | wc -w | xargs echo -n)"
 
