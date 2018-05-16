@@ -12,7 +12,3 @@ fi
 
 [ ! -z "$ZSH_START_TIMINGS" ] && zprof
 
-# source $HOME/bashrc_enhancements/files/ssh
-
-# todo what does path_helper do?
-# [ -f /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
