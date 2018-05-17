@@ -92,5 +92,6 @@ note () {
 }
 
 is-port-open() {
+  # todo use nmap when available
   bash -c "echo >/dev/tcp/192.168.1.108/12"
 }

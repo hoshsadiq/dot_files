@@ -19,6 +19,7 @@ plugins=(\
     kubectl\
     docker\
     brew\
+    autoupdate\
     fast-syntax-highlighting\
     zsh-autosuggestions\
     zsh-history-substring-search)

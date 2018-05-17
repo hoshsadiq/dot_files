@@ -41,11 +41,13 @@ fc-cache -f -v
 
 sudo snap install spotify
 sudo snap install vlc
+sudo snap install bitwarden
+sudo snap install atom --classic
 sudo snap install skype --classic
 sudo snap install intellij-idea-ultimate --classic
 
 #https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-sudo apt autoremove --purge thunderbird
+sudo apt remove --purge thunderbird
 sudo apt autoremove --purge
 
 sudo apt clean
