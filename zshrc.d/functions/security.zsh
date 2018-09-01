@@ -75,3 +75,14 @@ gen-pass() {
 
   LC_ALL=C tr -dc "$regex" < /dev/urandom | head -c "$length"
 }
+
+sudo-keep-alive() {
+  sudo -v
+  {
+    while true; do
+      sudo -n true
+      sleep 60
+      kill -0 "$$" || exit
+    done
+  } 2>/dev/null &
+}

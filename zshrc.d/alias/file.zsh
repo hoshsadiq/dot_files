@@ -14,3 +14,6 @@ alias folders="find . -maxdepth 1 -type d -print | xargs du -sk | sort -rn"
 # assumes file exist. maybe create in install.sh?
 # todo: Use ~/Trash for MacOS
 alias trash='mv -t ~/.local/share/Trash/files --backup=t'
+
+# Remove .DS_Store files in current path
+alias rm-dsstore='rm -f **/.DS_Store'

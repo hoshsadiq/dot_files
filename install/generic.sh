@@ -4,7 +4,8 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
   pip install pip --upgrade
 
   pip install pip-autoremove --user --upgrade
-  pip install --user virtualenv --upgrade
+  pip install virtualenv --user --upgrade
+  pip install pip-upgrader --user --upgrade
 
   virtualenv "$PYENV/awscli"
   "$PYENV/awscli/bin/pip" install awscli --upgrade
@@ -24,3 +25,6 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
   go get -u github.com/simplealpine/json2yaml
   go get -u github.com/simplealpine/yaml2json
 fi
+
+version="$(curl -fsSL https://glide.sh/version)"
+curl -fsSL "https://github.com/Masterminds/glide/releases/download/$version/glide-$version-$(uname|tr '[:upper:]' '[:lower:]')-amd64.tar.gz" | tar xzvf - -C $HOME/bin/ --strip-components=1 darwin-amd64/glide

@@ -22,7 +22,7 @@ brew install git
 brew install zsh
 brew install watch
 brew install dos2unix
-# brew install kube-ps1
+brew install rename
 brew install grv
 
 brew tap caskroom/versions

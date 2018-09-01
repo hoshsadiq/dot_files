@@ -11,3 +11,6 @@ if [ -d "$DOT_FILES/zshrc.d" ]; then
 fi
 
 # [[ ! -z "${ZSH_START_TIMINGS+x}" && "${ZSH_START_TIMINGS}" == "true" ]] && zprof
+
+# added by Pew
+# source $(pew shell_config)

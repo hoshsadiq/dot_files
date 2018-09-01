@@ -28,40 +28,58 @@
 
 [alias]
   unstage = reset HEAD --
-  graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
   root = !pwd
-  co = checkout
-  ci = commit
-  st = status
-  br = branch
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  type = cat-file -t
-  dump = cat-file -p
-  ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
-  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-  lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
-  ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
-  le = log --oneline --decorate
-  filelog = log -u
   dl = "!git ll -1"
   dlc = diff --cached HEAD^
   prune = fetch --prune
   undo = reset --soft HEAD^
+  branch-name = rev-parse --abbrev-ref HEAD
+
   stash-all = stash save --include-untracked
+
+  co = checkout
+  ci = commit
+  st = status
+  br = branch
+
+  type = cat-file -t
+  dump = cat-file -p
+
+  filelog = log -u
+  le = log --oneline --decorate
+  graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
   glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+
   patch = !git --no-pager diff --no-color
   permission-reset = !git diff -p -R --no-color | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+
+  diff-intellij = difftool --tool=intellij
+  intellidiff = difftool --tool=intellij
 
 [diff]
   tool = vimdiff
   compactionHeuristic = true
   indentHeuristic = true
 
+[diff "json"]
+  textconv = python -m json.tool
+
 [difftool]
   prompt = false
 
-[diff "json"]
-  textconv = python -m json.tool
+[difftool "intellij"]
+  cmd = idea diff $(cd $(dirname "$LOCAL") && pwd)/$(basename "$LOCAL") $(cd $(dirname "$REMOTE") && pwd)/$(basename "$REMOTE")
+
+[merge]
+  tool = intellij
+[mergetool "intellij"]
+  cmd = idea merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
+  trustExitCode = true
 
 [pager]
   diff = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS

@@ -1,4 +1,3 @@
-# Docker aliases
 alias cfn-flip='docker run --rm -i --name cfn-flip -v $(pwd):/workdir -w /workdir cfn-flip'
 alias cfviz='docker run --rm -i --name cfviz -v $(pwd):/workdir -w /workdir cfviz'
 alias graphviz='docker run --rm -i --name graphviz -v $(pwd):/workdir -w /workdir graphviz'
