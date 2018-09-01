@@ -8,7 +8,6 @@ alias du='du -h'
 # Misc
 alias more='less'
 alias nano='vim'
-alias path='echo -e ${PATH//:/\\n}'
 
 # Some shortcuts for different directory listings
 alias lsd='ll | grep --color=never "^d"'

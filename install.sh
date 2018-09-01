@@ -9,6 +9,8 @@ mkdir -p "$HOME/Workspace"
 
 export GOLANG_VERSION="1.10"
 
+
+
 # if [[ "$OSTYPE" == "darwin"* ]]; then
 #    source "install/os/darwin.sh"
 # elif [ -f "install/os/$OSTYPE.sh" ]; then
@@ -20,13 +22,16 @@ export GOLANG_VERSION="1.10"
 
 # source "install/generic.sh"
 
-if [ ! -d "$HOME/.vim_runtime" ]; then
-    echo "Installing vim_runtime"
-    git clone git://github.com/amix/vimrc.git "$HOME/.vim_runtime"
-    /bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
-fi
+# if [ ! -d "$HOME/.vim_runtime" ]; then
+#     echo "Installing vim_runtime"
+#     git clone git://github.com/amix/vimrc.git "$HOME/.vim_runtime"
+#     /bin/bash "$HOME/.vim_runtime/install_awesome_vimrc.sh"
+# fi
 
-(cd "$HOME/.vim_runtime" && git pull)
+# (cd "$HOME/.vim_runtime" && git pull)
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+
+chsh `whoami` -s `which zsh`
 
 typeset -a zshPlugins
 zshPlugins=(\

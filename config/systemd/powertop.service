@@ -1,0 +1,11 @@
+[Unit]
+Description=Powertop tunings
+
+[Service]
+Type=idle
+Environment="TERM=dumb"
+ExecStart=/usr/bin/powertop --auto-tune
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

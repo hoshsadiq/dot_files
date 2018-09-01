@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 buildFile=""
 if [[ "$OSTYPE" == "darwin"* ]]; then
     getStringFromInfoPlist() {
@@ -16,7 +18,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     pluginPath="$HOME/.$(grep '\-Didea.paths.selector' /snap/intellij-idea-ultimate/current/bin/idea.sh | awk '{print $1}' | awk -F'=' '{print $2}')/config/plugins"
     buildFile="/snap/intellij-idea-ultimate/current/build.txt"
-    configPath="$HOME/.IntelliJIdea2017.3/config"
+    configPath="$HOME/.IntelliJIdea2018.1/config"
     consentOptionsPath="$HOME/.local/share/JetBrains/consentOptions"
 fi
 
@@ -33,6 +35,8 @@ mkdir -p "$configPath" "$consentOptionsPath"
 
 ln -fs "$HOME/dot_files/config/jetbrains/intellij-idea-ultimate/config/disabled_plugins.txt" "$configPath/disabled_plugins.txt"
 ln -fs "$HOME/dot_files/config/jetbrains/consentOptions/accepted" "$consentOptionsPath/accepted"
+
+mkdir -p /home/hosh/.IntelliJIdea2018.1/config/plugins
 
 typeset -A plugins
 plugins=(\

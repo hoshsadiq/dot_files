@@ -95,3 +95,21 @@ is-port-open() {
   # todo use nmap when available
   bash -c "echo >/dev/tcp/192.168.1.108/12"
 }
+
+# gsettings() {
+#     if [[ "$#" == "0" || "$1" != "monitor" ]]; then
+#         /usr/bin/gsettings "$@"
+#         return $?
+#     fi
+#
+#     set -e
+#
+#     tmpDir="$(mktemp -d --suffix -gsettings-monitor)"
+#     for schema in $(gsettings list-schemas); do
+#         /usr/bin/gsettings monitor "$schema" &> "$tmpDir/$schema.changes" &
+#     done
+#
+#     tail -f ${tmpDir}/*.changes
+#
+#     killall gsettings
+# }

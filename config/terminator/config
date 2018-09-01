@@ -7,6 +7,7 @@
   new_tab = <Primary>t
   next_tab = <Primary>Tab
   prev_tab = <Primary><Shift>Tab
+  toggle_zoom = <Shift><Alt>Return
 [layouts]
   [[default]]
     [[[child1]]]
@@ -20,6 +21,7 @@
 [profiles]
   [[default]]
     cursor_color = "#aaaaaa"
-    font = SourceCodePro Nerd Font 12
+    custom_command = zsh --login -x
+    font = SauceCodePro Nerd Font 12
     scrollback_infinite = True
     use_system_font = False
