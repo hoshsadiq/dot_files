@@ -11,7 +11,6 @@ if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
   zle -N zle-line-finish
 fi
 
-
 bindkey '^[OH' beginning-of-line # [Home] - Go to beginning of line
 bindkey '^A' beginning-of-line # Ctrl+A - Go to beginning of line
 bindkey '^[OF' end-of-line # [End] - Go to end of line
@@ -22,9 +21,12 @@ bindkey "^[[3~" delete-char # [Delete] - delete forward
 
 bindkey ' ' magic-space # [Space] - do history expansion
 
+# todo should probably have Ctrl+Left/Right arrow on Linux only, and on Mac should be Alt+Left/Right
+bindkey '^[^[[C' forward-word # [Alt+RightArrow] - move forward one word
+bindkey '^[^[[D' backward-word # [Alt+LeftArrow] - move backward one word
 bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
-bindkey '^[f' forward-word # [Alt+F] - move forward one word
 bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word
+bindkey '^[f' forward-word # [Alt+F] - move forward one word
 bindkey '^[b' backward-word # [Alt+B] - move backward one word
 
 bindkey '^K' kill-line
@@ -42,3 +44,9 @@ bindkey "^[m" copy-prev-shell-word
 # history-substring-search
 bindkey '^[OA' history-substring-search-up
 bindkey '^[OB' history-substring-search-down
+
+bindkey "^[w" kill-region
+bindkey "^@" set-mark-command
+
+bindkey "^[[6~" down-line-or-history
+bindkey "^[[5~" up-line-or-history

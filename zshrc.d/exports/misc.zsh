@@ -14,3 +14,6 @@ export LESS=' -R'
 
 # GPG Signing git commits
 export GPG_TTY=$(tty)
+
+# don't use the built-in virtualenv prompt
+export VIRTUAL_ENV_DISABLE_PROMPT=true

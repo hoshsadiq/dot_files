@@ -1,11 +1,10 @@
-
-### Added by Zplugin's installer
-source '/home/hosh/.zplugin/bin/zplugin.zsh'
+source "$HOME/.zplugin/bin/zplugin.zsh"
 autoload -Uz _zplugin
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
-### End of Zplugin's installer chunk
 
-# plugins.. these can probably be improved in one way or another
+zmodload -i zsh/complist
+autoload -Uz compinit
+compinit
 
 # oh my zsh plugins
 zplugin snippet OMZ::lib/clipboard.zsh

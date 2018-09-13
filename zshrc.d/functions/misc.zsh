@@ -63,7 +63,7 @@ greppid () {
 }
 
 diff() {
-    git diff --no-index --color-words "$@";
+    git diff --no-index --exit-code --color-words "$@";
 }
 
 # Calculate something

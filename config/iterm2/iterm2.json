@@ -1,7 +1,7 @@
 {
   "Profiles": [
     {
-      "Normal Font" : "SauceCodeProNerdFontCM-Regular 16",
+      "Normal Font" : "SauceCodeProNerdFontComplete-Regular 16",
       "Option Key Sends" : 2,
       "Unlimited Scrollback" : true,
       "Name" : "dot-files",

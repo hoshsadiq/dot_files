@@ -1,5 +1,3 @@
-export PYENV="$HOME/Workspace/pyenv"
-
 if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
   pip install pip --upgrade
 
@@ -7,18 +5,16 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
   pip install virtualenv --user --upgrade
   pip install pip-upgrader --user --upgrade
 
-  virtualenv "$PYENV/awscli"
-  "$PYENV/awscli/bin/pip" install awscli --upgrade
-  "$PYENV/awscli/bin/pip" install saws --upgrade
+  PYENV="$HOME/Workspace/pyenv"
+
+  for app in awscli shyaml; do
+    virtualenv "$PYENV/$app"
+    "$PYENV/$app/bin/pip" install "$app" --upgrade
+  done
 
   ln -s $PYENV/awscli/bin/aws $HOME/bin/aws
-  ln -s $PYENV/awscli/bin/saws $HOME/bin/saws
   ln -s $PYENV/awscli/bin/aws_completer $HOME/bin/aws_completer
   ln -s $PYENV/awscli/bin/aws_zsh_completer.sh $HOME/bin/aws_zsh_completer.sh
-
-  virtualenv "$PYENV/shyaml"
-  "$PYENV/shyaml/bin/pip" install shyaml --upgrade
-
   ln -s $PYENV/shyaml/bin/shyaml $HOME/bin/shyaml
 
   go get -u github.com/jtyr/gbt/cmd/gbt
