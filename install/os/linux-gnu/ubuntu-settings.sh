@@ -49,8 +49,19 @@ gsettings set org.cinnamon enable-indicators true
 gsettings set org.cinnamon.settings-daemon.plugins.power lock-on-suspend true
 gsettings set org.cinnamon alttab-switcher-style 'icons+thumbnails'
 
+gsettings set org.cinnamon.desktop.keybindings looking-glass-keybinding "['<Shift><Super>l']"
+gsettings set org.cinnamon.desktop.keybindings.wm toggle-maximized "[]"
 gsettings set org.cinnamon.desktop.keybindings.wm toggle-fullscreen "['<Super>f']"
+gsettings set org.cinnamon.desktop.keybindings.wm begin-resize "['<Super>r']"
+gsettings set org.cinnamon.desktop.keybindings.wm begin-move "['<Super>m']"
 gsettings set org.cinnamon.desktop.keybindings.media-keys terminal "[]"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute "[]"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-down "[]"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-up "[]"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute-quiet "['AudioMute']"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-down-quiet "['AudioLowerVolume']"
+gsettings set org.cinnamon.desktop.keybindings.media-keys volume-up-quiet "['AudioRaiseVolume']"
+gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l']"
 
 gsettings set org.cinnamon.settings-daemon.peripherals.touchpad tap-to-click false
 gsettings set org.cinnamon.settings-daemon.peripherals.touchpad clickpad-click 2
