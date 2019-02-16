@@ -20,6 +20,15 @@ ssh-get-fingerprint() {
   ssh-keygen -E "$hash" -lf "$keyFile"
 }
 
+ssl-get-website-fingerprint() {
+  website="$1"
+
+  echo -n \
+    | openssl s_client -connect "$website:443" 2>/dev/null \
+    | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' \
+    | openssl x509 -noout -fingerprint -sha256 -in /dev/stdin
+}
+
 check_gpg_pass() {
     if [ "$1x" == "x" ]; then
         echo "$0 <key-id>"
@@ -28,6 +37,10 @@ check_gpg_pass() {
     echo "1234" | gpg --batch -o /dev/null --local-user "$1" -as - 2>&1 && echo "The correct passphrase was entered for this key"
 }
 
+
+gen-pass-from-words() {
+  grep -E "^[a-z]{4,10}$" /usr/share/dict/words | sort -R | head -n 4 | paste -sd "-" -
+}
 
 gen-pass() {
   local alphabet=true

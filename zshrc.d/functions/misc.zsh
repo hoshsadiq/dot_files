@@ -29,21 +29,6 @@ remindme() {
   nohup sleep $1 && zenity --info --text "$2" &
 }
 
-# google search
-google() {
-  if [[ $1 ]]; then
-    q="$@"
-    q=$(echo ${q//[^a-zA-Z0-9]/+})
-    if [[ "$OSTYPE" == "cygwin" ]]; then
-      cygstart firefox -new-tab "https://www.google.com/search?q="$q;
-    else
-      firefox -new-tab "https://www.google.com/search?q="$q;
-    fi
-  else
-    echo 'Usage: google seach terms';
-  fi
-}
-
 # outputs the pid of the first grepped process
 greppid () {
   local context=0
@@ -60,10 +45,6 @@ greppid () {
   else
     ps aux | grep $proc | head -n 1 | awk '{ print $2 }'
   fi
-}
-
-diff() {
-    git diff --no-index --exit-code --color-words "$@";
 }
 
 # Calculate something

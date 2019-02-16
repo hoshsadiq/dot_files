@@ -9,6 +9,7 @@ cat <<EOF > $HOME/Library/LaunchAgents/org.dmarcotte.Easy-Move-Resize.LaunchAtLo
   <string>org.dmarcotte.Easy-Move-Resize.LaunchAtLogin</string>
   <key>ProgramArguments</key>
   <array>
+    <string>open</string>
     <string>$HOME/Applications/Easy Move+Resize.app</string>
   </array>
   <key>RunAtLoad</key>
@@ -20,3 +21,5 @@ cat <<EOF > $HOME/Library/LaunchAgents/org.dmarcotte.Easy-Move-Resize.LaunchAtLo
 </dict>
 </plist>
 EOF
+
+launchctl load -w $HOME/Library/LaunchAgents/org.dmarcotte.Easy-Move-Resize.LaunchAtLogin.plist

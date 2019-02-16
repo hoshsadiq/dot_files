@@ -2,8 +2,8 @@
 
 xcode-select --install
 
-curl -fsSL -o /tmp/go1.9.pkg https://dl.google.com/go/go1.9.darwin-amd64.pkg
-sudo installer -pkg /tmp/go1.9.pkg -target /
+curl -fsSL -o /tmp/golang.pkg https://dl.google.com/go/go1.11.darwin-amd64.pkg
+sudo installer -pkg /tmp/golang.pkg -target /
 
 # Check for Homebrew,
 # Install if we don't have it

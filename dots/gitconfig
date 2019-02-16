@@ -118,3 +118,5 @@
   whitespace = fix
 [commit]
   gpgSign = true
+[sendpack]
+	sideband = false

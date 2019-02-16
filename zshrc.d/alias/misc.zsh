@@ -20,3 +20,5 @@ alias map="xargs -n1"
 
 # edits dot files
 alias edots="atom $DOT_FILES $ZSH $GBT__HOME $PYENV"
+
+alias diff="git diff --no-index --exit-code --color-words"
