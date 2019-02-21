@@ -92,5 +92,5 @@ sudo ufw allow out 53
 # todo
 # - individual applets/extensions etc
 #   see ~/.cinnamon/configs
-# - spotify
+# - spotify: sed -E -e '/^Exec/s/( %U)?$/ --force-device-scale-factor=2\1/g' -e 's#(/snap/spotify/)[0-9]+#\1current#' /var/lib/snapd/desktop/applications/spotify_spotify.desktop > ~/.local/share/applications/spotify.desktop
 # -

@@ -10,6 +10,7 @@ sudo apt-get install -y \
     snapd \
     xclip \
     geary \
+    albert \
     kubectl \
     clamav \
     clamtk-gnome \
@@ -52,6 +53,11 @@ sudo snap install intellij-idea-ultimate --classic
 hugoUrl="$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r '.assets[] | select( .name|endswith("Linux-64bit.deb") ) | .browser_download_url')"
 curl -fsSL https://github.com/gohugoio/hugo/releases/download/v0.42.2/hugo_0.42.2_Linux-64bit.deb -o /tmp/hugo.deb
 sudo dpkg -i /tmp/hugo.deb
+
+curl -o /tmp/keybase.deb -s https://prerelease.keybase.io/keybase_amd64.deb
+sudo dpkg -i /tmp/keybase.deb
+sudo apt-get install -f
+run_keybase
 
 #https://dl.google.com/android/repository/platform-tools-latest-linux.zip
 sudo apt remove --purge thunderbird transmission-common pix hexchat gnome-terminal gnome-terminal-data rhythmbox rhythmbox-data xplayer tomboy xserver-xorg-input-wacom
