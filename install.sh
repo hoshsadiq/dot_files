@@ -5,8 +5,6 @@ set -e
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/Workspace"
 
-# todo ssh config
-
 export GOLANG_VERSION="1.10"
 
 
@@ -55,9 +53,11 @@ fi
 
 (cd "$DOT_FILES" && git pull)
 
-for file in ${DOT_FILES}/dots/*; do
-    dot="$HOME/.$(basename $file)"
-    echo "$dot -> $file"
-    [ -f "$dot" ] &&  mv "$dot" "$DOT_FILES/backup/.$(basename $file)"
-    ln -s "$file" "$dot"
+dots=($(find $DOT_FILES/dots -mindepth 1 -type f -printf "%P\n"))
+for file in "${dots[@]}"; do
+    dot="$HOME/.$file"
+    abs_dot="$DOT_FILES/dots/$file"
+    echo "$dot -> $abs_dot"
+    [ -f "$dot" ] &&  mv "$dot" "$DOT_FILES/backup/.$file"
+    ln -s "$abs_dot" "$dot"
 done
