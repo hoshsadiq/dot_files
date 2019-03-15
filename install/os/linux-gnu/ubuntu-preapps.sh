@@ -9,6 +9,8 @@ curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-k
 source /etc/upstream-release/lsb-release
 
 sudo add-apt-repository -y ppa:geary-team/releases
+sudo add-apt-repository -y ppa:gophers/archive
+
 # todo fix java, need to install java10
 # sudo add-apt-repository -y ppa:webupd8team/java
 sudo add-apt-repository -y "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/x${DISTRIB_ID}_${DISTRIB_RELEASE}/ /" # albert

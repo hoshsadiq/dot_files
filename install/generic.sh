@@ -17,7 +17,6 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
   ln -s $PYENV/awscli/bin/aws_zsh_completer.sh $HOME/bin/aws_zsh_completer.sh
   ln -s $PYENV/shyaml/bin/shyaml $HOME/bin/shyaml
 
-  go get -u github.com/jtyr/gbt/cmd/gbt
   go get -u github.com/simplealpine/json2yaml
   go get -u github.com/simplealpine/yaml2json
 fi

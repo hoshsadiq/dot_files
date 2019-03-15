@@ -1,13 +1,13 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/Workspace"
 
-export GOLANG_VERSION="1.10"
+export GOLANG_VERSION="1.11"
 
-
+sudo apt-get update && sudo apt-get install git zsh -y
 
 # if [[ "$OSTYPE" == "darwin"* ]]; then
 #    source "install/os/darwin.sh"
@@ -51,13 +51,13 @@ if [ ! -d "$DOT_FILES" ]; then
     git clone "git://github.com/hoshsadiq/dot_files.git" "$DOT_FILES"
 fi
 
-(cd "$DOT_FILES" && git pull)
+#(cd "$DOT_FILES" && git pull)
 
 dots=($(find $DOT_FILES/dots -mindepth 1 -type f -printf "%P\n"))
 for file in "${dots[@]}"; do
     dot="$HOME/.$file"
     abs_dot="$DOT_FILES/dots/$file"
     echo "$dot -> $abs_dot"
-    [ -f "$dot" ] &&  mv "$dot" "$DOT_FILES/backup/.$file"
+    [ -f "$dot" ] && mkdir -p "$(dirname $DOT_FILES/backup/.$file)" &&  mv "$dot" "$DOT_FILES/backup/.$file"
     ln -s "$abs_dot" "$dot"
 done

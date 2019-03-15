@@ -22,7 +22,7 @@ sudo prime-select intel
 
 for service in gpuoff powertop; do
     # sudo cp $DOT_FILES/systemd/gpuoff.service /lib/systemd/system/gpuoff.service
-    sudo ln -s $DOT_FILES/systemd/$service.service /lib/systemd/system/$service.service
+    sudo ln -fs $DOT_FILES/config/systemd/$service.service /lib/systemd/system/$service.service
     sudo systemctl enable $service
     sudo systemctl start $service
 done

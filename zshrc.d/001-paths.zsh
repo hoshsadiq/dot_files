@@ -25,4 +25,6 @@ addpath $GOPATH/bin after
 
 # move to ~/apps/android/bin
 addpath $HOME/apps/android-bin after
-addpath $JAVA_HOME/bin after
+if [ -d "$JAVA_HOME" ]; then
+  addpath $JAVA_HOME/bin after
+fi

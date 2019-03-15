@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 sudo apt-get upgrade -y
 
 sudo apt-get install -y \
@@ -10,20 +12,20 @@ sudo apt-get install -y \
     snapd \
     xclip \
     geary \
-    albert \
     kubectl \
     clamav \
     clamtk-gnome \
+    moreutils \
     redshift \
     docker-ce \
     net-tools \
     terminator \
     python-pip \
     golang-go \
-    golang-$GOLANG_VERSION \
+    "golang-$GOLANG_VERSION-go" \
     source-highlight \
     network-manager-openvpn network-manager-openvpn-gnome \
-    exfat-fuse exfat-utils \ # allow mounting exfat filesystems
+    exfat-fuse exfat-utils # \ # allow mounting exfat filesystems
     # oracle-java9-installer oracle-java9-set-default oracle-java9-unlimited-jce-policy # todo fix java
 
 typeset -A binApps
@@ -45,7 +47,6 @@ fc-cache -f -v
 
 sudo snap install spotify
 sudo snap install vlc
-sudo snap install bitwarden
 sudo snap install atom --classic
 sudo snap install skype --classic
 sudo snap install intellij-idea-ultimate --classic

@@ -5,6 +5,7 @@ sudo apt-get install \
     virt-manager \
     python-libvirt \
     libvirt-bin \
+    qemu \
     qemu-kvm \
     virt-viewer \
     bridge-utils \

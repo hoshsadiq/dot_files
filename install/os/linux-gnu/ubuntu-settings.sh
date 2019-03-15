@@ -1,6 +1,10 @@
-sudo groupadd docker
+#!/usr/bin/env zsh
+
+set -ex
+
+getent group docker || sudo groupadd docker
 sudo usermod -aG docker $USER
-newgrp docker
+newgrp docker # todo this takes over the shell
 sudo systemctl enable docker
 
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
@@ -14,9 +18,9 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
 # gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'terminator.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
 
 mkdir -p "$HOME/.config/terminator"
-ln -s "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
+ln -fs "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
 
-echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc_local
+# echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc_local
 echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc_local
 
 # system tweaks
@@ -58,7 +62,7 @@ gsettings set org.cinnamon.desktop.keybindings.media-keys terminal "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-down "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-up "[]"
-gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute-quiet "['AudioMute']"
+gsettings set org.cinnamon.desktop.keybindings.media-keys mute-quiet "['AudioMute']"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-down-quiet "['AudioLowerVolume']"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-up-quiet "['AudioRaiseVolume']"
 gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l']"
@@ -78,16 +82,18 @@ gsettings set org.cinnamon.settings-daemon.plugins.power sleep-display-battery 3
 # ==> org.cinnamon.desktop.keybindings.wm.changes <==
 # unmaximize: @as []
 
+# jq '."use-custom-format".value = true | ."custom-format".value = "%H:%M %a %d %b %Y"' ~/.cinnamon/configs/calendar@cinnamon.org/11.json | sponge ~/.cinnamon/configs/calendar@cinnamon.org/11.json
+# jq '."peek-at-desktop".value = true' ~/.cinnamon/configs/show-desktop@cinnamon.org/20.json | sponge ~/.cinnamon/configs/show-desktop@cinnamon.org/20.json
 
 
 
-sudo ufw status
-sudo ufw default deny incomings
-sudo ufw default deny outgoing
-
-sudo ufw allow out http
-sudo ufw allow out https
-sudo ufw allow out 53
+# sudo ufw status
+# sudo ufw default deny incomings
+# sudo ufw default deny outgoing
+#
+# sudo ufw allow out http
+# sudo ufw allow out https
+# sudo ufw allow out 53
 
 # todo
 # - individual applets/extensions etc
