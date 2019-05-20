@@ -11,11 +11,6 @@ if cat /etc/*release | grep ^NAME | grep -iq '\(mint\|ubuntu\)'; then
     source ./linux-gnu/ubuntu-apps.sh
     source ./linux-gnu/ubuntu-settings.sh
 
-    # todo move this to a separate file
-    gobin="$(dirname $(dpkg -L "golang-$GOLANG_VERSION-go" | grep 'bin/go$'))"
-
-    echo "export PATH=$gobin:\$PATH" >> ~/.zshrc_local
-
     # Section "InputClass"
     #         Identifier "libinput touchpad catchall"
     #         MatchIsTouchpad "on"

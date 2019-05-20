@@ -1,0 +1,19 @@
+[commands.swipe.three]
+up = "xdotool key ctrl+alt+Up"
+down = "xdotool key ctrl+alt+Down"
+left = "xdotool key alt+Right"
+right = "xdotool key alt+Left"
+left_up = ""
+right_up = ""
+left_down = ""
+right_down = ""
+
+[commands.swipe.four]
+up = ""
+down = "xdotool key super+d"
+left = "xdotool key super+ctrl+alt+Right"
+right = "xdotool key super+ctrl+alt+Left"
+left_up = ""
+right_up = ""
+left_down = ""
+right_down = ""

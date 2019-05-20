@@ -27,7 +27,7 @@ zplugin snippet OMZ::plugins/globalias/globalias.plugin.zsh
 zplugin light zdharma/history-search-multi-word
 zplugin light zsh-users/zsh-autosuggestions
 zplugin light zdharma/fast-syntax-highlighting
-zplugin light denysdovhan/spaceship-prompt/
+# zplugin light denysdovhan/spaceship-prompt/
 zplugin light zsh-users/zsh-history-substring-search
 
 # todo these need to be loaded conditionally

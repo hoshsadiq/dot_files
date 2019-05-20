@@ -20,7 +20,7 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
 mkdir -p "$HOME/.config/terminator"
 ln -fs "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
 
-# echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc_local
+echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc_local
 echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc_local
 
 # system tweaks
@@ -46,6 +46,7 @@ gsettings set org.cinnamon.desktop.default-applications.terminal exec 'terminato
 
 gsettings set org.cinnamon.desktop.screensaver lock-enabled true
 gsettings set org.cinnamon.desktop.screensaver lock-delay "uint32 0"
+gsettings set org.cinnamon.desktop.screensaver show-album-art false
 
 gsettings set org.nemo.desktop trash-icon-visible true
 gsettings set org.gnome.desktop.interface scaling-factor "uint32 2"
@@ -54,10 +55,17 @@ gsettings set org.cinnamon.settings-daemon.plugins.power lock-on-suspend true
 gsettings set org.cinnamon alttab-switcher-style 'icons+thumbnails'
 
 gsettings set org.cinnamon.desktop.keybindings looking-glass-keybinding "['<Shift><Super>l']"
+gsettings set org.cinnamon.desktop.keybindings.wm unmaximize "[]"
 gsettings set org.cinnamon.desktop.keybindings.wm toggle-maximized "[]"
 gsettings set org.cinnamon.desktop.keybindings.wm toggle-fullscreen "['<Super>f']"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-resize "['<Super>r']"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-move "['<Super>m']"
+gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-left "['<Primary><Alt><Super>Left']"
+gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-right "['<Primary><Alt><Super>Right']"
+gsettings set org.cinnamon.desktop.keybindings.wm move-to-workspace-left "['<Primary><Shift><Alt><Super>Left']"
+gsettings set org.cinnamon.desktop.keybindings.wm move-to-workspace-right "['<Primary><Shift><Alt><Super>Right']"
+gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-up "['<Control><Alt>Up']"
+
 gsettings set org.cinnamon.desktop.keybindings.media-keys terminal "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-down "[]"
@@ -71,16 +79,24 @@ gsettings set org.cinnamon.settings-daemon.peripherals.touchpad tap-to-click fal
 gsettings set org.cinnamon.settings-daemon.peripherals.touchpad clickpad-click 2
 gsettings set org.cinnamon.settings-daemon.peripherals.touchpad horizontal-scrolling true
 
-gsettings set org.cinnamon.settings-daemon.plugins.power sleep-inactive-battery-timeout 900
-gsettings set org.cinnamon.settings-daemon.plugins.power sleep-display-battery 300
+gsettings set org.cinnamon.desktop.session idle-delay 600
+gsettings set org.cinnamon.desktop.screensaver lock-delay 0
 
+gsettings set org.cinnamon.settings-daemon.plugins.power idle-dim-time 300
+
+gsettings set org.cinnamon.settings-daemon.plugins.power sleep-display-ac 1800
+gsettings set org.cinnamon.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
+gsettings set org.cinnamon.settings-daemon.plugins.power lid-close-ac-action 'suspend'
+
+gsettings set org.cinnamon.settings-daemon.plugins.power sleep-display-battery 600
+gsettings set org.cinnamon.settings-daemon.plugins.power sleep-inactive-battery-timeout 900
+gsettings set org.cinnamon.settings-daemon.plugins.power lid-close-battery-action 'suspend'
+
+gsettings set org.cinnamon.sounds switch-enabled false
 
 # ==> org.cinnamon <==
 # next-applet-id: 20
 # enabled-applets: ['panel1:right:3:systray@cinnamon.org:0', 'panel1:left:1:show-desktop@cinnamon.org:2', 'panel1:left:2:panel-launchers@cinnamon.org:3', 'panel1:left:3:window-list@cinnamon.org:4', 'panel1:right:5:keyboard@cinnamon.org:5', 'panel1:right:6:notifications@cinnamon.org:6', 'panel1:right:4:removable-drives@cinnamon.org:7', 'panel1:right:11:user@cinnamon.org:8', 'panel1:right:9:network@cinnamon.org:9', 'panel1:right:7:power@cinnamon.org:11', 'panel1:right:12:calendar@cinnamon.org:12', 'panel1:right:8:sound@cinnamon.org:13', 'panel1:right:2:inhibit@cinnamon.org:15', 'panel1:left:0:Cinnamenu@json:17', 'panel1:right:1:weather@mockturtl:18', 'panel1:right:0:stevedore@centurix:19']
-
-# ==> org.cinnamon.desktop.keybindings.wm.changes <==
-# unmaximize: @as []
 
 # jq '."use-custom-format".value = true | ."custom-format".value = "%H:%M %a %d %b %Y"' ~/.cinnamon/configs/calendar@cinnamon.org/11.json | sponge ~/.cinnamon/configs/calendar@cinnamon.org/11.json
 # jq '."peek-at-desktop".value = true' ~/.cinnamon/configs/show-desktop@cinnamon.org/20.json | sponge ~/.cinnamon/configs/show-desktop@cinnamon.org/20.json
@@ -100,3 +116,6 @@ gsettings set org.cinnamon.settings-daemon.plugins.power sleep-display-battery 3
 #   see ~/.cinnamon/configs
 # - spotify: sed -E -e '/^Exec/s/( %U)?$/ --force-device-scale-factor=2\1/g' -e 's#(/snap/spotify/)[0-9]+#\1current#' /var/lib/snapd/desktop/applications/spotify_spotify.desktop > ~/.local/share/applications/spotify.desktop
 # -
+
+ln -s /usr/share/applications/org.gnome.Calendar.desktop /home/hosh/.config/autostart/org.gnome.Calendar.desktop
+ln -s /usr/share/applications/org.gnome.Geary.desktop /home/hosh/.config/autostart/org.gnome.Geary.desktop

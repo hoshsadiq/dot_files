@@ -1,4 +1,4 @@
-# [[ ! -z "${ZSH_START_TIMINGS+x}" && "${ZSH_START_TIMINGS}" == "true" ]] && zmodload zsh/zprof
+# zmodload zsh/zprof
 
 # todo: determine dot_files dir
 export DOT_FILES="$HOME/dot_files"
@@ -10,7 +10,4 @@ if [ -d "$DOT_FILES/zshrc.d" ]; then
   done
 fi
 
-# [[ ! -z "${ZSH_START_TIMINGS+x}" && "${ZSH_START_TIMINGS}" == "true" ]] && zprof
-
-# added by travis gem
-[ -f /Users/hoshang.sadiq/.travis/travis.sh ] && source /Users/hoshang.sadiq/.travis/travis.sh
+# zprof

@@ -1,122 +1,134 @@
 [user]
-  name = Hosh Sadiq
-  signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
+	name = Hosh Sadiq
+	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
 
 [core]
-  pager = less -FRSX
-  editor = vim
-  autocrlf = input
-  excludesfile = ~/.gitignore
-  attributesfile = ~/.gitattributes
+	pager = less -FRSX
+	editor = vim
+	autocrlf = input
+	excludesfile = ~/.gitignore
+	attributesfile = ~/.gitattributes
 
 [fetch]
-  prune = true
+	prune = true
 
 [color]
-  diff = auto
-  ui = auto
-  status = auto
-  branch = auto
-  interactive = auto
-  pager = true
+	diff = auto
+	ui = auto
+	status = auto
+	branch = auto
+	interactive = auto
+	pager = true
 
 [push]
-  default = simple
+	default = simple
 
 [branch]
-  autosetupmerge = true
+	autosetupmerge = true
 
 [alias]
-  unstage = reset HEAD --
-  root = !pwd
-  dl = "!git ll -1"
-  dlc = diff --cached HEAD^
-  prune = fetch --prune
-  undo = reset --soft HEAD^
-  branch-name = rev-parse --abbrev-ref HEAD
+	unstage = reset HEAD --
+	root = !pwd
+	dl = "!git ll -1"
+	dlc = diff --cached HEAD^
+	prune = fetch --prune
+	undo = reset --soft HEAD^
+	branch-name = rev-parse --abbrev-ref HEAD
 
-  stash-all = stash save --include-untracked
+	stash-all = stash save --include-untracked
 
-  co = checkout
-  ci = commit
-  st = status
-  br = branch
+	co = checkout
+	ci = commit
+	st = status
+	br = branch
 
-  type = cat-file -t
-  dump = cat-file -p
+	type = cat-file -t
+	dump = cat-file -p
 
-  filelog = log -u
-  le = log --oneline --decorate
-  graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
-  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-  lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
-  ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
-  glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+	filelog = log -u
+	graph = log --graph --all --pretty=format:'%Cred%h%Creset - %Cgreen(%cr)%Creset %s%C(yellow)%d%Creset %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	ls = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
-  patch = !git --no-pager diff --no-color
-  permission-reset = !git diff -p -R --no-color | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+	patch = !git --no-pager diff --no-color
+	permission-reset = !git diff -p -R --no-color | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
 
-  diff-intellij = difftool --tool=intellij
-  intellidiff = difftool --tool=intellij
+	diff-intellij = difftool --tool=intellij
+	intellidiff = difftool --tool=intellij
+	# remote-to-https = ! f() { echo "$1" }
+	remote-to-https = "! f() {\
+			newUrl=\"$(git remote get-url $1 | sed \"s#^git@\\(.*\\):/*\\(.*\\).git#https://\\1/\\2.git#\")\"; \
+			echo \"Setting remote to $newUrl\"; \
+			git remote set-url $1 $newUrl; \
+		}; f"
+	remote-to-ssh = "! f() { \
+			newUrl=\"$(git remote get-url $1 | sed \"s#^https://\\([^/]*\\)/\\(.*\\).git#git@\\1:\\2.git#\")\"; \
+			echo \"Setting remote to $newUrl\"; \
+			git remote set-url $1 $newUrl; \
+		}; f"
+
+	# git remote set-url "$1" "$(git remote get-url "$1" | sed "s#^git@\(.*\):/*\(.*\).git#https://\1/\2.git#")"
+
+	# remote-https = !git remote set-url origin $(git remote get-url origin | sed \'s/^git@\(.*\):\/*\(.*\).git/https:\/\/\1\/\2.git/\')
+	# remote-ssh = !git remote set-url origin $(git remote get-url origin | sed 's/^git@\(.*\):\/*\(.*\).git/https:\/\/\1\/\2.git/')
 
 [diff]
-  tool = vimdiff
-  compactionHeuristic = true
-  indentHeuristic = true
+	tool = vimdiff
+	compactionHeuristic = true
+	indentHeuristic = true
 
 [diff "json"]
-  textconv = python -m json.tool
+	textconv = python -m json.tool
 
 [difftool]
-  prompt = false
+	prompt = false
 
 [difftool "intellij"]
-  cmd = idea diff $(cd $(dirname "$LOCAL") && pwd)/$(basename "$LOCAL") $(cd $(dirname "$REMOTE") && pwd)/$(basename "$REMOTE")
+	cmd = idea diff $(cd $(dirname "$LOCAL") && pwd)/$(basename "$LOCAL") $(cd $(dirname "$REMOTE") && pwd)/$(basename "$REMOTE")
 
 [merge]
-  tool = intellij
+	tool = intellij
 [mergetool "intellij"]
-  cmd = idea merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
-  trustExitCode = true
+	cmd = idea merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
+	trustExitCode = true
 
 [pager]
-  diff = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
-  show = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+	diff = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+	show = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
 
 [color "diff"]
-  meta = yellow
-  frag = magenta bold
-  commit = yellow bold
-  old = red bold
-  new = green bold
-  whitespace = red reverse
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
 
 [color "diff-highlight"]
-  oldNormal = red bold
-  oldHighlight = "red bold 52"
-  newNormal = "green bold"
-  newHighlight = "green bold 22"
+	oldNormal = red bold
+	oldHighlight = "red bold 52"
+	newNormal = "green bold"
+	newHighlight = "green bold 22"
 
 [diff-so-fancy]
-  stripLeadingSymbols = false
-  markEmptyLines = false
+	stripLeadingSymbols = false
+	markEmptyLines = false
 
 [color "branch"]
-  current = yellow reverse
-  local = yellow
-  remote = green
+	current = yellow reverse
+	local = yellow
+	remote = green
 
 [color "status"]
-  added = yellow
-  changed = green
-  untracked = cyan
+	added = yellow
+	changed = green
+	untracked = cyan
 
 [apply]
-  # Detect whitespace errors when applying a patch
-  whitespace = fix
+	whitespace = fix
+
 [commit]
-  gpgSign = true
+	gpgSign = true
+
 [sendpack]
 	sideband = false
