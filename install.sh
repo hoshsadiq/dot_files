@@ -7,6 +7,7 @@ mkdir -p "$HOME/Workspace"
 
 export GOLANG_VERSION="1.11"
 
+# todo this needs to be done platform agnostic
 sudo apt-get update && sudo apt-get install git zsh -y
 
 # if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -29,7 +30,12 @@ sudo apt-get update && sudo apt-get install git zsh -y
 # (cd "$HOME/.vim_runtime" && git pull)
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
-chsh `whoami` -s `which zsh`
+if command -v chsh >/dev/null; then
+	chsh "$(whoami)" -s "$(which zsh)"
+else # todo validate this is cygwin running.
+	echo "db_shell: $(which zsh)" >> /etc/nsswitch.conf
+	sed -i 's#bash#/usr/bin/zsh#' /Cygwin.bat
+fi
 
 typeset -a zshPlugins
 zshPlugins=(\

@@ -1,30 +1,3 @@
-proxy() {
-  action="$1"
-
-  local PROXY_URL=""
-
-  if [ -z "$PROXY_URL" ]; then
-    echo "No proxy has been set"
-    return 1
-  fi
-
-  case "$action" in
-    "off"|"disable")
-      export http_proxy=""
-      export https_proxy=""
-      echo "Proxy disabled"
-      ;;
-    "on"|"enable")
-      export http_proxy="$PROXY_URL"
-      export https_proxy="$PROXY_URL"
-      echo "Proxy enabled"
-      ;;
-    *)
-      echo "$0 enable|on|disable|off"
-      ;;
-  esac
-}
-
 # Touchscreen toggling
 touchscreen() {
   action="$1"

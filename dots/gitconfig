@@ -132,3 +132,5 @@
 
 [sendpack]
 	sideband = false
+[include]
+	path = ~/.gitconfig.local
