@@ -11,13 +11,20 @@ if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
   zle -N zle-line-finish
 fi
 
+export KEYTIMEOUT=1
+
+bindkey -v
+
 bindkey '^[OH' beginning-of-line # [Home] - Go to beginning of line
 bindkey '^A' beginning-of-line # Ctrl+A - Go to beginning of line
 bindkey '^[OF' end-of-line # [End] - Go to end of line
 bindkey '^E' end-of-line # Ctrl+E - Go to end of line
 
 bindkey '^?' backward-delete-char # [Backspace] - delete backward
-bindkey "^[[3~" delete-char # [Delete] - delete forward
+bindkey "^[[3~" delete-char # [Delete] - delete char
+bindkey "^H" backward-delete-word # [Ctrl+Backspace] - delete word backwards
+bindkey "^[[3;5~" delete-word # Ctrl+Del - delete word
+bindkey "^[d" delete-word # Ctrl+Del - delete word
 
 bindkey ' ' magic-space # [Space] - do history expansion
 
@@ -32,7 +39,9 @@ bindkey '^[b' backward-word # [Alt+B] - move backward one word
 bindkey '^K' kill-line
 bindkey '^U' kill-whole-line
 
-bindkey "${terminfo[kcbt]}" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
+# These two lines are the same, but for some reason it doesn't work within tmux
+#bindkey "${terminfo[kcbt]}" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
+bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
 
 # Edit the current command line in $EDITOR
 # autoload -U edit-command-line
@@ -50,3 +59,6 @@ bindkey "^@" set-mark-command
 
 bindkey "^[[6~" down-line-or-history
 bindkey "^[[5~" up-line-or-history
+
+# ctrl-w removed word backwards
+bindkey '^w' backward-kill-word

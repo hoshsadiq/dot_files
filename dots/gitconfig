@@ -83,7 +83,21 @@
 	renames = copies
 
 [diff "json"]
-	textconv = python -m json.tool
+	textconv = python -mjson.tool
+[diff "xml"]
+	textconv = xmllint --format
+[diff "pdf"]
+	binary = true
+	textconv = sh -c 'pdftotext -enc "UTF-8" -layout "$@" -'
+[diff "sqlite3"]
+	binary = true
+	textconv = "echo .dump | sqlite3"
+# [diff "doc"]
+# 	binary = true
+# 	textconv = catdoc
+# [diff "odf"]
+# 	binary = true
+# 	textconv = odt2txt
 
 [difftool]
 	prompt = false

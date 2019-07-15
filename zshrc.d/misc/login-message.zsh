@@ -19,5 +19,5 @@ uname -smr;
 echo -ne "$fg[white]"
 
 echo -e "\n$fg[red]Memory stats       : $fg[cyan]";
-free 2>/dev/null || echo "Memory information not yet available";
+free -h 2>/dev/null || echo "Memory information not yet available";
 echo -ne "$fg[white]"

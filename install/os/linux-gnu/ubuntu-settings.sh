@@ -27,10 +27,12 @@ echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc_l
 sudo sed -i -E '/^GRUB_TIMEOUT/s/=[0-9]+$/=3/' /etc/default/grub
 
 echo vm.swappiness=10 | sudo tee /etc/sysctl.d/60-swappiness.conf
+echo fs.inotify.max_user_watches=524288 | sudo tee /etc/sysctl.d/60-intellij-inotify.conf
+
+sudo sysctl -p --system
 
 # fix spotify HiDPI scaling
 sudo sed -i -E '/^Exec/s/$/ --force-device-scale-factor=2/g' /var/lib/snapd/desktop/applications/spotify_spotify.desktop
-
 
 # nemo
 gsettings set org.nemo.preferences show-open-in-terminal-toolbar true
@@ -62,9 +64,10 @@ gsettings set org.cinnamon.desktop.keybindings.wm begin-resize "['<Super>r']"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-move "['<Super>m']"
 gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-left "['<Primary><Alt><Super>Left']"
 gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-right "['<Primary><Alt><Super>Right']"
+gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-up: "['<Primary><Alt><Super>Up']"
+gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-down: "['<Primary><Alt><Super>Down']"
 gsettings set org.cinnamon.desktop.keybindings.wm move-to-workspace-left "['<Primary><Shift><Alt><Super>Left']"
 gsettings set org.cinnamon.desktop.keybindings.wm move-to-workspace-right "['<Primary><Shift><Alt><Super>Right']"
-gsettings set org.cinnamon.desktop.keybindings.wm switch-to-workspace-up "['<Control><Alt>Up']"
 
 gsettings set org.cinnamon.desktop.keybindings.media-keys terminal "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys volume-mute "[]"

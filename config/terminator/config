@@ -4,10 +4,14 @@
   cycle_next = <Primary>Page_Down
   cycle_prev = <Primary>Page_Up
   full_screen = <Alt>Return
+  go_down = None
+  go_left = None
+  go_right = None
+  go_up = None
+  layout_launcher = None
   new_tab = <Primary>t
-  next_tab = <Primary>Tab
-  prev_tab = <Primary><Shift>Tab
-  toggle_zoom = <Shift><Alt>Return
+  next_tab = None
+  prev_tab = None
 [layouts]
   [[default]]
     [[[child1]]]

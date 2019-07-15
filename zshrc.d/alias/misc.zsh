@@ -19,6 +19,6 @@ alias lla='ll -a'
 alias map="xargs -n1"
 
 # edits dot files
-alias edots="atom $DOT_FILES $ZSH $GBT__HOME $PYENV"
+alias edots="atom $DOT_FILES $ZSH"
 
 alias diff="git diff --no-index --exit-code --color-words"

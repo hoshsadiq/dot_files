@@ -1,2 +1,2 @@
 Include ~/dot_files/config/ssh.d/*.conf
-Include config_local
+Include ~/.ssh/config_local

@@ -4,3 +4,5 @@ alias graphviz='docker run --rm -i --name graphviz -v $(pwd):/workdir -w /workdi
 alias nmap='docker run --rm -i --name nmap nmap'
 alias sgviz='docker run --rm -i --name sgviz -v $HOME/.aws:/root/.aws -v $(pwd):/workdir -w /workdir sgviz'
 alias sipcalc='docker run --rm -i --name sipcalc sipcalc'
+alias sqlite3='docker run --rm -i --name sqlite3 -v $(pwd):/workdir -w /workdir sqlite3'
+alias travis='docker run --rm -i --name travis -v $(pwd):/workdir -w /workdir travis'

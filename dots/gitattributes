@@ -1,3 +1,57 @@
-*.json diff=json
-*.png diff=exif
-*.jpg diff=exif
+# Auto detect text files and perform LF normalisation.
+*   text=auto
+
+### Common ###
+
+# Documents
+*.bibtex    text diff=bibtex
+*.tex       text diff=tex
+*.md        text
+*.csv       text
+*.tsv       text
+*.sql       text
+
+*.pdf   diff=pdf
+*.doc   diff=doc
+*.ppt   diff=doc
+*.xls   diff=doc
+*.rtf   diff=doc
+*.odf   diff=odf
+*.odt   diff=odf
+*.odp   diff=odf
+
+# SVG is treated as a binary asset by default.
+*.svg   text
+
+# Shell Scripts
+*.sh    text eol=lf
+*.zsh   text eol=lf
+*.bash  text eol=lf
+*.fish  text eol=lf
+# Windows
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Configs
+*.properties    text
+json            text diff=json
+*.json          text diff=json
+*.yml           text
+*.toml          text
+*.ini           text
+*.conf          text
+*.config        text
+
+# Lock Files
+*.lock              text -diff
+package-lock.json   text -diff
+
+*.min.css   text -diff
+*.min.js    text -diff
+
+*.xml   text diff=xml
+
+*.map   text -diff
+
+# DB

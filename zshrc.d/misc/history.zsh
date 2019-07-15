@@ -2,8 +2,10 @@ alias history='fc -t "%d/%m/%Y %H:%M:%S" -l 1'
 
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
-HISTSIZE=50000
-SAVEHIST=10000
+
+HISTSIZE=100000
+HISTFILESIZE=$HISTSIZE
+SAVEHIST=$HISTSIZE
 
 ## History command configuration
 setopt BANG_HIST                 # Treat the '!' character specially during expansion.
@@ -19,3 +21,5 @@ setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in the history 
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 setopt HIST_BEEP                 # Beep when accessing nonexistent history.
+
+HISTIGNORE='&:[ ]*:exit:ls:bg:fg:history:clear:gd:gds'

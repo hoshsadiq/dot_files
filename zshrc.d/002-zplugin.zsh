@@ -6,6 +6,9 @@ zmodload -i zsh/complist
 autoload -Uz compinit
 compinit
 
+zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+zplugin load trapd00r/LS_COLORS
+
 # oh my zsh plugins
 zplugin snippet OMZ::lib/clipboard.zsh
 zplugin snippet OMZ::lib/completion.zsh

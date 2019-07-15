@@ -14,6 +14,7 @@ sudo apt-get install --quiet --assume-yes \
     snapd \
     xclip \
     geary \
+    piper \
     kubectl \
     clamav \
     clamtk-gnome \
