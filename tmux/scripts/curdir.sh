@@ -11,6 +11,8 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$CURRENT_DIR/../helpers/helpers.sh"
 
 declare -A options
+options[prefix]='┤ '
+options[suffix]=' ├'
 options[show-icon]='true'
 options[max-depth]='2'
 options[seperator]='/'
@@ -46,6 +48,8 @@ function main {
     options[max-depth]="${#path_array[@]}"
   fi
 
+  printf "%s" "${options[prefix]}"
+
   if [[ "${options[show-icon]}" ]]; then
     if [[ -n "${options[icon-config]}" && "${options[icon-config]}" != "false" ]] && [[ "$dir" == "/etc" || "$dir" == "/etc/"* ]]; then
       printf "${options[icon-config]} "
@@ -66,6 +70,8 @@ function main {
     index=$(( $length - ${options[max-depth]} ))
     printf "$(join_by "${options[seperator]}" "${path_array[@]:$index:$length}")"
   fi
+
+  printf "%s" "${options[suffix]}"
 }
 
 

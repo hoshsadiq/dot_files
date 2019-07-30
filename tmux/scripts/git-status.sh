@@ -12,8 +12,8 @@ source "$CURRENT_DIR/../helpers/helpers.sh"
 
 typeset -A settings
 settings[icon]='\ue725'
-settings[prefix]='├┤ '
-settings[suffix]=''
+settings[prefix]='┤ '
+settings[suffix]=' ├'
 # settings[statusd-directory]='~/.gitstatusd'
 settings[statusd-directory]="$HOME/.zplugin/plugins/romkatv---powerlevel10k/gitstatus"
 
@@ -88,7 +88,7 @@ function get_git_status {
     fi
     tmux_git_status+="${settings[suffix]}"
 
-    printf "${tmux_git_status}"
+    printf "%s" "${tmux_git_status}"
   fi
 }
 

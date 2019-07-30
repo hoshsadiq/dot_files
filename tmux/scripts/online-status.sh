@@ -12,11 +12,9 @@ source "$CURRENT_DIR/../helpers/helpers.sh"
 
 declare -A options
 options[online-icon]='\uf817'
-options[online-bg]='white'
-options[online-fg]='colour22'
+options[online-style]='fg=colour22,bg=white'
 options[offline-icon]='\uf818'
-options[offline-bg]='white'
-options[offline-fg]='colour124'
+options[offline-style]='fg=colour124,bg=white'
 options[ping-timeout]='1'
 options[ping-route]='www.google.com'
 
@@ -52,9 +50,9 @@ main() {
   update_options
 
 	if is-online; then
-		printf "#[bg=${options[online-bg]}]#[fg=${options[online-fg]}] ${options[online-icon]}"
+		printf "#[${options[online-style]}] ${options[online-icon]} "
 	else
-		printf "${options[offline-icon]}"
+		printf "#[${options[offline-style]}] ${options[offline-icon]} "
 	fi
 }
 main

@@ -15,9 +15,9 @@ export KEYTIMEOUT=1
 
 bindkey -v
 
-bindkey '^[OH' beginning-of-line # [Home] - Go to beginning of line
+bindkey '^[[1~' beginning-of-line # [Home] - Go to beginning of line
 bindkey '^A' beginning-of-line # Ctrl+A - Go to beginning of line
-bindkey '^[OF' end-of-line # [End] - Go to end of line
+bindkey '^[[4~' end-of-line # [End] - Go to end of line
 bindkey '^E' end-of-line # Ctrl+E - Go to end of line
 
 bindkey '^?' backward-delete-char # [Backspace] - delete backward
@@ -29,15 +29,16 @@ bindkey "^[d" delete-word # Ctrl+Del - delete word
 bindkey ' ' magic-space # [Space] - do history expansion
 
 # todo should probably have Ctrl+Left/Right arrow on Linux only, and on Mac should be Alt+Left/Right
-bindkey '^[^[[C' forward-word # [Alt+RightArrow] - move forward one word
-bindkey '^[^[[D' backward-word # [Alt+LeftArrow] - move backward one word
 bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
 bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word
 bindkey '^[f' forward-word # [Alt+F] - move forward one word
 bindkey '^[b' backward-word # [Alt+B] - move backward one word
 
-bindkey '^K' kill-line
-bindkey '^U' kill-whole-line
+bindkey '^K' kill-line # Ctrl+K kill cursor to end of line
+bindkey '^U' kill-whole-line # Ctrl+U kill whole line
+bindkey "^[w" kill-region # Alt+w kill cursor to beginning of line
+bindkey '^w' backward-kill-word # ctrl-w removed word backwards
+bindkey "^Y" yank # Ctrl+Y paste what was previously killed
 
 # These two lines are the same, but for some reason it doesn't work within tmux
 #bindkey "${terminfo[kcbt]}" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
@@ -51,14 +52,12 @@ bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion
 bindkey "^[m" copy-prev-shell-word
 
 # history-substring-search
-bindkey '^[OA' history-substring-search-up
-bindkey '^[OB' history-substring-search-down
+zmodload zsh/terminfo
+bindkey '^R' history-search-multi-word
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
-bindkey "^[w" kill-region
 bindkey "^@" set-mark-command
 
 bindkey "^[[6~" down-line-or-history
 bindkey "^[[5~" up-line-or-history
-
-# ctrl-w removed word backwards
-bindkey '^w' backward-kill-word

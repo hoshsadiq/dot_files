@@ -14,6 +14,7 @@ main() {
 	update_tmux_option "status-left" -g
 	update_tmux_option "status-right" -g
 	update_tmux_option "pane-border-format" -gw
+	update_tmux_option "window-status-current-format" -gw
 }
 
 main
