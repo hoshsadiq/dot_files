@@ -5,9 +5,11 @@
 [core]
 	pager = less -FRSX
 	editor = vim
-	autocrlf = input
+	autocrlf = false
 	excludesfile = ~/.gitignore
 	attributesfile = ~/.gitattributes
+	preloadindex = true
+	fscache = true
 
 [fetch]
 	prune = true
@@ -92,9 +94,9 @@
 	cmd = idea merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	trustExitCode = true
 
-[pager]
-	diff = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
-	show = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+#[pager]
+#	diff = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+#	show = diff-so-fancy | less --tabs=4 --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
 
 [color "diff"]
 	meta = yellow
@@ -129,8 +131,15 @@
 
 [commit]
 	gpgSign = true
-
+[pull]
+       rebase = true
+[rebase]
+       autoStash = true
 [sendpack]
 	sideband = false
+[gc]
+	auto = 256
+[status]
+	submoduleSummary = false
 [include]
 	path = ~/.gitconfig.local

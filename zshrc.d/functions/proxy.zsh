@@ -88,3 +88,7 @@ unsetproxy() {
   unset NO_PROXY
   unset PROXY_URL
 }
+
+if [[ -n "$PROXY_USERNAME" && -n "$PROXY_PASSWORD" && -n "$PROXY_HOST" ]]; then
+  setproxy
+fi

@@ -9,7 +9,7 @@ reqroot () {
 
 # replaces vi with vim and checks if the file
 # requires root, if it does, it prompts to edit as root
-vi () {
+function vi {
   if [[ `reqroot "$@"` > 1 ]]; then /usr/bin/vim $@;
   elif [[ $1 = '' ]]; then /usr/bin/vim;
   elif [[ ! -f $1 ]] || [[ -w $1 ]]; then /usr/bin/vim $@;

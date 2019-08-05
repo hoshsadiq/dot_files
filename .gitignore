@@ -2,3 +2,4 @@
 /backup/*
 !/backup/.gitkeep
 .idea
+/zshrc_local
