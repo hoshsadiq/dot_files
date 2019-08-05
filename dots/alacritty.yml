@@ -66,11 +66,11 @@ window:
   #title: Alacritty
 
   # Window class (Linux only):
-  class:
+  # class:
     # Application instance name
-    instance: Alacritty
+    # instance: Alacritty
     # General application class
-    general: Alacritty
+    # general: Alacritty
 
   # GTK theme variant (Linux only)
   #
