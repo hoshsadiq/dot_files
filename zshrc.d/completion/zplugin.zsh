@@ -1,0 +1,14 @@
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_setcap
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_vagrant
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_virtualbox
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_xinput
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
+zplugin ice as"completion"
+zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_ufw
+zplugin ice as"completion"
+zplugin snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker

@@ -6,8 +6,10 @@ zmodload -i zsh/complist
 autoload -Uz compinit
 compinit
 
-zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
-zplugin load trapd00r/LS_COLORS
+zplugin ice atclone"dircolors -b LS_COLORS > clrs.zsh" \
+    atpull'%atclone' pick"clrs.zsh" nocompile'!' \
+    atload'zstyle ":completion:*" list-colors “${(s.:.)LS_COLORS}”'
+zplugin light trapd00r/LS_COLORS
 
 # oh my zsh plugins
 zplugin snippet OMZ::lib/clipboard.zsh
@@ -19,13 +21,10 @@ zplugin snippet OMZ::lib/history.zsh
 
 # todo why does aws/golang not work when it comes to completion?
 # zplugin snippet OMZ::plugins/aws/aws.plugin.zsh
-zplugin snippet OMZ::plugins/golang/golang.plugin.zsh
 zplugin snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
 zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 zplugin snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
 zplugin snippet OMZ::plugins/globalias/globalias.plugin.zsh
-
-# zplugin snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
 
 zplugin light zdharma/history-search-multi-word
 zplugin light zsh-users/zsh-autosuggestions

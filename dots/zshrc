@@ -11,4 +11,3 @@ if [ -d "$DOT_FILES/zshrc.d" ]; then
 fi
 
 # zprof
-

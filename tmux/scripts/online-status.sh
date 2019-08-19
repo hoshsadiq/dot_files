@@ -55,4 +55,4 @@ main() {
 		printf "#[${options[offline-style]}] ${options[offline-icon]} "
 	fi
 }
-main
+# main
