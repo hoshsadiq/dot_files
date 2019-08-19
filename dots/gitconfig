@@ -132,9 +132,9 @@
 [commit]
 	gpgSign = true
 [pull]
-       rebase = true
+	rebase = true
 [rebase]
-       autoStash = true
+	autoStash = true
 [sendpack]
 	sideband = false
 [gc]
