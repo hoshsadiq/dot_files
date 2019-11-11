@@ -10,6 +10,7 @@
 	attributesfile = ~/.gitattributes
 	preloadindex = true
 	fscache = true
+	untrackedCache = true
 
 [fetch]
 	prune = true
@@ -78,6 +79,8 @@
 	tool = vimdiff
 	compactionHeuristic = true
 	indentHeuristic = true
+	mnemonicPrefix = true
+	renames = copies
 
 [diff "json"]
 	textconv = python -m json.tool
@@ -131,8 +134,10 @@
 
 [commit]
 	gpgSign = true
+	verbose = true
 [pull]
 	rebase = true
+	ff = only
 [rebase]
 	autoStash = true
 [sendpack]
@@ -141,5 +146,14 @@
 	auto = 256
 [status]
 	submoduleSummary = false
+[format]
+	graph = true
+[grep]
+	lineNumber = true
+[help]
+	autoCorrect = 1
+[log]
+	abbrevCommit = true
+	decorate = short
 [include]
 	path = ~/.gitconfig.local
