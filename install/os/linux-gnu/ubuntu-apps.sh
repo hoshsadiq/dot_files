@@ -47,6 +47,7 @@ for app downloadUrl in ${(kv)binApps}; do
 done
 
 # todo latest version
+# curl -fsSL https://github.com/monochromegane/vagrant-global-status/releases/download/v0.0.3/vagrant-global-status_linux_amd64.tar.gz -o- | tar xzvf - -C ~/bin --strip-components 1 --wildcards '*/vagrant-global-status'
 hashicorpApps=(\
     terraform 0.11.3 \
     vagrant 2.2.4 \
@@ -70,6 +71,13 @@ done
 {
   doctlUrl="$(curl -s https://api.github.com/repos/digitalocean/doctl/releases/latest | jq -r '.assets[] | select( .name|endswith("linux-amd64.tar.gz") ) | .browser_download_url')"
   curl -fsSL "$doctlUrl" | tar xzvf - -C "$HOME/bin"
+} &
+
+{
+  alacrittyUrl="$(curl -s https://api.github.com/repos/jwilm/alacritty/releases/latest | $HOME/bin/jq -r '.assets[] | select( .name|endswith("-ubuntu_18_04_amd64.deb") ) | .browser_download_url')"
+  alacrittyFilename="$(basename "$alacrittyUrl")"
+  curl -fsSL "$alacrittyUrl" -o "/tmp/$alacrittyFilename"
+  sudo dpkg -i "/tmp/$alacrittyFilename"
 } &
 
 {

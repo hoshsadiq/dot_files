@@ -90,7 +90,7 @@ user_pref("intl.accept_languages", "en-GB, en");
 user_pref("javascript.use_us_english_locale", true); // (hidden pref)
 user_pref("intl.regional_prefs.use_os_locales", false);
 user_pref("geo.wifi.uri", "https://location.services.mozilla.com/v1/geolocate?key=%MOZILLA_API_KEY%");
-// user_pref("geo.wifi.logging.enabled", true); // (hidden pref)
+user_pref("geo.wifi.logging.enabled", true); // (hidden pref)
 
 user_pref("extensions.getAddons.cache.enabled", false);
 user_pref("lightweightThemes.update.enabled", false);
@@ -112,17 +112,13 @@ user_pref("toolkit.telemetry.updatePing.enabled", false); // (FF56+)
 user_pref("toolkit.telemetry.bhrPing.enabled", false); // (FF57+) Background Hang Reporter
 user_pref("toolkit.telemetry.firstShutdownPing.enabled", false); // (FF57+)
 user_pref("toolkit.telemetry.hybridContent.enabled", false); // (FF59+)
-/* 0333: disable health report
- * [SETTING] Privacy & Security>Firefox Data Collection & Use>Allow Firefox to send technical... data ***/
+
+// disable health report
 user_pref("datareporting.healthreport.uploadEnabled", false);
-/* 0334: disable new data submission, master kill switch (FF41+)
- * If disabled, no policy is shown or upload takes place, ever
- * [1] https://bugzilla.mozilla.org/1195552 ***/
 user_pref("datareporting.policy.dataSubmissionEnabled", false);
 /* 0350: disable crash reports ***/
 user_pref("breakpad.reportURL", "");
-/* 0351: disable sending of crash reports (FF44+)
- * [SETTING] Privacy & Security>Firefox Data Collection & Use>Allow Firefox to send crash reports ***/
+// disable sending of crash reports (FF44+)
 user_pref("browser.tabs.crashReporting.sendReport", false);
 user_pref("browser.crashReports.unsubmittedCheck.enabled", false); // (FF51+)
 user_pref("browser.crashReports.unsubmittedCheck.autoSubmit", false); // (FF51-57)
@@ -143,16 +139,16 @@ user_pref("extensions.blocklist.enabled", true);
 user_pref("extensions.blocklist.url", "https://blocklists.settings.services.mozilla.com/v1/blocklist/3/%APP_ID%/%APP_VERSION%/");
 user_pref("services.blocklist.update_enabled", true);
 
-user_pref("browser.safebrowsing.downloads.remote.enabled", false);
-user_pref("browser.safebrowsing.downloads.remote.url", "");
-user_pref("browser.safebrowsing.provider.google.reportURL", "");
-user_pref("browser.safebrowsing.reportPhishURL", "");
-user_pref("browser.safebrowsing.provider.google4.reportURL", ""); // (FF50+)
-user_pref("browser.safebrowsing.provider.google.reportMalwareMistakeURL", ""); // (FF54+)
-user_pref("browser.safebrowsing.provider.google.reportPhishMistakeURL", ""); // (FF54+)
-user_pref("browser.safebrowsing.provider.google4.reportMalwareMistakeURL", ""); // (FF54+)
-user_pref("browser.safebrowsing.provider.google4.reportPhishMistakeURL", ""); // (FF54+)
-user_pref("browser.safebrowsing.provider.google4.dataSharing.enabled", false);
+// user_pref("browser.safebrowsing.downloads.remote.enabled", false);
+// user_pref("browser.safebrowsing.downloads.remote.url", "");
+// user_pref("browser.safebrowsing.provider.google.reportURL", "");
+// user_pref("browser.safebrowsing.reportPhishURL", "");
+// user_pref("browser.safebrowsing.provider.google4.reportURL", ""); // (FF50+)
+// user_pref("browser.safebrowsing.provider.google.reportMalwareMistakeURL", ""); // (FF54+)
+// user_pref("browser.safebrowsing.provider.google.reportPhishMistakeURL", ""); // (FF54+)
+// user_pref("browser.safebrowsing.provider.google4.reportMalwareMistakeURL", ""); // (FF54+)
+// user_pref("browser.safebrowsing.provider.google4.reportPhishMistakeURL", ""); // (FF54+)
+// user_pref("browser.safebrowsing.provider.google4.dataSharing.enabled", false);
 
 user_pref("privacy.trackingprotection.pbmode.enabled", true); // default: true
 user_pref("privacy.trackingprotection.enabled", true);
