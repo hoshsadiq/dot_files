@@ -11,7 +11,6 @@ alias nano='vim'
 
 # Some shortcuts for different directory listings
 alias lsd='ll | grep --color=never "^d"'
-alias lla='ll -a'
 
 # Intuitive map function
 # For example, to list all directories that contain a certain file:

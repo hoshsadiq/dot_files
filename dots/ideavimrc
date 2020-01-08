@@ -9,6 +9,7 @@ inoremap <S-Up> <C-O>:action EditorUpWithSelection<CR>
 inoremap <S-Down> <C-O>:action EditorDownWithSelection<CR>
 
 set ignorecase
+set clipboard+=unnamed
 
 
 " Use one of the following to define the camel characters.

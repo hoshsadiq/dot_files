@@ -1,0 +1,26 @@
+skip_global_compinit=1
+
+export LC_ALL=en_GB.UTF-8
+export LANG=en_GB.UTF-8
+export LOCALE=en_GB.UTF-8
+
+# editor
+export EDITOR='vim'
+export VISUAL="$EDITOR"
+export GIT_EDITOR="$EDITOR"
+
+# page
+export PAGER='less'
+export LESS=' -R'
+
+# X Server display
+export DISPLAY=:0.0
+
+# GPG Signing git commits
+export GPG_TTY=$(tty)
+
+# don't use the built-in virtualenv prompt
+export VIRTUAL_ENV_DISABLE_PROMPT=true
+
+[ "$OSTYPE" = "cygwin" ] && export CYGWIN="winsymlinks:native"
+[ "$OSTYPE" = "msys" ] && export MSYS="winsymlinks:native"

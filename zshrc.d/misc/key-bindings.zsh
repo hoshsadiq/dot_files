@@ -51,11 +51,8 @@ bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion
 
 bindkey "^[m" copy-prev-shell-word
 
-# history-substring-search
 zmodload zsh/terminfo
 bindkey '^R' history-search-multi-word
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
 
 bindkey "^@" set-mark-command
 

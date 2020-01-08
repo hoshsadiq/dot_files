@@ -6,3 +6,4 @@ alias sgviz='docker run --rm -i --name sgviz -v $HOME/.aws:/root/.aws -v $(pwd):
 alias sipcalc='docker run --rm -i --name sipcalc sipcalc'
 alias sqlite3='docker run --rm -i --name sqlite3 -v $(pwd):/workdir -w /workdir sqlite3'
 alias travis='docker run --rm -ti --name travis -v $PWD:/workdir -v $HOME/.travis:/travis travis'
+alias xml='docker run --rm -i --name xml -v $(pwd):/workdir -w /workdir xml'

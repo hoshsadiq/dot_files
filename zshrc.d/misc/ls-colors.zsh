@@ -4,7 +4,7 @@ autoload -U colors && colors
 # Enable ls colors
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
-  # Find the option for using colors in ls, depending on the version
+# Find the option for using colors in ls, depending on the version
 if [[ "$OSTYPE" == darwin* ]]; then
     # this is a good alias, it works by default just using $LSCOLORS
     ls -G . &>/dev/null && alias ls='ls -G'
@@ -23,3 +23,9 @@ else
     # Take advantage of $LS_COLORS for completion as well.
     zstyle ':completion:*:default' list-colors "${(s.:.)LS_COLORS}"
 fi
+
+zplugin ice wait'1' silent \
+    atclone"dircolors -b LS_COLORS > c.zsh" \
+    atpull'%atclone' pick"c.zsh" \
+    atload'zstyle ":completion:*" list-colors “${(s.:.)LS_COLORS}”'
+zplugin light trapd00r/LS_COLORS

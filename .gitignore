@@ -1,5 +1,4 @@
-# This is the real gitignore used by this repository. This is NOT the one that will be installed
 /backup/*
 !/backup/.gitkeep
 .idea
-/zshrc_local
+/zshrc.local

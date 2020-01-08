@@ -5,5 +5,7 @@ export PROXY_HOST="proxy-host:8080"
 
 export JAVA_HOME='/usr/lib/jvm/java-9-oracle'
 
-export PATH=/usr/lib/go-1.9/bin:$PATH
-export PATH=$JAVA_HOME/bin:$PATH
+source $HOME/dot_files/config/zsh/zshrc
+
+addpath /usr/lib/go-1.9/bin
+addpath $JAVA_HOME/bin after

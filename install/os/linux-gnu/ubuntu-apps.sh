@@ -24,20 +24,29 @@ sudo apt-get install --quiet --assume-yes \
     net-tools \
     terminator \
     python-pip \
+    python3 \
+    python3-pip \
     golang-go \
     "golang-$GOLANG_VERSION-go" \
     source-highlight \
+    apt-transport-https \
     network-manager-openvpn \
     network-manager-openvpn-gnome \
     exfat-fuse exfat-utils \ # allow mounting exfat filesystems
     openjdk-11-jdk-headless \
     &
 
+#sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+#sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2
+#sudo update-alternatives --set python /usr/bin/python3.6
+
+sudo -H python2 -m pip install --upgrade pip &
+sudo -H python3 -m pip install --upgrade pip &
+
 typeset -A binApps
 binApps=(\
     minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64\
     jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64\
-    diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy\
 )
 for app downloadUrl in ${(kv)binApps}; do
     {
@@ -47,9 +56,7 @@ for app downloadUrl in ${(kv)binApps}; do
 done
 
 # todo latest version
-# curl -fsSL https://github.com/monochromegane/vagrant-global-status/releases/download/v0.0.3/vagrant-global-status_linux_amd64.tar.gz -o- | tar xzvf - -C ~/bin --strip-components 1 --wildcards '*/vagrant-global-status'
 hashicorpApps=(\
-    terraform 0.11.3 \
     vagrant 2.2.4 \
     packer 1.4.0 \
 )
@@ -59,6 +66,9 @@ for app version in ${(kv)hashicorpApps}; do
       unzip -o "/tmp/$app.zip" -d "$HOME/bin"
     } &
 done
+
+curl -fsSL -o- http://github.com/tfutils/tfenv/archive/v1.0.2.tar.gz | \
+    tar --transform='s#^tfenv-[^/]\+#tfenv#' --exclude='test' --exclude='.*' --exclude='*.md' --exclude='LICENSE' --directory='~/apps' --extract -gzip --verbose --file - &
 
 {
   sourceCodeUrl="$(curl -s https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest | $HOME/bin/jq -r '.assets[] | select( .name == "SourceCodePro.zip" ) | .browser_download_url')"
@@ -120,11 +130,15 @@ sudo apt remove --purge \
   xplayer \
   tomboy \
   xserver-xorg-input-wacom \
-  caribou
+  caribou \
+  rdate \
+  bind9-host \
+  libbind9-90
+
 sudo apt autoremove --purge
 
 sudo apt clean
 
 # add go binaries to path
 gobin="$(dirname $(dpkg -L "golang-$GOLANG_VERSION-go" | grep 'bin/go$'))"
-echo "export PATH=$gobin:\$PATH" >> ~/.zshrc_local
+echo "addpath $gobin" >> ~/.zshrc.local

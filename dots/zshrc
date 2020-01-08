@@ -1,13 +1,3 @@
-# zmodload zsh/zprof
-
-# todo: determine dot_files dir
 export DOT_FILES="$HOME/dot_files"
 
-if [ -d "$DOT_FILES/zshrc.d" ]; then
-  for file in $HOME/dot_files/**/*.zsh; do
-    [ ! -z $DEBUG_ZSHRC_D ] && echo source $file
-    source $file
-  done
-fi
-
-# zprof
+source $DOT_FILES/config/zsh/zshrc

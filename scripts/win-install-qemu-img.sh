@@ -5,9 +5,9 @@ curl -fsSL https://cloudbase.it/downloads/qemu-img-win-x64-2_3_0.zip -o /tmp/qem
 unzip -o -d "$HOME/apps/qemu-img" /tmp/qemu-img-win.zip
 chmod +x "$HOME/apps/qemu-img/"*
 
-if ! grep -qF '$HOME/apps/qemu-img' $HOME/.zshrc_local; then
-    cat <<EOF >> $HOME/.zshrc_local
+if ! grep -qF '$HOME/apps/qemu-img' $HOME/.zshrc.local; then
+    cat <<'EOF' >> $HOME/.zshrc.local
     # qemu-img for windows
-    export PATH="\$PATH:\$HOME/apps/qemu-img"
+    addpath "$HOME/apps/qemu-img" after
 EOF
 fi

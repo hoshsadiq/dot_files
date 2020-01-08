@@ -1,23 +1,4 @@
 export TERM=xterm-256color
 
+zplugin ice depth=1 atload"source $DOT_FILES/config/zsh/p10k.zsh"
 zplugin light romkatv/powerlevel10k
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-
-#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(vi_mode)
-#POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs history)
-
-# POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-
-#POWERLEVEL9K_HOME_ICON='\uf015'
-#POWERLEVEL9K_HOME_SUB_ICON='\uf07c'
-#POWERLEVEL9K_FOLDER_ICON='\uf07b'
-#POWERLEVEL9K_ETC_ICON='\ue5fc'
-#POWERLEVEL9K_DIR_SHOW_WRITABLE='\ue5fc'
-#POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
-
-#POWERLEVEL9K_LINUX_MINT_ICON='\uf30f'
-#POWERLEVEL9K_WINDOWS_ICON='\uf17a'
-#POWERLEVEL9K_APPLE_ICON='\uf179'
-#POWERLEVEL9K_LINUX_ICON='\uf17c'

@@ -1,6 +1,6 @@
 addpath() {
     newelement=${1%/}
-    if [ -d "$1" ] && ! echo $PATH | grep -E -q "(^|:)$newelement($|:)" ; then
+    if [ -d "$1" ] && ! echo "$PATH" | grep -E -q "(^|:)$newelement($|:)" ; then
         if [ "$2" = "after" ] ; then
             PATH="$PATH:$newelement"
         else
@@ -10,11 +10,11 @@ addpath() {
 }
 
 rmpath() {
-    PATH="$(echo $PATH | sed -e "s;\(^\|:\)${1%/}\(:\|\$\);\1\2;g" -e 's;^:\|:$;;g' -e 's;::;:;g')"
+    PATH="$(echo "$PATH" | sed -e "s;\(^\|:\)${1%/}\(:\|\$\);\1\2;g" -e 's;^:\|:$;;g' -e 's;::;:;g')"
 }
 
 path() {
-  echo -e ${PATH//:/\\n}
+  echo -e "${PATH//:/\\n}"
 }
 
 export GOPATH="$HOME/Workspace"
@@ -24,7 +24,6 @@ addpath $HOME/bin after
 addpath $GOPATH/bin after
 
 # move to ~/apps/android/bin
-addpath $HOME/apps/android-bin after
-if [ -d "$JAVA_HOME" ]; then
-  addpath $JAVA_HOME/bin after
-fi
+addpath $HOME/apps/android/platform-tools after
+addpath $HOME/apps/android/tools/bin after
+addpath $JAVA_HOME/bin after

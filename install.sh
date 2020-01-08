@@ -14,17 +14,6 @@ elif command -v yum &>/dev/null; then
     sudo yum update && sudo yum install git zsh tmux -y
 fi
 
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-#    source "install/os/darwin.sh"
-# elif [ -f "install/os/$OSTYPE.sh" ]; then
-#    source "install/os/$OSTYPE.sh"
-# else
-#    echo "Platform not supported"
-#    exit 1;
-# fi
-
-# source "install/generic.sh"
-
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
 zshExec="$(which zsh)"
@@ -47,6 +36,10 @@ fi
 
 (test -d "$DOT_FILES" && cd "$DOT_FILES" && git pull)
 
+echo "export DOT_FILES=\"$DOT_FILES\"" > ~/.zshrc
+# shellcheck disable=SC2016
+echo 'source $DOT_FILES/config/zsh/zshrc' >> ~/.zshrc
+
 dots=($(find "$DOT_FILES/dots" -mindepth 1 -type f -printf "%P\n"))
 for file in "${dots[@]}"; do
     dot="$HOME/.$file"
@@ -55,3 +48,14 @@ for file in "${dots[@]}"; do
     [ -f "$dot" ] && mkdir -p "$(dirname $DOT_FILES/backup/.$file)" &&  mv "$dot" "$DOT_FILES/backup/.$file"
     ln -s "$abs_dot" "$dot"
 done
+
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+#    source "install/os/darwin.sh"
+# elif [ -f "install/os/$OSTYPE.sh" ]; then
+#    source "install/os/$OSTYPE.sh"
+# else
+#    echo "Platform not supported"
+#    exit 1;
+# fi
+
+# source "install/generic.sh"

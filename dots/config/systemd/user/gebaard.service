@@ -1,0 +1,13 @@
+[Unit]
+Description=Gebaar Daemon
+Documentation=https://github.com/Coffee2CodeNL/gebaar-libinput
+
+[Service]
+Environment="DISPLAY=:0.0"
+ExecStart=/usr/local/bin/gebaard
+Restart=always
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
