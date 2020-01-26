@@ -9,19 +9,15 @@ sudo systemctl enable docker
 
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
 
-#CUSTOM_KEYBINDING_NAME="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
-#gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KEYBINDING_NAME name 'Terminator'
-#gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KEYBINDING_NAME command 'terminator'
-#gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KEYBINDING_NAME binding '<Primary><Alt>t'
-#gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$CUSTOM_KEYBINDING_NAME']"
+# gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
 
-# gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'terminator.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
+# add go binaries to path
+gobin="$(dirname "$(dpkg -L "golang-$GOLANG_VERSION-go" | grep 'bin/go$')")"
 
-mkdir -p "$HOME/.config/terminator"
-ln -fs "$DOT_FILES/config/terminator/config" "$HOME/.config/terminator/config"
+echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> "$HOME/.zshrc"
 
-echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> $HOME/.zshrc.local
-echo 'export PATH=$PATH:$HOME/.local/bin # pip install --user' >> $HOME/.zshrc.local
+echo "addpath $gobin after" >> "$HOME/.zshrc"
+echo 'addpath "$HOME/.local/bin" after # pip install --user' >> "$HOME/.zshrc"
 
 # system tweaks
 sudo sed -i -E '/^GRUB_TIMEOUT/s/=[0-9]+$/=3/' /etc/default/grub
@@ -44,7 +40,7 @@ gsettings set org.cinnamon.desktop.interface gtk-theme 'Mint-Y-Darker'
 
 gsettings set org.cinnamon.desktop.notifications bottom-notifications true
 
-gsettings set org.cinnamon.desktop.default-applications.terminal exec 'terminator'
+gsettings set org.cinnamon.desktop.default-applications.terminal exec 'alacritty'
 
 gsettings set org.cinnamon.desktop.screensaver lock-enabled true
 gsettings set org.cinnamon.desktop.screensaver lock-delay "uint32 0"

@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+source ../../zshrc.d/functions/os-functions.zsh
+source /etc/upstream-release/lsb-release
+
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get upgrade -y
@@ -22,7 +25,6 @@ sudo apt-get install --quiet --assume-yes \
     redshift \
     docker-ce \
     net-tools \
-    terminator \
     python-pip \
     python3 \
     python3-pip \
@@ -36,17 +38,20 @@ sudo apt-get install --quiet --assume-yes \
     openjdk-11-jdk-headless \
     &
 
-#sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
-#sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2
-#sudo update-alternatives --set python /usr/bin/python3.6
-
 sudo -H python2 -m pip install --upgrade pip &
 sudo -H python3 -m pip install --upgrade pip &
+
+get-latest-gh-release() {
+  repo="$1"
+  endswith="$2"
+
+  curl -s "https://api.github.com/repos/$repo/releases/latest" | jq --arg ending "$endswith" -r '.assets[] | select(.name | endswith($ending)).browser_download_url'
+}
 
 typeset -A binApps
 binApps=(\
     minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64\
-    jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64\
+    jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64\
 )
 for app downloadUrl in ${(kv)binApps}; do
     {
@@ -79,19 +84,24 @@ curl -fsSL -o- http://github.com/tfutils/tfenv/archive/v1.0.2.tar.gz | \
 } &
 
 {
-  doctlUrl="$(curl -s https://api.github.com/repos/digitalocean/doctl/releases/latest | jq -r '.assets[] | select( .name|endswith("linux-amd64.tar.gz") ) | .browser_download_url')"
+  doctlUrl="$(get-latest-gh-release digitalocean/doctl/releases/latest "$(get-os)-$(get-arch).tar.gz")"
   curl -fsSL "$doctlUrl" | tar xzvf - -C "$HOME/bin"
 } &
 
 {
-  alacrittyUrl="$(curl -s https://api.github.com/repos/jwilm/alacritty/releases/latest | $HOME/bin/jq -r '.assets[] | select( .name|endswith("-ubuntu_18_04_amd64.deb") ) | .browser_download_url')"
+  alacrittyUrl="$(get-latest-gh-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb")"
   alacrittyFilename="$(basename "$alacrittyUrl")"
   curl -fsSL "$alacrittyUrl" -o "/tmp/$alacrittyFilename"
   sudo dpkg -i "/tmp/$alacrittyFilename"
 } &
 
 {
-  hugoUrl="$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r '.assets[] | select( .name|endswith("Linux-64bit.deb") ) | .browser_download_url')"
+   goJqUrl="$(get-latest-gh-release itchyny/gojq "$(get-os)_$(get-arch).tar.gz")"
+   curl -fsSL $goJqUrl -o- | tar -xzf - -C "$HOME/bin" --strip-components=1 --wildcards 'gojq*/gojq'
+} &
+
+{
+  hugoUrl="$(get-latest-gh-release gohugoio/hugo "Linux-64bit.deb")"
   curl -fsSL https://github.com/gohugoio/hugo/releases/download/v0.42.2/hugo_0.42.2_Linux-64bit.deb -o /tmp/hugo.deb
   sudo dpkg -i /tmp/hugo.deb
 } &
@@ -138,7 +148,3 @@ sudo apt remove --purge \
 sudo apt autoremove --purge
 
 sudo apt clean
-
-# add go binaries to path
-gobin="$(dirname $(dpkg -L "golang-$GOLANG_VERSION-go" | grep 'bin/go$'))"
-echo "addpath $gobin" >> ~/.zshrc.local

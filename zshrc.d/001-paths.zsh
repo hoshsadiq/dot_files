@@ -27,3 +27,7 @@ addpath $GOPATH/bin after
 addpath $HOME/apps/android/platform-tools after
 addpath $HOME/apps/android/tools/bin after
 addpath $JAVA_HOME/bin after
+
+# always at the very end.
+#addpath ./bin after
+#addpath . after

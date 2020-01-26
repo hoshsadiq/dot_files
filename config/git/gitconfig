@@ -3,7 +3,7 @@
 	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
 
 [core]
-#	pager = "delta --theme='Monokai Extended Origin'"
+	pager = "delta --theme='Monokai Extended Origin'"
 	editor = vim
 	autocrlf = false
 	excludesfile = ~/dot_files/config/git/gitignore
@@ -31,7 +31,7 @@
 
 [alias]
 	unstage = reset HEAD --
-	root = !pwd
+	root = rev-parse --show-toplevel
 	dl = "!git ll -1"
 	dlc = diff --cached HEAD^
 	prune = fetch --prune

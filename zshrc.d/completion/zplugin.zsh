@@ -34,8 +34,4 @@ zplugin snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_op
 zplugin ice as"completion" has'docker' wait silent blockf
 zplugin snippet "https://github.com/docker/cli/blob/v$(docker version --format '{{.Client.Version}}')/contrib/completion/zsh/_docker"
 
-zplugin ice from "gh" as"completion" has'kubectl' pick'_kubectl' wait silent blockf
-zplugin light nnao45/zsh-kubectl-completion
-
-# todo kops, minikube
 # todo pip, pipenv

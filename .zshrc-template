@@ -3,9 +3,10 @@ export PROXY_USERNAME="$(whoami)"
 export PROXY_PASSWORD="passwd"
 export PROXY_HOST="proxy-host:8080"
 
-export JAVA_HOME='/usr/lib/jvm/java-9-oracle'
+export DOT_FILES="$HOME/dot_files"
+export JAVA_HOME='/usr/lib/jvm/java-11-openjdk-amd64'
 
 source $HOME/dot_files/config/zsh/zshrc
 
-addpath /usr/lib/go-1.9/bin
-addpath $JAVA_HOME/bin after
+addpath "$HOME/.local/bin" after
+addpath /usr/lib/go-1.11/bin after

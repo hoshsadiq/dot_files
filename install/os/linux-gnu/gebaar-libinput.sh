@@ -18,7 +18,6 @@ sudo apt-get install -y libinput-tools xdotool
 
 sudo gpasswd -a $USER input
 
-ln -fs $DOT_FILES/config/gebaar/gebaard.toml ~/.config/gebaar/gebaard.toml
-
-
-# ms paris: 0208 871 7431
+ln -fs "$DOT_FILES/config/gebaar/gebaard.toml" "$HOME/.config/gebaar/gebaard.toml"
+mkdir -p "$HOME/.local/share/systemd/user"
+ln -fs "$DOT_FILES/config/systemd/gebaard.service" "$HOME/.local/share/systemd/user/gebaard.service"

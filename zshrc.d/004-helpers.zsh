@@ -26,19 +26,3 @@ fawk() {
    cmd="awk '{print \$${1}${last}}'"
    eval $cmd
 }
-
-run_completion() {
-  cmd="$1"
-  shift
-  args="$@"
-
-  if (( $+commands[$cmd] )); then
-      local completion_file="/tmp/${cmd}_completion"
-
-      if [[ ! -f $completion_file ]]; then
-          "$cmd" "${args[@]}" >! "$completion_file"
-      fi
-
-      [[ -f $completion_file ]] && source "$completion_file"
-  fi
-}

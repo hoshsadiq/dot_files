@@ -1,3 +1,7 @@
+if [[ "$DISPLAY" == '' ]] || (( ! $+commands[xdotool] )) || (( ! $+commands[wmctrl] )); then
+  return
+fi
+
 _zsh-notify-setting() {
   zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
   zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"

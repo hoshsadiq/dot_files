@@ -1,3 +1,7 @@
 export DOT_FILES="$HOME/dot_files"
+export JAVA_HOME='/usr/lib/jvm/java-11-openjdk-amd64'
 
 source $DOT_FILES/config/zsh/zshrc
+
+addpath "$HOME/.local/bin" after
+addpath /usr/lib/go-1.11/bin after
