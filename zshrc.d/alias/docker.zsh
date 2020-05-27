@@ -7,3 +7,7 @@ alias sipcalc='docker run --rm -i --name sipcalc sipcalc'
 alias sqlite3='docker run --rm -i --name sqlite3 -v $(pwd):/workdir -w /workdir sqlite3'
 alias travis='docker run --rm -ti --name travis -v $PWD:/workdir -v $HOME/.travis:/travis travis'
 alias xml='docker run --rm -i --name xml -v $(pwd):/workdir -w /workdir xml'
+alias xml-format='xml fo -s 2 -R'
+
+alias docker-dive='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive:latest'
+alias shit='docker run -it --rm --entrypoint /bin/sh -v ${PWD}:/workdir -w /workdir'

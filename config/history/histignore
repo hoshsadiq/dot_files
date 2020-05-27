@@ -1,0 +1,29 @@
+# short things
+^.{,3}$
+
+# changing into relative directories
+^cd [^~/$]
+
+# annoying if accidentally re-executed at a later date
+cmd:reboot
+cmd:halt
+
+# commands explicitly hidden by user
+^\s
+
+# frequent typos (see .aliases)
+^git psuh
+^cd\.\.
+
+cmd:sl
+cmd:gi
+cmd:car
+cmd:xit
+cmd:exit
+cmd:kill
+
+# todo, this shouldn't be ignored by this: gits | awk '/elasticache/{gsub("modified:", "", $0); print}' | xargs -n1 git add
+cmd:gits
+
+# Sensitive looking lines (export AWS_SECRET_ACCESS KEY, for example. I never do that. Ever. I promise.)
+(api|token|key|secret|pass)

@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 source ../../zshrc.d/functions/os-functions.zsh
+source ../../zshrc.d/functions/github.zsh
 source /etc/upstream-release/lsb-release
 
 export DEBIAN_FRONTEND=noninteractive
@@ -29,7 +30,7 @@ sudo apt-get install --quiet --assume-yes \
     python3 \
     python3-pip \
     golang-go \
-    "golang-$GOLANG_VERSION-go" \
+    shellcheck \
     source-highlight \
     apt-transport-https \
     network-manager-openvpn \
@@ -41,17 +42,17 @@ sudo apt-get install --quiet --assume-yes \
 sudo -H python2 -m pip install --upgrade pip &
 sudo -H python3 -m pip install --upgrade pip &
 
-get-latest-gh-release() {
-  repo="$1"
-  endswith="$2"
+OS="$(go env GOOS)"
+ARCH="$(go env GOARCH)"
 
-  curl -s "https://api.github.com/repos/$repo/releases/latest" | jq --arg ending "$endswith" -r '.assets[] | select(.name | endswith($ending)).browser_download_url'
+{
+  curl -fsSL -o "$HOME/bin/jq" "https://github.com/stedolan/jq/releases/latest/download/jq-linux64"
+  chmod +x "$HOME/bin/jq"
 }
 
 typeset -A binApps
 binApps=(\
-    minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64\
-    jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64\
+    minikube "https://storage.googleapis.com/minikube/releases/latest/minikube-${OS}-${ARCH}" \
 )
 for app downloadUrl in ${(kv)binApps}; do
     {
@@ -60,50 +61,56 @@ for app downloadUrl in ${(kv)binApps}; do
     } &
 done
 
-# todo latest version
-hashicorpApps=(\
-    vagrant 2.2.4 \
-    packer 1.4.0 \
-)
-for app version in ${(kv)hashicorpApps}; do
+# other apps can be used through docker or something
+hashicorpApps=(vagrant packer)
+for app in "${hashicorpApps[@]}"; do
     {
-      curl -fsSL "https://releases.hashicorp.com/${app}/${version}/${app}_${version}_linux_amd64.zip" -o "/tmp/$app.zip"
+      version="$(curl -fsSL "https://releases.hashicorp.com/$app/" | awk -F/ '/href="\/[^"]+"/{print $3; exit}')"
+      curl -fsSL "https://releases.hashicorp.com/${app}/${version}/${app}_${version}_${OS}_${ARCH}.zip" -o "/tmp/$app.zip"
       unzip -o "/tmp/$app.zip" -d "$HOME/bin"
     } &
 done
 
-curl -fsSL -o- http://github.com/tfutils/tfenv/archive/v1.0.2.tar.gz | \
+curl -fsSL "https://api.github.com/repos/tfutils/tfenv/releases/latest" | \
+    jq -r .tarball_url | \
+    xargs curl -fsSL -o- | \
     tar --transform='s#^tfenv-[^/]\+#tfenv#' --exclude='test' --exclude='.*' --exclude='*.md' --exclude='LICENSE' --directory='~/apps' --extract -gzip --verbose --file - &
 
+curl -fsSL -o- https://github.com/git-hooks/git-hooks/releases/latest/download/git-hooks_${OS}_${ARCH}.tar.gz | \
+    tar -xzv --transform 's!.*/git-hooks_.*!git-hooks!' --show-transformed-names -C "$HOME/bin" -f- &
+
 {
-  sourceCodeUrl="$(curl -s https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest | $HOME/bin/jq -r '.assets[] | select( .name == "SourceCodePro.zip" ) | .browser_download_url')"
-  curl -fsSL "$sourceCodeUrl" -o /tmp/sourceCodePro.zip
+  curl -fsSL -o "$HOME/bin/jiq" "https://github.com/fiatjaf/jiq/releases/latest/download/jiq_${OS}_${ARCH}"
+  chmod +x "$HOME/bin/jiq"
+} &
+
+{
+  curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/sourcecodepro.zip" -o /tmp/sourceCodePro.zip
   mkdir -p "$HOME/.local/share/fonts/"
   unzip /tmp/sourceCodePro.zip -d "$HOME/.local/share/fonts/"
   fc-cache -f -v
 } &
 
 {
-  doctlUrl="$(get-latest-gh-release digitalocean/doctl/releases/latest "$(get-os)-$(get-arch).tar.gz")"
+  doctlUrl="$(gh-get-latest-release digitalocean/doctl "$(get-os)-$(get-arch).tar.gz")"
   curl -fsSL "$doctlUrl" | tar xzvf - -C "$HOME/bin"
 } &
 
 {
-  alacrittyUrl="$(get-latest-gh-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb")"
-  alacrittyFilename="$(basename "$alacrittyUrl")"
-  curl -fsSL "$alacrittyUrl" -o "/tmp/$alacrittyFilename"
-  sudo dpkg -i "/tmp/$alacrittyFilename"
+  gh-get-latest-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb" | \
+      xargs curl -fsSL -o "/tmp/alacritty.deb"
+  sudo dpkg -i "/tmp/alacritty.deb"
 } &
 
 {
-   goJqUrl="$(get-latest-gh-release itchyny/gojq "$(get-os)_$(get-arch).tar.gz")"
+   goJqUrl="$(gh-get-latest-release itchyny/gojq "$(get-os)_$(get-arch).tar.gz")"
    curl -fsSL $goJqUrl -o- | tar -xzf - -C "$HOME/bin" --strip-components=1 --wildcards 'gojq*/gojq'
 } &
 
 {
-  hugoUrl="$(get-latest-gh-release gohugoio/hugo "Linux-64bit.deb")"
-  curl -fsSL https://github.com/gohugoio/hugo/releases/download/v0.42.2/hugo_0.42.2_Linux-64bit.deb -o /tmp/hugo.deb
-  sudo dpkg -i /tmp/hugo.deb
+  gh-get-latest-release gohugoio/hugo "Linux-64bit.deb" | grep -v extended | \
+  xargs curl -fsSL -o- |
+  tar -C "$HOME/bin" -xzvf -  hugo
 } &
 
 {
@@ -125,10 +132,23 @@ sudo snap install intellij-idea-ultimate --classic &
   sudo apt-get install ttf-mscorefonts-installer --no-install-recommends
 } &
 
+{
+  curl -fsSL -o $HOME/bin/speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+  chmod +x $HOME/bin/speedtest-cli
+  # or perhaps the official client, which requires accepting licenses
+  # todo manpage is in same dir
+  #curl -fsSL -o- "https://bintray.com/ookla/download/download_file?file_path=ookla-speedtest-1.0.0-x86_64-linux.tgz" | tar --directory $HOME/bin -xzvf - speedtest
+} &
+
+{
+  curl -fsSL "https://vault.bitwarden.com/download/?app=desktop&platform=linux" -o "$HOME/apps/bitwarden.AppImage"
+  chmod +x "$HOME/apps/bitwarden.AppImage"
+}&
+
 wait
 
 #https://dl.google.com/android/repository/platform-tools-latest-linux.zip
-sudo apt remove --purge \
+sudo apt autoremove --purge \
   thunderbird \
   transmission-common \
   pix \
@@ -144,7 +164,5 @@ sudo apt remove --purge \
   rdate \
   bind9-host \
   libbind9-90
-
-sudo apt autoremove --purge
 
 sudo apt clean

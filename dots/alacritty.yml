@@ -87,18 +87,6 @@ scrolling:
   # scrollback is enabled (history > 0).
   multiplier: 3
 
-  # Scroll to the bottom when new text is written to the terminal.
-  auto_scroll: false
-
-# Spaces per Tab (changes require restart)
-#
-# This setting defines the width of a tab in cells.
-#
-# Some applications, like Emacs, rely on knowing about the width of a tab.
-# To prevent unexpected behavior in these applications, it's also required to
-# change the `it` value in terminfo when altering this setting.
-tabspaces: 8
-
 # Font configuration (changes require restart)
 font:
   # Normal (roman) font face
@@ -137,7 +125,7 @@ font:
     #style: Italic
 
   # Point size
-  size: 14.0
+  size: 18.0
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
@@ -170,6 +158,151 @@ font:
 
 # If `true`, bold text is drawn using the bright color variants.
 draw_bold_text_with_bright_colors: true
+
+## clrs
+#colors:
+#  # Default colors
+#  primary:
+#    background: '0xffffff'
+#    foreground: '0x262626'
+#
+#  # Normal colors
+#  normal:
+#    black:   '0x000000'
+#    red:     '0xf8282a'
+#    green:   '0x328a5d'
+#    yellow:  '0xfa701d'
+#    blue:    '0x135cd0'
+#    magenta: '0x9f00bd'
+#    cyan:    '0x33c3c1'
+#    white:   '0xb3b3b3'
+#
+#  # Bright colors
+#  bright:
+#    black:   '0x9e9e9e'
+#    red:     '0xfb0416'
+#    green:   '0x2cc631'
+#    yellow:  '0xfdd727'
+#    blue:    '0x1670ff'
+#    magenta: '0xe900b0'
+#    cyan:    '0x3ad5ce'
+#    white:   '0xeeeeec'
+
+## hemisu-light
+#colors:
+#  # Default colors
+#  primary:
+#    background: '0xefefef'
+#    foreground: '0x444444'
+#
+#  # Normal colors
+#  normal:
+#    black:   '0x777777'
+#    red:     '0xff0055'
+#    green:   '0x739100'
+#    yellow:  '0x503d15'
+#    blue:    '0x538091'
+#    magenta: '0x5b345e'
+#    cyan:    '0x538091'
+#    white:   '0x999999'
+#
+#  # Bright colors
+#  bright:
+#    black:   '0x999999'
+#    red:     '0xd65e76'
+#    green:   '0x9cc700'
+#    yellow:  '0x947555'
+#    blue:    '0x9db3cd'
+#    magenta: '0xa184a4'
+#    cyan:    '0x85b2aa'
+#    white:   '0xbababa'
+
+## google-light
+#colors:
+#  # Default colors
+#  primary:
+#    background: '0xffffff'
+#    foreground: '0x373b41'
+#
+#  # Normal colors
+#  normal:
+#    black:   '0xffffff'
+#    red:     '0xcc342b'
+#    green:   '0x198844'
+#    yellow:  '0xfba921'
+#    blue:    '0x3870ed'
+#    magenta: '0xa26ac7'
+#    cyan:    '0x3870ed'
+#    white:   '0x373b41'
+#
+#  # Bright colors
+#  bright:
+#    black:   '0xc5c8c6'
+#    red:     '0xcc342b'
+#    green:   '0x198844'
+#    yellow:  '0xfba921'
+#    blue:    '0x3870ed'
+#    magenta: '0xa26ac7'
+#    cyan:    '0x3870ed'
+#    white:   '0x1d1f21'
+
+## papercolor-light
+#colors:
+#  # Default colors
+#  primary:
+#    background: '0xeeeeee'
+#    foreground: '0x444444'
+#
+#  # Normal colors
+#  normal:
+#    black:   '0xeeeeee'
+#    red:     '0xaf0000'
+#    green:   '0x008700'
+#    yellow:  '0x5f8700'
+#    blue:    '0x0087af'
+#    magenta: '0x878787'
+#    cyan:    '0x005f87'
+#    white:   '0x444444'
+#
+#  # Bright colors
+#  bright:
+#    black:   '0xbcbcbc'
+#    red:     '0xd70000'
+#    green:   '0xd70087'
+#    yellow:  '0x8700af'
+#    blue:    '0xd75f00'
+#    magenta: '0xd75f00'
+#    cyan:    '0x005faf'
+#    white:   '0x005f87'
+
+## terminal-basic
+#colors:
+#  # Default colors
+#  primary:
+#    background: '0xffffff'
+#    foreground: '0x000000'
+#
+#  # Normal colors
+#  normal:
+#    black:   '0x000000'
+#    red:     '0x990000'
+#    green:   '0x00a600'
+#    yellow:  '0x999900'
+#    blue:    '0x0000b2'
+#    magenta: '0xb200b2'
+#    cyan:    '0x00a6b2'
+#    white:   '0xbfbfbf'
+#
+#  # Bright colors
+#  bright:
+#    black:   '0x666666'
+#    red:     '0xe50000'
+#    green:   '0x00d900'
+#    yellow:  '0xe5e500'
+#    blue:    '0x0000ff'
+#    magenta: '0xe500e5'
+#    cyan:    '0x00e5e5'
+#    white:   '0xe5e5e5'
 
 # Colors (Darktooth)
 colors:

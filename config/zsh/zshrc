@@ -1,9 +1,9 @@
 # zmodload zsh/zprof
 
 if [ -d "$DOT_FILES/zshrc.d" ]; then
-  for file in $HOME/dot_files/**/*.zsh; do
-    [ ! -z $DEBUG_ZSHRC_D ] && echo source $file
-    source $file
+  for file in "$DOT_FILES"/zshrc.d/**/*.zsh; do
+    [ ! -z "$DEBUG_ZSHRC_D" ] && echo source "$file"
+    source "$file"
   done
 fi
 

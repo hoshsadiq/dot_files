@@ -3,8 +3,11 @@ zplugin light 'junegunn/fzf-bin'
 
 zplugin ice multisrc"shell/{completion,key-bindings}.zsh" \
     id-as"junegunn/fzf_completions" pick"/dev/null" \
-    sbin"bin/fzf-tmux"
+    sbin"bin/fzf-tmux" silent
 zplugin light junegunn/fzf
+
+zplugin ice pick"fzf-tmux" as"program" silent
+zplugin snippet https://github.com/junegunn/fzf/blob/master/bin/fzf-tmux
 
 zplugin ice wait"0a" silent as"command" if'[[ -z "$commands[fzy]" ]]' \
        make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"

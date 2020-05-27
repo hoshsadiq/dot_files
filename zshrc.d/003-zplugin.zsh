@@ -25,14 +25,17 @@ zplugin snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
 #zplugin ice depth=1 wait silent
 zplugin snippet OMZ::plugins/globalias/globalias.plugin.zsh
 
-zplugin ice depth=1 wait"0a" compile'{src/*.zsh,src/strategies/*}' silent atload'_zsh_autosuggest_start'
+zplugin ice depth=1 wait"1" compile'{src/*.zsh,src/strategies/*}' silent atload'_zsh_autosuggest_start'
 zplugin light zsh-users/zsh-autosuggestions
 
-zplugin ice wait"0b" silent
+zplugin ice wait"1" silent
 zplugin light hlissner/zsh-autopair
 
 zplugin ice wait"2" as"program" pick"tldr" silent
 zplugin light raylee/tldr
+
+zplugin ice silent
+zplugin light Aloxaf/fzf-tab
 
 zplugin ice depth'1' wait"0a" atload"_zsh_highlight" silent
 zplugin light zdharma/fast-syntax-highlighting

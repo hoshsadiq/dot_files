@@ -19,7 +19,6 @@ if [[ "$OSTYPE" == "darwin"* ]] || [ "$OSTYPE" == "linux-gnu" ]; then
 
   go get -u github.com/simplealpine/json2yaml
   go get -u github.com/simplealpine/yaml2json
+  GO111MODULE=on go get -u github.com/go-delve/delve/cmd/dlv@latest
+  GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt@latest
 fi
-
-version="$(curl -fsSL https://glide.sh/version)"
-curl -fsSL "https://github.com/Masterminds/glide/releases/download/$version/glide-$version-$(uname|tr '[:upper:]' '[:lower:]')-amd64.tar.gz" | tar xzvf - -C $HOME/bin/ --strip-components=1 darwin-amd64/glide

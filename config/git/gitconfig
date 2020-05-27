@@ -11,6 +11,13 @@
 	preloadindex = true
 	fscache = true
 	untrackedCache = true
+	hooksPath = ~/dot_files/config/git/hooks
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+	insteadOf = git@github.com/
+[url "git://"]
+	insteadOf = https://
 
 [fetch]
 	prune = true
@@ -32,13 +39,14 @@
 [alias]
 	unstage = reset HEAD --
 	root = rev-parse --show-toplevel
-	dl = "!git ll -1"
+	dl = ll -1
 	dlc = diff --cached HEAD^
 	prune = fetch --prune
 	undo = reset --soft HEAD^
 	branch-name = rev-parse --abbrev-ref HEAD
 
 	stash-all = stash save --include-untracked
+	stash-staged = "!bash -c 'git stash --keep-index; git stash push -m staged --keep-index; git stash pop stash@{1}'"
 
 	co = checkout
 	ci = commit
@@ -53,9 +61,11 @@
 	ls = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
 	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
-	patch = !git --no-pager diff --no-color
+	branchm = "!git branch -m $2 $3 && git push $1 :$2 $3 -u #"
+
+	patch = --no-pager diff --no-color
     permission-reset = "!f() { \
-                                set -x; \
+                                set -ex; \
                                 git diff -p -R --no-color | \
                                 grep -E '^(diff|(old|new) mode)' --color=never | \
                                 git apply; \
@@ -88,8 +98,8 @@
 	mnemonicPrefix = true
 	renames = copies
 
-[diff "json"]
-	textconv = python -mjson.tool
+# [diff "json"]
+# 	textconv = bash -c 'jq .
 [diff "xml"]
 	textconv = xmllint --format
 [diff "pdf"]

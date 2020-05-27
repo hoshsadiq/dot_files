@@ -41,7 +41,6 @@ bindkey '^w' backward-kill-word # ctrl-w removed word backwards
 bindkey "^Y" yank # Ctrl+Y paste what was previously killed
 
 # These two lines are the same, but for some reason it doesn't work within tmux
-#bindkey "${terminfo[kcbt]}" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
 bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
 
 # Edit the current command line in $EDITOR
@@ -51,10 +50,11 @@ bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion
 
 bindkey "^[m" copy-prev-shell-word
 
-zmodload zsh/terminfo
 bindkey '^R' history-search-multi-word
 
 bindkey "^@" set-mark-command
 
 bindkey "^[[6~" down-line-or-history
 bindkey "^[[5~" up-line-or-history
+
+bindkey '^[?' run-help

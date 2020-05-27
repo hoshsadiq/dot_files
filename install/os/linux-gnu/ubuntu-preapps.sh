@@ -11,6 +11,7 @@ source /etc/upstream-release/lsb-release
 sudo add-apt-repository -y ppa:geary-team/releases
 sudo add-apt-repository -y ppa:gophers/archive
 sudo add-apt-repository -y ppa:libratbag-piper/piper-libratbag-git
+sudo add-apt-repository -y ppa:longsleep/golang-backports
 
 # todo fix java, need to install java10
 # sudo add-apt-repository -y ppa:webupd8team/java

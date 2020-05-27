@@ -20,9 +20,15 @@ sudo ln -fs $DOT_FILES/config/tlp/tlp /etc/default/tlp
 sudo apt-get install nvidia-prime
 sudo prime-select intel
 
+#gsettings_disabler=gsettings-app-autodisable-global-shorts
+#git clone git@github.com:hoshsadiq/$gsettings_disabler.git "$HOME/Workspace/$gsettings_disabler"
+#ln -fs "$HOME/Workspace/$gsettings_disabler/citrix-key-fixer.service" "$HOME/.local/share/systemd/user/citrix-key-fixer.service"
+#systemctl --user enable citrix-key-fixer.service
+#systemctl --user start citrix-key-fixer.service
+
 for service in gpuoff powertop; do
-    # sudo cp $DOT_FILES/systemd/gpuoff.service /lib/systemd/system/gpuoff.service
-    sudo ln -fs $DOT_FILES/config/systemd/$service.service /lib/systemd/system/$service.service
-    sudo systemctl enable $service
-    sudo systemctl start $service
+  # sudo cp $DOT_FILES/systemd/gpuoff.service /lib/systemd/system/gpuoff.service
+  sudo ln -fs $DOT_FILES/config/systemd/$service.service /lib/systemd/system/$service.service
+  sudo systemctl enable $service
+  sudo systemctl start $service
 done

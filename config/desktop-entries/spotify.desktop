@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Spotify
+GenericName=Music Player
+Icon=spotify-client
+TryExec=spotify
+# todo this needs a better way of figuring out the location
+Exec=/home/hosh/dot_files/run-spotify.sh %U
+Terminal=false
+MimeType=x-scheme-handler/spotify;
+Categories=Audio;Music;Player;AudioVideo;
+StartupWMClass=spotify
+X-Desktop-File-Install-Version=0.23

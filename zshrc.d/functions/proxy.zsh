@@ -44,7 +44,7 @@ proxy() {
       echo "Proxy enabled"
       ;;
     *)
-      echo "$0 enable|on|disable|off"
+      echo "$0 [enable|on]|[disable|off]"
       ;;
   esac
 }
@@ -52,39 +52,33 @@ proxy() {
 setproxy() {
   if [[ -z "$PROXY_USERNAME" ]]; then
       echo -n "Enter your proxy username [$(whoami)]: "
-      read PROXY_USERNAME
-      : ${PROXY_USERNAME:="$(whoami)"}
+      read -r PROXY_USERNAME
+      : "${PROXY_USERNAME:="$USER"}"
   fi
 
   if [[ -z "$PROXY_PASSWORD" ]]; then
       echo -n "Enter your proxy password: "
-      read -s PROXY_PASSWORD
+      read -r -s PROXY_PASSWORD
   fi
 
   if [[ -z "$PROXY_HOST" ]]; then
       echo -n "Enter your proxy host/port: "
-      read -s PROXY_HOST
+      read -r -s PROXY_HOST
   fi
 
   PROXY_URL="http://$(rawurlencode "$PROXY_USERNAME"):$(rawurlencode "$PROXY_PASSWORD")@$PROXY_HOST/"
-  http_proxy="$PROXY_URL"
-  https_proxy="$PROXY_URL"
-  HTTP_PROXY="$PROXY_URL"
-  HTTPS_PROXY="$PROXY_URL"
   NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com"
 
   if [[ ! -z "$PROXY_SKIP" ]]; then
     NO_PROXY="$NO_PROXY,$PROXY_SKIP"
   fi
 
-  export PROXY_URL http_proxy https_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY
+  export PROXY_URL NO_PROXY
+  proxy on
 }
 
 unsetproxy() {
-  unset http_proxy
-  unset https_proxy
-  unset HTTP_PROXY
-  unset HTTPS_PROXY
+  proxy off
   unset NO_PROXY
   unset PROXY_URL
 }

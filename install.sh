@@ -16,10 +16,10 @@ fi
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 
-zshExec="$(which zsh)"
+zshExec="$(command -v zsh)"
 if command -v chsh >/dev/null; then
     if ! grep -Fq "$zshExec" /etc/shells; then
-        command -v zsh | sudo tee -a /etc/shells
+        echo "$zshExec" | sudo tee -a /etc/shells
     fi
 	sudo chsh "$(whoami)" -s "$zshExec"
 else

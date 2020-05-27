@@ -11,7 +11,7 @@ export GIT_EDITOR="$EDITOR"
 
 # page
 export PAGER='less'
-export LESS=' -R'
+export LESS=' -FRX'
 
 # X Server display
 export DISPLAY=:0.0

@@ -1,5 +1,3 @@
-autoload -Uz add-zsh-hook
-
 _z_chpwd() {
   if [[ -f "go.mod" ]]; then
     GO111MODULE=on

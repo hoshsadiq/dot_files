@@ -27,5 +27,5 @@ fi
 zplugin ice wait'1' silent \
     atclone"dircolors -b LS_COLORS > c.zsh" \
     atpull'%atclone' pick"c.zsh" \
-    atload'zstyle ":completion:*" list-colors “${(s.:.)LS_COLORS}”'
+    atload'zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"'
 zplugin light trapd00r/LS_COLORS

@@ -1,3 +1,5 @@
+return
+
 # System clipboard integration
 #
 # This file has support for doing system clipboard copy and paste operations

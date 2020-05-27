@@ -58,13 +58,21 @@ update_tmux_option() {
 }
 
 is_osx() {
-	[ $(uname) == "Darwin" ]
+	[[ "$OSTYPE" == "darwin" ]]
 }
 
-is_cygwin() {
-	[[ $(uname) =~ CYGWIN ]]
+is_linux() {
+	[[ "$OSTYPE" == "linux-gnu" ]]
 }
 
 is_freebsd() {
-	[ $(uname) == FreeBSD ]
+	[[ "$OSTYPE" == "freebsd" ]]
+}
+
+is_cygwin() {
+	[[ "$OSTYPE" == "cygwin" ]]
+}
+
+is_msys() {
+	[[ "$OSTYPE" == "msys" ]]
 }

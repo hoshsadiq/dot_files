@@ -22,6 +22,7 @@ export PYENV="$GOPATH/pyenv"
 
 addpath $HOME/bin after
 addpath $GOPATH/bin after
+addpath $DOT_FILES/bin after
 
 # move to ~/apps/android/bin
 addpath $HOME/apps/android/platform-tools after

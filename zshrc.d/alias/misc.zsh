@@ -21,3 +21,5 @@ alias map="xargs -n1"
 alias edots="atom $DOT_FILES $ZSH"
 
 alias diff="git diff --no-index --exit-code --color-words"
+
+alias ansistrip='sed "s/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g"'

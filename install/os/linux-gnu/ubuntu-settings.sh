@@ -7,6 +7,8 @@ sudo usermod -aG docker $USER
 newgrp docker # todo this takes over the shell
 sudo systemctl enable docker
 
+sudo usermod -a -G vboxusers "$USER"
+
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
 
 # gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
