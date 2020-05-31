@@ -5,8 +5,6 @@ set -ex
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/Workspace"
 
-export GOLANG_VERSION="1.11"
-
 # todo need to add other platforms (mac, windows)
 if command -v apt-get &>/dev/null; then
     sudo apt-get update && sudo apt-get install git zsh tmux -y
@@ -14,7 +12,7 @@ elif command -v yum &>/dev/null; then
     sudo yum update && sudo yum install git zsh tmux -y
 fi
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
 
 zshExec="$(command -v zsh)"
 if command -v chsh >/dev/null; then

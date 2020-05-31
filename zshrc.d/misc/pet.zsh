@@ -1,5 +1,5 @@
-zplugin ice from"gh-r" as"program" bpick"*linux_amd64.tar.gz" pick"pet/pet" wait silent
-zplugin light knqyf263/pet
+zinit ice from"gh-r" as"program" bpick"*linux_amd64.tar.gz" pick"pet/pet" wait silent
+zinit light knqyf263/pet
 
 function pet-register() {
   PREV="$(fc -lrn | head -n 1)"

@@ -1,23 +1,12 @@
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+source /etc/os-release
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0EBFCD88
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BA07F4FB
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BA07F4FB # Google keys
+curl -fsSL https://download.spotify.com/debian/pubkey.gpg | sudo apt-key add -
+curl -fsSL "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" | sudo apt-key add -
 
-curl -fsSL https://build.opensuse.org/projects/home:manuelschneid3r/public_key | sudo apt-key add -
-curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add -
-
-source /etc/upstream-release/lsb-release
-
-sudo add-apt-repository -y ppa:geary-team/releases
-sudo add-apt-repository -y ppa:gophers/archive
 sudo add-apt-repository -y ppa:libratbag-piper/piper-libratbag-git
-sudo add-apt-repository -y ppa:longsleep/golang-backports
-
-# todo fix java, need to install java10
-# sudo add-apt-repository -y ppa:webupd8team/java
-sudo add-apt-repository -y "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/x${DISTRIB_ID}_${DISTRIB_RELEASE}/ /" # albert
-sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $DISTRIB_CODENAME stable"
-sudo add-apt-repository -y "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $DISTRIB_CODENAME contrib"
-echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-add-repository -y "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /"
+sudo apt-add-repository -y 'deb http://apt.kubernetes.io/ kubernetes-xenial main'
+sudo apt-add-repository -y 'deb http://repository.spotify.com stable non-free'
 
 sudo apt-get update

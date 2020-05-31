@@ -29,14 +29,14 @@ function __bind_history_keys() {
   bindkey '^[[B' history-substring-search-down
 }
 
-zplugin ice depth=1 wait silent
-zplugin light zdharma/history-search-multi-word
+zinit ice depth=1 wait silent
+zinit light zdharma/history-search-multi-word
 
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::lib/history.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::lib/history.zsh
 
-zplugin ice depth=2 wait silent atload'__bind_history_keys'
-zplugin light zsh-users/zsh-history-substring-search
+zinit ice depth=2 wait silent atload'__bind_history_keys'
+zinit light zsh-users/zsh-history-substring-search
 
 _zshaddhistory_ignore_command_escape() {
   quoted_string="${1//\\//\\\\}"

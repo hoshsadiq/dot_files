@@ -14,7 +14,7 @@ export PAGER='less'
 export LESS=' -FRX'
 
 # X Server display
-export DISPLAY=:0.0
+#export DISPLAY=:0.0
 
 # GPG Signing git commits
 export GPG_TTY=$(tty)

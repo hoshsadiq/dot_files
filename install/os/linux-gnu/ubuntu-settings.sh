@@ -2,24 +2,12 @@
 
 set -ex
 
-getent group docker || sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker # todo this takes over the shell
-sudo systemctl enable docker
-
-sudo usermod -a -G vboxusers "$USER"
-
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal ''
 
 # gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Calendar.desktop', 'firefox.desktop', 'spotify_spotify.desktop', 'intellij-idea-ultimate_intellij-idea-ultimate.desktop', 'atom_atom.desktop', 'whatsappdesktop.desktop']"
 
-# add go binaries to path
-gobin="$(dirname "$(dpkg -L "golang-$GOLANG_VERSION-go" | grep 'bin/go$')")"
-
-echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> "$HOME/.zshrc"
-
-echo "addpath $gobin after" >> "$HOME/.zshrc"
-echo 'addpath "$HOME/.local/bin" after # pip install --user' >> "$HOME/.zshrc"
+# maybe?
+#echo "export JAVA_HOME='$(jrunscript -e 'java.lang.System.out.println(java.lang.System.getProperty("java.home"));')'" >> "$HOME/.zshrc"
 
 # system tweaks
 sudo sed -i -E '/^GRUB_TIMEOUT/s/=[0-9]+$/=3/' /etc/default/grub
@@ -29,18 +17,16 @@ echo fs.inotify.max_user_watches=524288 | sudo tee /etc/sysctl.d/60-intellij-ino
 
 sudo sysctl -p --system
 
-# fix spotify HiDPI scaling
-sudo sed -i -E '/^Exec/s/$/ --force-device-scale-factor=2/g' /var/lib/snapd/desktop/applications/spotify_spotify.desktop
+# todo
+#{
+#  sudo sed -i -r '/^Checks/s/ [^$]+$/ 6/' /etc/clamav/freshclam.conf
+#}
 
-# nemo
-gsettings set org.nemo.preferences show-open-in-terminal-toolbar true
+gsettings set org.gnome.desktop.default-applications.terminal exec 'alacritty'
 
-gsettings set org.cinnamon.desktop.wm.preferences button-layout 'close,maximize,minimize:menu'
-gsettings set org.cinnamon.desktop.wm.preferences mouse-button-modifier '<Alt>'
-gsettings set org.cinnamon.desktop.wm.preferences theme 'Mint-Y-Dark'
-gsettings set org.cinnamon.desktop.interface gtk-theme 'Mint-Y-Darker'
-
-gsettings set org.cinnamon.desktop.notifications bottom-notifications true
+gsettings set org.gnome.desktop.screensaver lock-enabled true
+gsettings set org.gnome.desktop.screensaver lock-delay "uint32 0"
+gsettings set org.gnome.desktop.screensaver show-album-art false
 
 gsettings set org.cinnamon.desktop.default-applications.terminal exec 'alacritty'
 
@@ -116,7 +102,6 @@ gsettings set org.cinnamon.sounds switch-enabled false
 # - individual applets/extensions etc
 #   see ~/.cinnamon/configs
 # - spotify: sed -E -e '/^Exec/s/( %U)?$/ --force-device-scale-factor=2\1/g' -e 's#(/snap/spotify/)[0-9]+#\1current#' /var/lib/snapd/desktop/applications/spotify_spotify.desktop > ~/.local/share/applications/spotify.desktop
-# -
 
 ln -s /usr/share/applications/org.gnome.Calendar.desktop /home/hosh/.config/autostart/org.gnome.Calendar.desktop
 ln -s /usr/share/applications/org.gnome.Geary.desktop /home/hosh/.config/autostart/org.gnome.Geary.desktop

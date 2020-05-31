@@ -1,1 +1,2 @@
-[[ -e $HOME/.gvm/scripts/gvm ] && source /home/hosh/.gvm/scripts/gvm
+# shellcheck disable=SC1090
+[[ -e $HOME/.gvm/scripts/gvm ]] && source "$HOME/.gvm/scripts/gvm"

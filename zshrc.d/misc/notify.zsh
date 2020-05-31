@@ -12,5 +12,5 @@ _zsh-notify-setting() {
   zstyle ':notify:*' blacklist-regex '^less|\|\s*less'
 }
 
-zplugin ice wait"2" atload"_zsh-notify-setting" lucid
-zplugin light marzocchi/zsh-notify
+zinit ice wait"2" atload"_zsh-notify-setting" lucid
+zinit light marzocchi/zsh-notify

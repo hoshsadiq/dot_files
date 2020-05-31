@@ -1,4 +1,4 @@
-zplugin light willghatch/zsh-saneopt
+zinit light willghatch/zsh-saneopt
 
 setopt auto_cd                   # Automatically cd in to directories if it's not a command name.
 setopt multios

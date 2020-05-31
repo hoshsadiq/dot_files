@@ -1,48 +1,56 @@
-source "$HOME/.zplugin/bin/zplugin.zsh"
-autoload -Uz _zplugin
-(( ${+_comps} )) && _comps[zplugin]=_zplugin
+if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+fi
+
+source "$HOME/.zinit/bin/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
 
 zmodload -i zsh/complist
 autoload -Uz compinit
 compinit
 
 # oh my zsh plugins
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::lib/clipboard.zsh
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::lib/grep.zsh
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::lib/spectrum.zsh
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::lib/termsupport.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::lib/clipboard.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::lib/grep.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::lib/spectrum.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::lib/termsupport.zsh
 
-#zplugin ice depth=1 wait'1' silent
-#zplugin snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-zplugin ice depth=1 wait silent
-zplugin snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
-#zplugin ice depth=1 wait silent
-zplugin snippet OMZ::plugins/globalias/globalias.plugin.zsh
+#zinit ice depth=1 wait'1' silent
+#zinit snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+zinit ice depth=1 wait silent
+zinit snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
+#zinit ice depth=1 wait silent
+zinit snippet OMZ::plugins/globalias/globalias.plugin.zsh
 
-zplugin ice depth=1 wait"1" compile'{src/*.zsh,src/strategies/*}' silent atload'_zsh_autosuggest_start'
-zplugin light zsh-users/zsh-autosuggestions
+zinit ice depth=1 wait"1" compile'{src/*.zsh,src/strategies/*}' silent atload'_zsh_autosuggest_start'
+zinit light zsh-users/zsh-autosuggestions
 
-zplugin ice wait"1" silent
-zplugin light hlissner/zsh-autopair
+zinit ice wait"1" silent
+zinit light hlissner/zsh-autopair
 
-zplugin ice wait"2" as"program" pick"tldr" silent
-zplugin light raylee/tldr
+zinit ice wait"2" as"program" pick"tldr" silent
+zinit light raylee/tldr
 
-zplugin ice silent
-zplugin light Aloxaf/fzf-tab
+zinit ice silent
+zinit light Aloxaf/fzf-tab
 
-zplugin ice depth'1' wait"0a" atload"_zsh_highlight" silent
-zplugin light zdharma/fast-syntax-highlighting
+zinit ice depth'1' wait"0a" atload"_zsh_highlight" silent
+zinit light zdharma/fast-syntax-highlighting
 
 # todo these need to be loaded conditionally
-# zplugin snippet OMZ::plugins/osx/osx.plugin.zsh
+# zinit snippet OMZ::plugins/osx/osx.plugin.zsh
 
 # todo consider these, do i need it? they seem cool...
-# zplugin light tj/git-extras
-# zplugin load zdharma/zui
+# zinit light tj/git-extras
+# zinit load zdharma/zui

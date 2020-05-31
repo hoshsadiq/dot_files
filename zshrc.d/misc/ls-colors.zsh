@@ -24,8 +24,8 @@ else
     zstyle ':completion:*:default' list-colors "${(s.:.)LS_COLORS}"
 fi
 
-zplugin ice wait'1' silent \
+zinit ice wait'1' silent \
     atclone"dircolors -b LS_COLORS > c.zsh" \
     atpull'%atclone' pick"c.zsh" \
     atload'zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"'
-zplugin light trapd00r/LS_COLORS
+zinit light trapd00r/LS_COLORS

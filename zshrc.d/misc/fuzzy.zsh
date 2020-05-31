@@ -1,19 +1,19 @@
-zplugin ice silent wait"0" as"program" from"gh-r" atload'export FZF_DEFAULT_OPTS="--reverse --exit-0 --border --ansi"'
-zplugin light 'junegunn/fzf-bin'
+zinit ice silent wait"0" as"program" from"gh-r" atload'export FZF_DEFAULT_OPTS="--reverse --exit-0 --border --ansi"'
+zinit light 'junegunn/fzf-bin'
 
-zplugin ice multisrc"shell/{completion,key-bindings}.zsh" \
+zinit ice multisrc"shell/{completion,key-bindings}.zsh" \
     id-as"junegunn/fzf_completions" pick"/dev/null" \
     sbin"bin/fzf-tmux" silent
-zplugin light junegunn/fzf
+zinit light junegunn/fzf
 
-zplugin ice pick"fzf-tmux" as"program" silent
-zplugin snippet https://github.com/junegunn/fzf/blob/master/bin/fzf-tmux
+zinit ice pick"fzf-tmux" as"program" silent
+zinit snippet https://github.com/junegunn/fzf/blob/master/bin/fzf-tmux
 
-zplugin ice wait"0a" silent as"command" if'[[ -z "$commands[fzy]" ]]' \
+zinit ice wait"0a" silent as"command" if'[[ -z "$commands[fzy]" ]]' \
        make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"
-zplugin light jhawthorn/fzy
+zinit light jhawthorn/fzy
 # Install fzy-using widgets
-zplugin ice wait"0a" silent
-zplugin light aperezdc/zsh-fzy
+zinit ice wait"0a" silent
+zinit light aperezdc/zsh-fzy
 bindkey '\ec' fzy-cd-widget
 bindkey '^T'  fzy-file-widget
