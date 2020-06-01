@@ -31,7 +31,16 @@ zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_fwup
 zinit ice as"completion" has'openssl' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
 
+zinit ice as"completion" has'circleci' wait silent blockf
+zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/go/_circleci
+
+zinit ice as"completion" has'docker-dive' wait silent blockf
+zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/go/_dive
+
+zinit ice as"completion" has'shellcheck' wait silent blockf
+zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/zsh/_shellcheck
+
 zinit ice as"completion" has'podman' wait silent blockf
-zinit snippet "https://github.com/containers/libpod/blob/v$(podman version --format '{{.Client.Version}}')/completions/zsh/_podman"
+command -v podman >/dev/null && zinit snippet "https://github.com/containers/libpod/blob/v$(podman version --format '{{.Client.Version}}')/completions/zsh/_podman"
 
 # todo pip, pipenv
