@@ -10,7 +10,7 @@ if grep -Eiq '(mint|ubuntu)' <<<"$NAME ${ID_LIKE:-}"; then
 
     source ./linux-gnu/ubuntu-preapps.sh
     source ./linux-gnu/ubuntu-apps.sh
-    source ./linux-gnu/ubuntu-settings.sh
+#    source ./linux-gnu/ubuntu-settings.sh
 
     # Section "InputClass"
     #         Identifier "libinput touchpad catchall"

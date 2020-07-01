@@ -12,13 +12,13 @@ _z_chpwd
 _last_git_bin=""
 _z_path_add_gitroot() {
   if [[ "$_last_git_bin" != "" ]]; then
-    rmpath "$_last_git_bin"
+    path-rm "$_last_git_bin"
     _last_git_bin=""
   fi
 
   if [[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" == "true" ]]; then
     git_bin="$(git rev-parse --show-toplevel)/bin"
-    addpath "$git_bin" after
+    path-add "$git_bin"
     _last_git_bin="$git_bin"
   fi
 }

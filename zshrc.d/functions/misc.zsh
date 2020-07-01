@@ -1,6 +1,6 @@
 # Add defined in bash to ~/.bash_functions
 savefunction() {
-  declare -f $1 >> $DOT_FILES/zshrc.d/functions/saved.zsh
+  declare -f $1 >>$DOT_FILES/zshrc.d/functions/saved.zsh
 }
 
 # pretend to be busy in office to enjoy a cup of coffee
@@ -9,12 +9,12 @@ allhackingandshit() {
 }
 
 hgg() {
-    if [[ $# -lt 1 ]] || [[ $# -gt 1 ]]; then
-        echo "search bash history"
-        echo "usage: mg [search pattern]"
-    else
-        history | grep -i $1 | grep -v hg
-    fi
+  if [[ $# -lt 1 ]] || [[ $# -gt 1 ]]; then
+    echo "search bash history"
+    echo "usage: mg [search pattern]"
+  else
+    history | grep -i $1 | grep -v hg
+  fi
 }
 
 # Lists unique IPs currently connected to
@@ -30,7 +30,7 @@ remindme() {
 }
 
 # outputs the pid of the first grepped process
-greppid () {
+greppid() {
   local context=0
   local proc=$1
   if [ "$1" = "--context" ]; then
@@ -50,47 +50,41 @@ greppid () {
 # Calculate something
 # calc 1+1
 calc() {
-    echo "scale=2;$@" | bc;
+  echo "scale=2;$@" | bc
 }
 
 # to take a note: note your note
 # to clear: note -c
 # to view notes: note
-note () {
-   #if file doesn't exist, create it
-   [[ -f $HOME/.notes ]] || touch $HOME/.notes
+note() {
+  #if file doesn't exist, create it
+  [[ -f $HOME/.notes ]] || touch $HOME/.notes
 
-   #no arguments, print file
-   if [[ $# = 0 ]]; then
-          cat $HOME/.notes
-   #clear file
-   elif [[ $1 = -c ]]; then
-      > $HOME/.notes
-   #add all arguments to file
-   else
-      echo "$@" >> $HOME/.notes
-   fi
+  #no arguments, print file
+  if [[ $# == 0 ]]; then
+    cat $HOME/.notes
+  #clear file
+  elif [[ $1 == -c ]]; then
+    >$HOME/.notes
+  #add all arguments to file
+  else
+    echo "$@" >>$HOME/.notes
+  fi
 }
 
 is-port-open() {
   # todo use nmap when available
-  bash -c "echo >/dev/tcp/192.168.1.108/12"
+
+  host="$1"
+  port="$2"
+  bash -c "echo >/dev/tcp/$host/$port"
 }
 
-# gsettings() {
-#     if [[ "$#" == "0" || "$1" != "monitor" ]]; then
-#         /usr/bin/gsettings "$@"
-#         return $?
-#     fi
-#
-#     set -e
-#
-#     tmpDir="$(mktemp -d --suffix -gsettings-monitor)"
-#     for schema in $(gsettings list-schemas); do
-#         /usr/bin/gsettings monitor "$schema" &> "$tmpDir/$schema.changes" &
-#     done
-#
-#     tail -f ${tmpDir}/*.changes
-#
-#     killall gsettings
-# }
+gsettings() {
+  if [[ "$#" == "1" && "$1" == "monitor" ]]; then
+    command gsettings list-schemas | xargs -n 1 --max-procs=0 -I% bash -e -c 'exec > >(sed "s/^/% /"); exec 2> >(sed "s/^/% /" >&2); command gsettings monitor %'
+    return $?
+  fi
+
+  command gsettings "$@"
+}

@@ -25,31 +25,31 @@ disableSystemdResolved() {
   sudo systemctl disable systemd-resolved.service
   sudo systemctl stop systemd-resolved
   setIniVar main dns default /etc/NetworkManager/NetworkManager.conf
-  rm /etc/resolv.conf
+  sudo rm /etc/resolv.conf
   sudo service network-manager restart
 }
 
 # more info https://community.linuxmint.com/tutorial/view/1727
 sudo modprobe kvm-intel
-sudo apt-get install \
+sudo apt-get install --assume-yes \
+    libvirt-clients \
+    libvirt-daemon-system \
     virtinst \
     virt-manager \
-    python-libvirt \
-    libvirt-bin \
+    virt-viewer \
     qemu \
     qemu-kvm \
-    virt-viewer \
     bridge-utils \
     ebtables \
     dnsmasq
 
-sudo adduser $USER libvirt
+sudo adduser "$USER" libvirt
 newgrp libvirt
 
 disableSystemdResolved
 
 sudo service libvirtd restart
 
-curl -L https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2 -o $HOME/bin/docker-machine-driver-kvm2 && chmod +x $HOME/bin/docker-machine-driver-kvm2
-
-minikube start --vm-driver kvm2
+#curl -L https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2 -o $HOME/bin/docker-machine-driver-kvm2 && chmod +x $HOME/bin/docker-machine-driver-kvm2
+#
+#minikube start --vm-driver kvm2

@@ -35,3 +35,17 @@ cdup() {
   fi
   cd $d || return $?
 }
+
+force-link() {
+  link="$1"
+
+  [[ ! -L "$link" ]] && >&2 printf "file %s is not a link" "$link" && return 1
+
+  realLocation="$(readlink "$link")"
+
+  [[ ! -r "$realLocation" ]] && >&2 printf "file %s does not exist or is not readable" "$realLocation" && return 1
+
+  # todo need to handle relative path links
+
+  cp "$realLocation" "$link"
+}

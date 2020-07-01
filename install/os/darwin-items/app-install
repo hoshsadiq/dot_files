@@ -91,5 +91,5 @@ echo 'source "$HOME/.sdkman/bin/sdkman-init.sh"' >> "$HOME/.zsh_local"
 echo "Need to install:"
 echo "- Docker"
 
-echo 'addpath "$HOME/Library/Python/3.6/bin"'
+echo 'path-add "$HOME/Library/Python/3.6/bin"'
 echo "JAVA_HOME=$(/usr/libexec/java_home)"

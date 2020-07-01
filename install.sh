@@ -44,6 +44,7 @@ for file in "${dots[@]}"; do
     abs_dot="$DOT_FILES/dots/$file"
     echo "$dot -> $abs_dot"
     [ -f "$dot" ] && mkdir -p "$(dirname $DOT_FILES/backup/.$file)" &&  mv "$dot" "$DOT_FILES/backup/.$file"
+    mkdir -p "$(dirname "$dot")"
     ln -s "$abs_dot" "$dot"
 done
 

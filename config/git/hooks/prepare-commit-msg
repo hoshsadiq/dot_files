@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [[ $(git remote -v) == *":launchdarkly/"* ]]; then
+	branch="$(git rev-parse --abbrev-ref HEAD)"
+	clubhouse_ticket="$(awk -F/ '{print "["$2"]"}' <<<"$branch")"
+
+	if ! grep -qF "$clubhouse_ticket" "$1"; then
+		printf "%s %s" "$clubhouse_ticket" "$(cat "$1")" > "$1"
+	fi
+fi

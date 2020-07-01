@@ -1,7 +1,7 @@
-zinit ice pick'init.sh' wait"0c" silent nocompletions
+zinit ice pick'init.sh' wait silent nocompletions
 zinit light b4b4r07/enhancd
 
-zinit ice lucid wait"0" as"program" from"gh-r" \
+zinit ice lucid wait as"program" from"gh-r" \
     mv"exa* -> exa" \
     atload"
         alias ls='exa'
@@ -11,6 +11,7 @@ zinit ice lucid wait"0" as"program" from"gh-r" \
     " \
     atclone'ls -la; cp contrib/man/exa* $ZPFX/share/man/man1' \
     atpull"%atclone" run-atpull
+zinit light ogham/exa
 
 zinit ice has'exa' id-as"ogham-exa---zsh-completion" as"completion" \
 	wait silent blockf \

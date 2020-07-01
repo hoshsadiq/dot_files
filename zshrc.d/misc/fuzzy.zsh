@@ -9,7 +9,7 @@ zinit light junegunn/fzf
 zinit ice pick"fzf-tmux" as"program" silent
 zinit snippet https://github.com/junegunn/fzf/blob/master/bin/fzf-tmux
 
-zinit ice wait"0a" silent as"command" if'[[ -z "$commands[fzy]" ]]' \
+zinit ice wait"0a" silent as"command" has'fzy' \
        make"!PREFIX=$ZPFX install" atclone"cp contrib/fzy-* $ZPFX/bin/" pick"$ZPFX/bin/fzy*"
 zinit light jhawthorn/fzy
 # Install fzy-using widgets

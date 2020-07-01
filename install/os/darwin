@@ -4,7 +4,7 @@ brew install byobu
 brew install git-crypt
 
 echo "export JAVA_HOME='$(/usr/libexec/java_home)'" >> $HOME/.zshrc.local
-echo 'addpath $HOME/Library/Python/3.6/bin after # pip install --user' >> $HOME/.zshrc.local
+echo 'path-add $HOME/Library/Python/3.6/bin # pip install --user' >> $HOME/.zshrc.local
 
 echo "Implement MacOS"
 exit 1;

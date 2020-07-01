@@ -8,6 +8,6 @@ chmod +x "$HOME/apps/qemu-img/"*
 if ! grep -qF '$HOME/apps/qemu-img' $HOME/.zshrc; then
     cat <<'EOF' >> $HOME/.zshrc
     # qemu-img for windows
-    addpath "$HOME/apps/qemu-img" after
+    path-add "$HOME/apps/qemu-img"
 EOF
 fi

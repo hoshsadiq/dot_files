@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# todo use cron to update this regularly
+
+targetBinPath="$(systemd-path user-binaries)"
+targetCompletionsPath="$(systemd-path user-shared)/bash-completions/completions"
+
+mkdir -p "$targetBinPath"
+mkdir -p "$targetCompletionsPath"
+
+curl -fsSL https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -o "$targetBinPath/winetricks"
+curl -fsSL https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks.bash-completion -o "$targetCompletionsPath/winetricks"
+chmod +x "$targetBinPath/winetricks"

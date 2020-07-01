@@ -48,6 +48,10 @@ zinit light Aloxaf/fzf-tab
 zinit ice depth'1' wait"0a" atload"_zsh_highlight" silent
 zinit light zdharma/fast-syntax-highlighting
 
+# this is quite buggy as of yet, so maybe in the future
+#zinit ice silent
+#zinit light marlonrichert/zsh-autocomplete
+
 # todo these need to be loaded conditionally
 # zinit snippet OMZ::plugins/osx/osx.plugin.zsh
 

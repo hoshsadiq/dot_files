@@ -1,7 +1,12 @@
-export DOT_FILES="$HOME/dot_files"
-export JAVA_HOME='/usr/lib/jvm/java-11-openjdk-amd64'
+export PROXY_SKIP="*.proxy.skip"
+export PROXY_USERNAME="$(whoami)"
+export PROXY_PASSWORD="passwd"
+export PROXY_HOST="proxy-host:8080"
 
+# export JAVA_HOME='/usr/lib/jvm/java-11-openjdk-amd64'
+
+export DOT_FILES="$HOME/dot_files"
 source $DOT_FILES/config/zsh/zshrc
 
-addpath "$HOME/.local/bin" after
-addpath "$HOME/.cargo/bin" after
+path-add "$HOME/.local/bin"
+path-add /usr/lib/go-1.11/bin
