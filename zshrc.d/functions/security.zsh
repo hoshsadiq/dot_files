@@ -20,13 +20,22 @@ ssh-get-fingerprint() {
   ssh-keygen -E "$hash" -lf "$keyFile"
 }
 
-ssl-get-website-fingerprint() {
-  website="$1"
+ssl-get-fingerprint() {
+  ssl-get-certificate "$@" | openssl x509 -noout -fingerprint -sha256 -in /dev/stdin
+}
 
-  echo -n \
-    | openssl s_client -connect "$website:443" 2>/dev/null \
-    | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' \
-    | openssl x509 -noout -fingerprint -sha256 -in /dev/stdin
+ssl-get-certificate() {
+  website="$1"
+  sni="${2:-true}"
+
+  args=("-connect" "$website:443")
+  if [[ "$sni" == "true" ]]; then
+    args+=("-servername" "$website")
+  fi
+
+  echo -n | \
+    openssl s_client -showcerts "${args[@]}" </dev/null 2>/dev/null | \
+    openssl x509 -text
 }
 
 check_gpg_pass() {

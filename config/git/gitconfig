@@ -98,8 +98,8 @@
 	mnemonicPrefix = true
 	renames = copies
 
-# [diff "json"]
-# 	textconv = bash -c 'jq .
+[diff "json"]
+	textconv = jq .
 [diff "xml"]
 	textconv = xmllint --format
 [diff "pdf"]

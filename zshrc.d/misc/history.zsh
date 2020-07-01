@@ -22,11 +22,11 @@ setopt hist_reduce_blanks     # Remove superfluous blanks before recording entry
 setopt hist_verify            # Don't execute immediately upon history expansion.
 setopt hist_beep              # Beep when accessing nonexistent history.
 
-bindkey -r '^[[A'
-bindkey -r '^[[B'
+bindkey -r '^[OA'
+bindkey -r '^[OB'
 function __bind_history_keys() {
-  bindkey '^[[A' history-substring-search-up
-  bindkey '^[[B' history-substring-search-down
+  bindkey '^[OA' history-substring-search-up
+  bindkey '^[OB' history-substring-search-down
 }
 
 zinit ice depth=1 wait silent
