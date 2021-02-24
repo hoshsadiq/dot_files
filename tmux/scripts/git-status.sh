@@ -15,7 +15,7 @@ settings[icon]='\ue725'
 settings[prefix]='┤ '
 settings[suffix]=' ├'
 # settings[statusd-directory]='~/.gitstatusd'
-settings[statusd-directory]="$HOME/.zplugin/plugins/romkatv---powerlevel10k/gitstatus"
+settings[statusd-directory]="$HOME/.zinit/plugins/romkatv---powerlevel10k/gitstatus"
 
 settings[icon-staged]='\uf914' # nf-mdi-plus
 settings[icon-unstaged]='\uf704' # nf-mdi-exclamation

@@ -31,7 +31,7 @@
 # Windows
 *.bat   text eol=crlf
 *.cmd   text eol=crlf
-*.ps1   text eol=crlf
+*.ps1   text eol=lf
 
 # Configs
 *.properties    text

@@ -7,7 +7,8 @@
 # else
 #     alias ip="ifconfig | grep "inet addr" | awk '{ print $3 }' | awk -F ':' '{ print $2 }'"
 # fi
-alias extip='dig +short myip.opendns.com @resolver1.opendns.com'
+alias extip='dig +short -4 myip.opendns.com @resolver1.opendns.com'
+alias extip6='dig +short -6 myip.opendns.com aaaa @resolver1.ipv6-sandbox.opendns.com'
 alias ipinfo='curl ifconfig.me/all'
 
 localip() {

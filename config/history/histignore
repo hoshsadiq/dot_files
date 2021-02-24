@@ -25,7 +25,8 @@ cmd:kill
 # todo, this shouldn't be ignored by this: gits | awk '/elasticache/{gsub("modified:", "", $0); print}' | xargs -n1 git add
 cmd:gits
 
+!cmd:gen-pass
+!^aws ssm get-parameter
+
 # Sensitive looking lines (export AWS_SECRET_ACCESS KEY, for example. I never do that. Ever. I promise.)
 (api|token|key|secret|pass)
-
-!cmd:gen-pass

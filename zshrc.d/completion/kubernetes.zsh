@@ -21,3 +21,19 @@ zinit ice has'minikube' id-as'kubernetes---minikube-completion' \
         pick'minikube-completions.zsh' src'minikube-completions.zsh' \
         atload'zinit cdreplay -q'
 zinit light zdharma/null
+
+zinit ice has'kompose' id-as'kubernetes---kompose-completion' \
+        wait silent blockf nocompletions \
+        atclone'kompose completion zsh >! kompose-completions.zsh' \
+        atpull'%atclone' run-atpull \
+        pick'kompose-completions.zsh' src'kompose-completions.zsh' \
+        atload'zinit cdreplay -q'
+zinit light zdharma/null
+
+zinit ice wait='2' lucid pick'/dev/null' sbin='kubectx' sbin='kubens' \
+  atclone='
+    mv completion/kubectx.zsh _kubectx;
+    mv completion/kubens.zsh _kubens;
+  ' \
+  atpull='%atclone'
+zinit light ahmetb/kubectx

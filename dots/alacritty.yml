@@ -685,6 +685,7 @@ key_bindings:
 
   - { key: Paste,                   action: Paste                            }
   - { key: Copy,                    action: Copy                             }
+  - { key: I,        mods: Control, chars: "\x09"                            }
   - { key: L,        mods: Control, action: ClearLogNotice                   }
   - { key: L,        mods: Control, chars: "\x0c"                            }
   - { key: Home,     mods: Alt,     chars: "\x1b[1;3H"                       }

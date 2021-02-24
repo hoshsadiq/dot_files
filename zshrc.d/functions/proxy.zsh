@@ -83,6 +83,16 @@ unsetproxy() {
   unset PROXY_URL
 }
 
+pritunl_connect() {
+  [[ $# -ne 2 ]] && {
+    echo "usage: $0 profile bitwarden_totp_name"
+    echo "    example: $0 oq5xlmnphii2eo2zxl1jyx8m2apeos21 vpn-totp"
+    exit 1
+  }
+
+  pritunl-client start "$1" --password "$(rbw code "$2")"
+}
+
 if [[ -n "$PROXY_USERNAME" && -n "$PROXY_PASSWORD" && -n "$PROXY_HOST" ]]; then
   setproxy
 fi

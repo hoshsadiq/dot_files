@@ -73,5 +73,7 @@ gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-typ
 # sudo ufw allow out https
 # sudo ufw allow out 53
 
-#ln -s /usr/share/applications/org.gnome.Calendar.desktop /home/hosh/.config/autostart/org.gnome.Calendar.desktop
-#ln -s /usr/share/applications/org.gnome.Geary.desktop /home/hosh/.config/autostart/org.gnome.Geary.desktop
+ln -fs /usr/share/applications/com.alacritty.Alacritty.desktop ~/.config/autostart/
+ln -s /usr/share/app-install/desktop/gnome-calendar:org.gnome.Calendar.desktop ~/.config/autostart/
+ln -s /usr/share/app-install/desktop/geary:geary.desktop ~/.config/autostart/
+ln -s /usr/share/app-install/desktop/firefox:firefox.desktop ~/.config/autostart/

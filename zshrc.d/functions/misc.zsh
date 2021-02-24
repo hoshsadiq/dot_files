@@ -47,12 +47,6 @@ greppid() {
   fi
 }
 
-# Calculate something
-# calc 1+1
-calc() {
-  echo "scale=2;$@" | bc
-}
-
 # to take a note: note your note
 # to clear: note -c
 # to view notes: note
@@ -122,11 +116,22 @@ text2number() {
   numbers=""
 
   while read -r char; do
-      if [[ -n ${mapping[$char]:-} ]]; then
-          original="$original$char"
-          numbers="$numbers${mapping[$char]}"
-      fi
+    if [[ -n ${mapping[$char]:-} ]]; then
+      original="$original$char"
+      numbers="$numbers${mapping[$char]}"
+    fi
   done < <(command grep -o . <<<"$1")
 
   printf "%s\n%s\n" "$original" "$numbers"
+}
+# scroll to a section within man pages
+mans() {
+  local section="$1"
+  shift
+
+  man -P "less -p ^'$section'" "$@"
+}
+
+=() {
+  bc -l <<<"$*"
 }

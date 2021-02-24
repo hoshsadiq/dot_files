@@ -58,7 +58,7 @@
       # nvm                     # node.js version from nvm (https://github.com/nvm-sh/nvm)
       # nodeenv                 # node.js environment (https://github.com/ekalinin/nodeenv)
       # node_version          # node.js version
-      go_version            # go version (https://golang.org)
+      go_version              # go version (https://golang.org)
       # rust_version          # rustc version (https://www.rust-lang.org)
       # dotnet_version        # .NET version (https://dotnet.microsoft.com)
       # rbenv                   # ruby version from rbenv (https://github.com/rbenv/rbenv)
@@ -71,15 +71,15 @@
       context                 # user@hostname
       # nordvpn                 # nordvpn connection status, linux only (https://nordvpn.com/)
       ranger                  # ranger shell (https://github.com/ranger/ranger)
-      # vpn_ip                # virtual private network indicator
+      pritunl                 # virtual private network indicator
       # ram                   # free RAM
       # load                  # CPU load
       time                    # current time
-      battery               # internal battery
+      battery                 # internal battery
       # =========================[ Line #2 ]=========================
       newline
       # public_ip             # public IP address
-      proxy                 # system-wide http/https/ftp proxy
+      proxy                   # system-wide http/https/ftp proxy
       # example               # example user-defined segment (see prompt_example function below)
   )
 
@@ -484,12 +484,13 @@
   # Icon to show when direnv is active.
   typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER}'
 
-  ##########[ nordvpn: nordvpn connection status, linux only (https://nordvpn.com/) ]###########
+  ##########[ pritunl: pritunl connection status, linux only (https://nordvpn.com/) ]###########
   # NordVPN connection indicator color.
-  typeset -g POWERLEVEL9K_NORDVPN_FOREGROUND=39
-  # Hide NordVPN connection indicator when not connected.
-  typeset -g POWERLEVEL9K_NORDVPN_{DISCONNECTED,CONNECTING,DISCONNECTING}_CONTENT_EXPANSION=
-  typeset -g POWERLEVEL9K_NORDVPN_{DISCONNECTED,CONNECTING,DISCONNECTING}_VISUAL_IDENTIFIER_EXPANSION=
+  typeset -g POWERLEVEL9K_PRITUNL_DISCONNECTED_FOREGROUND=red
+  typeset -g POWERLEVEL9K_PRITUNL_{CONNECTING,DISCONNECTING}_FOREGROUND=yellow
+  typeset -g POWERLEVEL9K_PRITUNL_FOREGROUND=green
+  typeset -g POWERLEVEL9K_PRITUNL_{DISCONNECTED,CONNECTING,DISCONNECTING,CONNECTED}_VISUAL_IDENTIFIER_EXPANSION=$'\Uf983'
+
   # Custom icon.
   # typeset -g POWERLEVEL9K_NORDVPN_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
@@ -754,12 +755,12 @@
   # VPN IP color.
   typeset -g POWERLEVEL9K_VPN_IP_FOREGROUND=81
   # When on VPN, show just an icon without the IP address.
-  typeset -g POWERLEVEL9K_VPN_IP_CONTENT_EXPANSION=
+  #typeset -g POWERLEVEL9K_VPN_IP_CONTENT_EXPANSION=
   # Regular expression for the VPN network interface. Run ifconfig while on VPN to see the
   # name of the interface.
   typeset -g POWERLEVEL9K_VPN_IP_INTERFACE='(wg|(.*tun))[0-9]*'
   # Icon to show when on VPN.
-  typeset -g POWERLEVEL9K_VPN_IP_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER// }'
+  typeset -g POWERLEVEL9K_VPN_IP_VISUAL_IDENTIFIER_EXPANSION=$'\Uf983'
 
   #########################[ proxy: system-wide http/https/ftp proxy ]##########################
   # Proxy color.

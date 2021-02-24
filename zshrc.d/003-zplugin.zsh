@@ -10,10 +10,6 @@ source "$HOME/.zinit/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
-zmodload -i zsh/complist
-autoload -Uz compinit
-compinit
-
 # oh my zsh plugins
 zinit ice depth=1 wait silent
 zinit snippet OMZ::lib/clipboard.zsh

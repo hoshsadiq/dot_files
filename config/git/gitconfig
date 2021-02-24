@@ -1,3 +1,6 @@
+# vim: syntax=gitconfig
+# vim: tabstop=4
+
 #[user]
 #	name = Hosh Sadiq
 #	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
@@ -5,13 +8,13 @@
 [core]
 	pager = "delta --theme='Monokai Extended Origin'"
 	editor = vim
-	autocrlf = false
+#	autocrlf = false
 	excludesfile = ~/dot_files/config/git/gitignore
 	attributesfile = ~/dot_files/config/git/gitattributes
 	preloadindex = true
 	fscache = true
 	untrackedCache = true
-	hooksPath = ~/dot_files/config/git/hooks
+	#hooksPath = ~/dot_files/config/git/hooks
 
 ;[url "git@github.com:"]
 ;	insteadOf = https://github.com/
@@ -43,7 +46,11 @@
 	dlc = diff --cached HEAD^
 	prune = fetch --prune
 	undo = reset --soft HEAD^
+
+    pwd = "!realpath --relative-to=$(git rev-parse --show-toplevel) $(cd -- ${GIT_PREFIX:-.}; pwd)"
+
 	branch-name = rev-parse --abbrev-ref HEAD
+	show-unpushed = log --branches --not --remotes
 
 	stash-all = stash save --include-untracked
 	stash-staged = "!bash -c 'git stash --keep-index; git stash push -m staged --keep-index; git stash pop stash@{1}'"

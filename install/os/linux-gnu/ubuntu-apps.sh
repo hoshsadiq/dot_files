@@ -11,6 +11,7 @@ go_version="go1.14"
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/apps"
 
+bin_dir="$(systemd-path user-binaries)"
 hashicorp-get-latest-app-version() {
   app="$1"
   curl -fsSL "https://releases.hashicorp.com/$app/" | awk -F/ '/href="\/[^"]+"/{print $3; exit}'
@@ -54,6 +55,9 @@ sudo apt-get upgrade -y || true
       xargs curl -fsSL -o "/tmp/vscodium.deb" &
   # todo also download _amd64.deb.sha256 and verify
 
+  gh-get-latest-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb" | \
+      xargs curl -fsSL -o "/tmp/alacritty.deb" &
+
   {
     vagrant_version="$(hashicorp-get-latest-app-version vagrant)"
     curl -fsSL https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_x86_64.deb -o /tmp/vagrant.deb
@@ -63,7 +67,7 @@ sudo apt-get upgrade -y || true
 
   wait
 
-  sudo dpkg -i /tmp/keybase.deb vscodium.deb /tmp/vagrant.deb || true
+  sudo dpkg -i /tmp/keybase.deb /tmp/vscodium.deb /tmp/vagrant.deb || true
   sudo apt-get install -f -y
 
   run_keybase
@@ -161,14 +165,14 @@ done
   exec > >(sed 's/^/dive (stdout): /')
   exec 2> >(sed 's/^/dive (stderr): /' >&2)
 
-    gh-get-latest-release wagoodman/dive "_$(get-os)_$(get-arch).deb" | \
-    xargs curl -fsSL | \
-    dpkg-deb --fsys-tarfile - | \
-    tar -xvf - --strip-components=3 --directory $(systemd-path user-binaries) usr/local/bin/dive
+  gh-get-latest-release wagoodman/dive "_$(get-os)_$(get-arch).deb" | \
+  xargs curl -fsSL | \
+  dpkg-deb --fsys-tarfile - | \
+  tar -xvf - --strip-components=3 --directory $(systemd-path user-binaries) usr/local/bin/dive
 
-    # todo:
-    # mkdir -p ~/.config/dive
-    # ln -fs $DOT_FILES/config/dive $HOME/.config/dive
+  # todo:
+  # mkdir -p ~/.config/dive
+  # ln -fs $DOT_FILES/config/dive $HOME/.config/dive
 } &
 
 {
@@ -203,8 +207,17 @@ done
   exec 2> >(sed 's/^/gojq (stderr): /' >&2)
 
    gh-get-latest-release itchyny/gojq "$(get-os)_$(get-arch).tar.gz" | \
-      xargs curl -fsSL $goJqUrl -o- | \
+      xargs curl -fsSL -o- | \
       tar -xzf - -C "$HOME/bin" --strip-components=1 --wildcards 'gojq*/gojq'
+} &
+
+{
+  exec > >(sed 's/^/awless (stdout): /')
+  exec 2> >(sed 's/^/awless (stderr): /' >&2)
+
+   gh-get-latest-release wallix/awless "$(get-os)-$(get-arch).tar.gz" | \
+      xargs curl -fsSL $goJqUrl -o- | \
+      tar -xzf - -C "$bin_dir"
 } &
 
 #{

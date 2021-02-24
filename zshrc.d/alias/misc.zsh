@@ -1,3 +1,8 @@
+# Expand aliases for sudo and other commands
+alias sudo='sudo '
+alias watch='watch '
+alias -g '¬= '
+
 # Reload the shell completely
 alias shreload="exec $SHELL -l"
 
