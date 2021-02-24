@@ -1,13 +1,14 @@
 [Unit]
 Description=Gebaar Daemon
 Documentation=https://github.com/Coffee2CodeNL/gebaar-libinput
+PartOf=graphical-session.target
 
 [Service]
-Environment="DISPLAY=:0.0"
-ExecStart=/usr/local/bin/gebaard
+ExecStart=sh -c 'env DISPLAY="$(w -oush $(id -un) | awk \'{print $3; exit}\')" %h/.local/bin/gebaard'
 Restart=always
 NoNewPrivileges=true
 PrivateTmp=true
 
 [Install]
 WantedBy=default.target
+WantedBy=graphical-session.target

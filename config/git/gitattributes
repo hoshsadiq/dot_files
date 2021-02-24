@@ -1,5 +1,5 @@
 # Auto detect text files and perform LF normalisation.
-*   text=auto
+*   text=auto eol=lf
 
 ### Common ###
 
@@ -21,7 +21,7 @@
 *.odp   diff=odf
 
 # SVG is treated as a binary asset by default.
-*.svg   text
+*.svg   text eol=lf
 
 # Shell Scripts
 *.sh    text eol=lf
@@ -37,7 +37,7 @@
 *.properties    text
 json            text diff=json
 *.json          text diff=json
-*.yml           text
+*.yml           text eol=lf
 *.toml          text
 *.ini           text
 *.conf          text
@@ -54,4 +54,26 @@ package-lock.json   text -diff
 
 *.map   text -diff
 
-# DB
+# Languages
+*.c             text    diff=cpp
+*.h             text    diff=cpp
+*.c++           text    diff=cpp
+*.h++           text    diff=cpp
+*.cpp           text    diff=cpp
+*.hpp           text    diff=cpp
+*.cc            text    diff=cpp
+*.hh            text    diff=cpp
+*.cs            text    diff=csharp
+*.css           text    diff=css
+*.html          text    diff=html
+*.xhtml         text    diff=html
+*.go            text    diff=golang
+*.php           text    diff=php
+*.pl            text    diff=perl
+*.py            text    diff=python
+*.markdown      text    diff=markdown
+*.md            text    diff=markdown
+*.rb            text    diff=ruby
+*.rake          text    diff=ruby
+*.rs            text    diff=rust
+*.java          text    diff=java

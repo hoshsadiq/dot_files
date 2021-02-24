@@ -88,3 +88,45 @@ gsettings() {
 
   command gsettings "$@"
 }
+
+text2number() {
+  typeset -A mapping
+  mapping[a]=2
+  mapping[b]=2
+  mapping[c]=2
+  mapping[d]=3
+  mapping[e]=3
+  mapping[f]=3
+  mapping[g]=4
+  mapping[h]=4
+  mapping[i]=4
+  mapping[j]=5
+  mapping[k]=5
+  mapping[l]=5
+  mapping[m]=6
+  mapping[n]=6
+  mapping[o]=6
+  mapping[p]=7
+  mapping[q]=7
+  mapping[r]=7
+  mapping[s]=7
+  mapping[t]=8
+  mapping[u]=8
+  mapping[v]=8
+  mapping[w]=9
+  mapping[x]=9
+  mapping[y]=9
+  mapping[z]=9
+
+  original=""
+  numbers=""
+
+  while read -r char; do
+      if [[ -n ${mapping[$char]:-} ]]; then
+          original="$original$char"
+          numbers="$numbers${mapping[$char]}"
+      fi
+  done < <(command grep -o . <<<"$1")
+
+  printf "%s\n%s\n" "$original" "$numbers"
+}

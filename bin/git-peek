@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo="${1:-}"
+editor="${2:-EDITOR}"
+
+script="$(basename "$0")"
+[[ -n $GIT_EXEC_PATH ]] && script="${script/-/ }"
+
+if [[ -z "$repo" ]] || [[ "$repo" == "--help" ]] || [[ "$repo" == "-h" ]]; then
+  printf "usage:\n"
+  printf "  %s repo [editor]\n\n" "$script"
+  printf "examples:\n"
+  printf "  %s hoshsadiq/dot_files idea\n" "$script"
+  printf "  %s https://gitlab.com/hoshsadiq/dot_files.git idea\n" "$script"
+  if [[ "$repo" == "--help" ]] || [[ "$repo" == "-h" ]]; then
+    exit 0
+  else
+    exit 1
+  fi
+fi
+
+# default $username/$repo to github
+if [[ "$repo" =~ ^[^/]+/[^/]+$ ]]; then
+  repo="https://github.com/$repo.git"
+fi
+
+[ -z "$repo" ] && exit 1
+
+dir="$(mktemp -d)"
+git clone --depth 1 "$repo" "$dir"
+"$editor" "$dir"
+rm -rf "$dir"

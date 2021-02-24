@@ -8,16 +8,13 @@ zinit ice as"completion" has'setcap' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_setcap
 
 zinit ice as"completion" has'vagrant' wait silent blockf
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_vagrant
+zinit snippet https://raw.githubusercontent.com/soapy1/vagrant/master/contrib/zsh/_vagrant
 
 zinit ice as"completion" has'virtualbox' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_virtualbox
 
 zinit ice as"completion" has'xinput' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_xinput
-
-zinit ice as"completion" has'go' wait silent blockf
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 
 zinit ice as"completion" has'ufw' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_ufw

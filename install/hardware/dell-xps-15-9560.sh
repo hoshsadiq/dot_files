@@ -9,9 +9,12 @@
 
 # todo look for entries in /efi, /boot, and /boot/efi
 # systemd-boot
-sudo sed -i '/^options/s/$/ acpi_rev_override=5/' /boot/efi/loader/entries/Pop_OS-current.conf
-sudo sed -i '/^options/s/$/ nouveau.modeset=0/' /boot/efi/loader/entries/Pop_OS-current.conf
-bootctl update
+kernelstub -a acpi_rev_override=5
+kernelstub -a nouveau.modeset=0
+kernelstub -a pci=nommconf
+sudo bootctl update
+
+sudo sed -i '/^wifi\.powersave/s/= 3/ = 2/' /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
 
 # install and configure TLP and PowerTOP
 sudo add-apt-repository -y ppa:linrunner/tlp
@@ -23,7 +26,7 @@ sudo ln -fs $DOT_FILES/config/tlp/tlp /etc/default/tlp
 
 sudo add-apt-repository --yes ppa:graphics-drivers
 sudo apt-get update
-latest_version="$(apt-cache search nvidia| awk '/^nvidia-driver-[0-9]+/{print $1}' | sort -r -h | head -n 1)"
+latest_version="$(apt-cache search nvidia | awk '/^nvidia-driver-[0-9]+/{print $1}' | sort -r -h | head -n 1)"
 sudo apt-get install "$latest_version"
 
 #gsettings_disabler=gsettings-app-autodisable-global-shorts

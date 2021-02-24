@@ -1,6 +1,6 @@
-[user]
-	name = Hosh Sadiq
-	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
+#[user]
+#	name = Hosh Sadiq
+#	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
 
 [core]
 	pager = "delta --theme='Monokai Extended Origin'"
@@ -13,11 +13,11 @@
 	untrackedCache = true
 	hooksPath = ~/dot_files/config/git/hooks
 
-[url "git@github.com:"]
-	insteadOf = https://github.com/
-	insteadOf = git@github.com/
-[url "git://"]
-	insteadOf = https://
+;[url "git@github.com:"]
+;	insteadOf = https://github.com/
+;	insteadOf = git@github.com/
+;[url "git://"]
+;	insteadOf = https://
 
 [fetch]
 	prune = true
@@ -141,7 +141,7 @@
 	whitespace = fix
 
 [commit]
-	gpgSign = true
+	#gpgSign = true
 	verbose = true
 [pull]
 	rebase = true

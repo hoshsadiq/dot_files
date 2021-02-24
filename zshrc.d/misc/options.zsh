@@ -14,3 +14,4 @@ setopt no_brace_ccl              # don't expand of {adasd}
 # This fixes an issue when the selection doesn't go away when pressing enter
 autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
+zstyle ':bracketed-paste-magic' active-widgets '.self-*'

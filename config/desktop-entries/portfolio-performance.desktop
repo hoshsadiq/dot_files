@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=Portfolio Performance
+Comment=An open source tool to calculate the overall performance of an investment portfolio - across all accounts - using True-Time Weighted Return or Internal Rate of Return.
+Icon=/home/hosh/apps/portfolio-performance/icon.xpm
+Exec=/home/hosh/apps/portfolio-performance/PortfolioPerformance %U
+Categories=Office;Finance
+Categories=Office;Finance;Portfolio;Stocks;Assets

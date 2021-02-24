@@ -11,6 +11,11 @@ go_version="go1.14"
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/apps"
 
+hashicorp-get-latest-app-version() {
+  app="$1"
+  curl -fsSL "https://releases.hashicorp.com/$app/" | awk -F/ '/href="\/[^"]+"/{print $3; exit}'
+}
+
 sudo apt-get upgrade -y || true
 
 {
@@ -42,19 +47,25 @@ sudo apt-get upgrade -y || true
       ttf-mscorefonts-installer \
       network-manager-openvpn \
       network-manager-openvpn-gnome \
-      exfat-fuse exfat-utils
+      exfat-fuse exfat-utils \
+      libnotify-bin
 
-  gh-get-latest-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb" | \
-      xargs curl -fsSL -o "/tmp/alacritty.deb" &
+  gh-get-latest-release VSCodium/vscodium "_amd64.deb" | \
+      xargs curl -fsSL -o "/tmp/vscodium.deb" &
+  # todo also download _amd64.deb.sha256 and verify
+
+  {
+    vagrant_version="$(hashicorp-get-latest-app-version vagrant)"
+    curl -fsSL https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_x86_64.deb -o /tmp/vagrant.deb
+  } &
 
   curl -o /tmp/keybase.deb -s https://prerelease.keybase.io/keybase_amd64.deb &
 
   wait
 
-  sudo dpkg -i "/tmp/alacritty.deb"
-
-  sudo dpkg -i /tmp/keybase.deb || true
+  sudo dpkg -i /tmp/keybase.deb vscodium.deb /tmp/vagrant.deb || true
   sudo apt-get install -f -y
+
   run_keybase
 } &
 
@@ -107,13 +118,13 @@ for app downloadUrl in ${(kv)binApps}; do
 done
 
 # other apps can be used through docker or something
-hashicorpApps=(vagrant packer)
+hashicorpApps=(packer)
 for app in "${hashicorpApps[@]}"; do
     {
       exec > >(sed "s/^/$app (stdout): /")
       exec 2> >(sed "s/^/$app (stderr): /" >&2)
 
-      version="$(curl -fsSL "https://releases.hashicorp.com/$app/" | awk -F/ '/href="\/[^"]+"/{print $3; exit}')"
+      version="$(hashicorp-get-latest-app-version "$app")"
       curl -fsSL "https://releases.hashicorp.com/${app}/${version}/${app}_${version}_${OS}_${ARCH}.zip" -o "/tmp/$app.zip"
       unzip -q -o "/tmp/$app.zip" -d "$HOME/bin"
     } &
@@ -207,12 +218,15 @@ done
 #  #curl -fsSL -o- "https://bintray.com/ookla/download/download_file?file_path=ookla-speedtest-1.0.0-x86_64-linux.tgz" | tar --directory $HOME/bin -xzvf - speedtest
 #} &
 
+# todo can flatpak install multiple applications in parallel?
 {
-  exec > >(sed 's/^/bitwarden (stdout): /')
-  exec 2> >(sed 's/^/bitwarden (stderr): /' >&2)
+  exec > >(sed 's/^/flatpak (stdout): /')
+  exec 2> >(sed 's/^/flatpak (stderr): /' >&2)
 
-  curl -fsSL "https://vault.bitwarden.com/download/?app=desktop&platform=linux" -o "$HOME/apps/bitwarden.AppImage"
-  chmod +x "$HOME/apps/bitwarden.AppImage"
+  flatpak install -y flathub com.bitwarden.desktop \
+                     flathub com.spotify.Client \
+                     flathub org.libreoffice.LibreOffice \
+                     flathub app/org.gnome.Todo/x86_64/stable \
 }&
 
 {
@@ -233,7 +247,7 @@ done
   exec > >(sed 's/^/go-delve (stdout): /')
   exec 2> >(sed 's/^/go-delve (stderr): /' >&2)
 
-  go get -u github.com/go-delve/delve/cmd/dlv || echo "go-delve installion failed, skipping."
+  go get -u github.com/go-delve/delve/cmd/dlv || echo "go-delve installation failed, skipping."
 } &
 
 {
@@ -258,6 +272,32 @@ done
   chmod +x ~/.local/bin/podman-compose
 } &
 
+#{
+#  exec > >(sed 's/^/rust (stdout): /')
+#  exec 2> >(sed 's/^/rust (stderr): /' >&2)
+#
+#  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
+#} &
+
+{
+  exec > >(sed 's/^/rust-apps (stdout): /')
+  exec 2> >(sed 's/^/rust-apps (stderr): /' >&2)
+
+  mkdir /tmp/rustbuild
+  trap 'rm -rf /tmp/rustbuild' SIGQUIT SIGHUP
+  podman run -it --rm --entrypoint /bin/sh -v /tmp/rustbuild:/build ubuntu -ec '
+    export DEBIAN_FRONTEND=noninteractive
+    apt update
+    apt install -y curl build-essential libssl-dev pkg-config
+    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
+    source /root/.cargo/env
+
+    cargo install rbw
+    cp /root/.cargo/bin/rbw /root/.cargo/bin/rbw-agent /build
+  '
+  cp /tmp/rustbuild/* $HOME/.local/bin
+} &
+
 wait
 
 exec > >(sed 's/^/cleanup (stdout): /')
@@ -277,6 +317,7 @@ remove_apps=( \
   xserver-xorg-input-wacom \
   caribou \
   rdate \
+  libreoffice* \
 )
 
 # These remove pop-desktop
@@ -285,8 +326,9 @@ remove_apps=( \
 #  gnome-terminal-data \
 
 for app in "${remove_apps[@]}"; do
-  sudo apt-get autoremove --purge --assume-yes $app || true
+  sudo apt-get remove --purge --assume-yes $app || true
 done
 
+sudo apt-get autoremove
 sudo apt-get clean
 

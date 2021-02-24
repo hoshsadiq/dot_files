@@ -10,4 +10,28 @@ alias xml='docker run --rm -i --name xml -v $(pwd):/workdir -w /workdir xml'
 alias xml-format='xml fo -s 2 -R'
 
 #alias docker-dive='podman run --rm -it wagoodman/dive:latest'
-alias shit='podman run -it --rm --entrypoint /bin/sh -v ${PWD}:/workdir -w /workdir'
+alias pm='podman'
+alias pmx='podman exec'
+alias pml='podman logs'
+alias pc='podman-compose'
+alias pcx='podman-compose exec'
+shit() {
+  podman run -it --rm --entrypoint /bin/sh -v "${PWD}:/workdir" -w /workdir "$@" -c '# shit-run
+command -v bash >/dev/null || {
+  >&2 echo "Bash not available, installing first..."
+  command -v apt-get >/dev/null && export DEBIAN_FRONTEND=noninteractive && apt-get update -q && apt-get install bash
+  command -v apk >/dev/null && apk add --no-cache -q --no-progress bash
+  command -v yum >/dev/null && yum install -q bash
+}
+
+if grep -qFi debian /etc/os-release; then
+  echo "Setting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need"
+  export DEBIAN_FRONTEND=noninteractive
+fi
+
+# todo need to find additional env vars that might be needed
+echo "PATH=$PATH" >> ~/.bash_profile
+
+exec bash -l
+'
+}

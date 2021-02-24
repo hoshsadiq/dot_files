@@ -14,12 +14,12 @@ cmd:halt
 # frequent typos (see .aliases)
 ^git psuh
 ^cd\.\.
+^exit$
 
 cmd:sl
 cmd:gi
 cmd:car
 cmd:xit
-cmd:exit
 cmd:kill
 
 # todo, this shouldn't be ignored by this: gits | awk '/elasticache/{gsub("modified:", "", $0); print}' | xargs -n1 git add

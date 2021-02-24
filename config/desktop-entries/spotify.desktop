@@ -3,9 +3,14 @@ Type=Application
 Terminal=false
 Name=Spotify
 GenericName=Music Player
-Icon=spotify-client
+Comment=Access all of your favorite music
+Icon=com.spotify.Client
 # todo this needs a better way of figuring out the location
-Exec=bash -c /home/hosh/dot_files/bin/run-spotify.sh %U
+Exec=bash -c /home/hosh/dot_files/bin/run-spotify.sh @@u %U @@
 MimeType=x-scheme-handler/spotify;
 Categories=Audio;Music;Player;AudioVideo;
-StartupWMClass=spotify
+Keywords=Music;Player;Streaming;Online;
+StartupWMClass=Spotify
+X-GNOME-UsesNotifications=true
+X-Flatpak-Tags=proprietary;
+X-Flatpak=com.spotify.Client
