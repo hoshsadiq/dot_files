@@ -43,7 +43,6 @@ sudo apt-get upgrade -y || true
       python3 \
       python3-pip \
       spotify-client \
-      shellcheck \
       apt-transport-https \
       ttf-mscorefonts-installer \
       network-manager-openvpn \

@@ -1,9 +1,9 @@
 # vim: syntax=gitconfig
 # vim: tabstop=4
 
-#[user]
-#	name = Hosh Sadiq
-#	signingKey = 75FB1000307D0FFB3FE7E8B3AD97770C61165072
+[user]
+	name = Hosh Sadiq
+#	signingKey = 3418AF82F76A502A507C5370AF4AB10ED697B4C9
 
 [core]
 	pager = "delta --theme='Monokai Extended Origin'"
@@ -32,6 +32,9 @@
 	branch = auto
 	interactive = auto
 	pager = true
+
+[delta]
+	line-numbers = true
 
 [push]
 	default = simple

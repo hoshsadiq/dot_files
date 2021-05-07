@@ -36,14 +36,45 @@ zinit light hlissner/zsh-autopair
 zinit ice wait as"program" pick"tldr" silent
 zinit light raylee/tldr
 
-zinit lucid wait'1' for \
-  @dracula/zsh-syntax-highlighting \
-  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" atload"_zsh_highlight" @zdharma/fast-syntax-highlighting
-
 zinit lucid depth=1 wait for \
   compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start' @zsh-users/zsh-autosuggestions \
   blockf @Tarrasch/zsh-functional \
   as"program" pick"$ZPFX/bin/git-*" src"etc/git-extras-completion.zsh" make"PREFIX=$ZPFX" @tj/git-extras
+
+zinit ice wait'1' silent as"command" from"gh-r" pick"gojq_*/gojq jq" \
+    atclone'ln -fs gojq_*/gojq jq; compdef _gojq jq; zicompinit; zicdreplay' \
+    atpull'%atclone'
+zinit light itchyny/gojq
+
+zinit lucid wait'1' for \
+  @dracula/zsh-syntax-highlighting \
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" atload"_zsh_highlight" @zdharma/fast-syntax-highlighting
+
+zinit ice depth'1' wait"0a" atload"_zsh_highlight" silent
+zinit light zdharma/fast-syntax-highlighting
+
+zinit for light-mode from'gh-r' as'program' wait'2' silent pick'shellcheck-*/shellcheck' \
+      koalaman/shellcheck
+
+zinit light-mode from'gh-r' as'program' wait'2' silent for \
+      jesseduffield/lazydocker \
+      jesseduffield/lazygit
+
+# todo completion doesn't work yet
+zinit for light-mode from'gh-r' as'program' wait'2' silent \
+      atclone'./awless completion zsh > _awless' src'_awless' \
+      atpull'%atclone' run-atpull wallix/awless
+
+# todo completion doesn't work yet
+zinit for light-mode from'gh-r' as'program' wait'2' silent \
+      atclone'./saml2aws --completion-script-zsh > _saml2aws' \
+      atpull'%atclone' run-atpull Versent/saml2aws
+
+zinit for light-mode as'program' pick'bin/*' wait'2' silent tfutils/tfenv
+
+# use https://github.com/zinit-zsh/z-a-readurl
+# todo install minikube
+# todo install container-diff
 
 # this is quite buggy as of yet, so maybe in the future
 #zinit ice silent
