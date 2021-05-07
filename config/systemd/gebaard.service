@@ -10,5 +10,5 @@ NoNewPrivileges=true
 PrivateTmp=true
 
 [Install]
-WantedBy=default.target
+WantedBy=gnome-session.target
 WantedBy=graphical-session.target

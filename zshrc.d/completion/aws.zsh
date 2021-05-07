@@ -1,10 +1,6 @@
-zinit ice id-as"aws-okta---zsh-completions" as"completion" \
-  wait silent blockf \
-  has'aws-okta' \
-  atclone'aws-okta completions zsh >! _aws-okta' \
-  atpull'%atclone' run-atpull \
-  pick'_aws-okta'
-zinit light zdharma/null
+if (( $+commands[aws] )) && (( $+commands[aws_completer] )); then
+  complete -C "$(command -v aws_completer)" aws
+fi
 
 zinit ice id-as'saml2aws---zsh-completions' \
         wait silent blockf nocompletions \

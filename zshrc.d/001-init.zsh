@@ -1,5 +1,5 @@
-zmodload zcalc
-zmodload zmv
+autoload -U zcalc
+autoload -U zmv
 
 zmodload zsh/terminfo
 zmodload zsh/complist

@@ -82,25 +82,9 @@ wait
   sudo -H python3 -m pip install --upgrade pip
 } &
 
-{
-  exec > >(sed 's/^/gvm (stdout): /')
-  exec 2> >(sed 's/^/gvm (stderr): /' >&2)
-
-  [[ -d $HOME/.gvm ]] || bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
-  source "$HOME/.gvm/scripts/gvm"
-  gvm install "$go_version" -B
-} &
-
-{
-  exec > >(sed 's/^/jq (stdout): /')
-  exec 2> >(sed 's/^/jq (stderr): /' >&2)
-
-  curl -fsSL -o "$HOME/bin/jq" "https://github.com/stedolan/jq/releases/latest/download/jq-linux64"
-  chmod +x "$HOME/bin/jq"
-} &
-
 wait
 
+# todo user asdf or move below stuff to zinit
 source "$HOME/.gvm/scripts/gvm"
 gvm use "$go_version"
 
@@ -116,8 +100,8 @@ for app downloadUrl in ${(kv)binApps}; do
       exec > >(sed "s/^/$app (stdout): /")
       exec 2> >(sed "s/^/$app (stderr): /" >&2)
 
-      curl -fsSL "$downloadUrl" -o "$HOME/bin/$app"
-      chmod +x "$HOME/bin/$app"
+      curl -fsSL "$downloadUrl" -o "$bin_dir/$app"
+      chmod +x "$bin_dir/$app"
     } &
 done
 
@@ -130,7 +114,7 @@ for app in "${hashicorpApps[@]}"; do
 
       version="$(hashicorp-get-latest-app-version "$app")"
       curl -fsSL "https://releases.hashicorp.com/${app}/${version}/${app}_${version}_${OS}_${ARCH}.zip" -o "/tmp/$app.zip"
-      unzip -q -o "/tmp/$app.zip" -d "$HOME/bin"
+      unzip -q -o "/tmp/$app.zip" -d "$bin_dir"
     } &
 done
 
@@ -158,7 +142,7 @@ done
 #  exec 2> >(sed 's/^/git-hooks (stderr): /' >&2)
 #
 #  curl -fsSL -o- https://github.com/git-hooks/git-hooks/releases/latest/download/git-hooks_${OS}_${ARCH}.tar.gz | \
-#    tar -xzv --transform 's!.*/git-hooks_.*!git-hooks!' --show-transformed-names -C "$HOME/bin" -f-
+#    tar -xzv --transform 's!.*/git-hooks_.*!git-hooks!' --show-transformed-names -C "$bin_dir" -f-
 #} &
 
 {
@@ -179,8 +163,8 @@ done
   exec > >(sed 's/^/jiq (stdout): /')
   exec 2> >(sed 's/^/jiq (stderr): /' >&2)
 
-  curl -fsSL -o "$HOME/bin/jiq" "https://github.com/fiatjaf/jiq/releases/latest/download/jiq_${OS}_${ARCH}"
-  chmod +x "$HOME/bin/jiq"
+  curl -fsSL -o "$bin_dir/jiq" "https://github.com/fiatjaf/jiq/releases/latest/download/jiq_${OS}_${ARCH}"
+  chmod +x "$bin_dir/jiq"
 } &
 
 {
@@ -199,17 +183,8 @@ done
 #
 #  gh-get-latest-release digitalocean/doctl "$(get-os)-$(get-arch).tar.gz" | \
 #      xargs curl -fsSL "$doctlUrl" | \
-#      tar xzvf - -C "$HOME/bin"
+#      tar xzvf - -C "$bin_dir"
 #} &
-
-{
-  exec > >(sed 's/^/gojq (stdout): /')
-  exec 2> >(sed 's/^/gojq (stderr): /' >&2)
-
-   gh-get-latest-release itchyny/gojq "$(get-os)_$(get-arch).tar.gz" | \
-      xargs curl -fsSL -o- | \
-      tar -xzf - -C "$HOME/bin" --strip-components=1 --wildcards 'gojq*/gojq'
-} &
 
 {
   exec > >(sed 's/^/awless (stdout): /')
@@ -224,11 +199,11 @@ done
 #  exec > >(sed 's/^/speedtest-cli (stdout): /')
 #  exec 2> >(sed 's/^/speedtest-clie (stderr): /' >&2)
 #
-#  curl -fsSL -o $HOME/bin/speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
-#  chmod +x $HOME/bin/speedtest-cli
+#  curl -fsSL -o $bin_dir/speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+#  chmod +x $bin_dir/speedtest-cli
 #  # or perhaps the official client, which requires accepting licenses
 #  # todo manpage is in same dir
-#  #curl -fsSL -o- "https://bintray.com/ookla/download/download_file?file_path=ookla-speedtest-1.0.0-x86_64-linux.tgz" | tar --directory $HOME/bin -xzvf - speedtest
+#  #curl -fsSL -o- "https://bintray.com/ookla/download/download_file?file_path=ookla-speedtest-1.0.0-x86_64-linux.tgz" | tar --directory $bin_dir -xzvf - speedtest
 #} &
 
 # todo can flatpak install multiple applications in parallel?
@@ -240,6 +215,8 @@ done
                      flathub com.spotify.Client \
                      flathub org.libreoffice.LibreOffice \
                      flathub app/org.gnome.Todo/x86_64/stable \
+                     flathub org.videolan.VLC \
+                     flathub org.kde.krita
 }&
 
 {
@@ -278,6 +255,15 @@ done
 } &
 
 {
+  exec > >(sed 's/^/gh-cli (stdout): /')
+  exec 2> >(sed 's/^/gh-cli (stderr): /' >&2)
+
+  gh-get-latest-release cli/cli "linux_amd64.tar.gz" | \
+    xargs curl -fsSL -o- | \
+    tar -xzvf - -C "$bin_dir" --wildcards --strip-components=2 'gh_*_linux_amd64/bin/gh'
+} &
+
+{
   exec > >(sed 's/^/podman-compose (stdout): /')
   exec 2> >(sed 's/^/podman-compose (stderr): /' >&2)
 
@@ -291,6 +277,34 @@ done
 #
 #  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
 #} &
+
+{
+  source /etc/os-release
+
+  exec > >(sed 's/^/alacritty (stdout): /')
+  exec 2> >(sed 's/^/alacritty (stderr): /' >&2)
+
+  mkdir /tmp/rustbuild
+  trap 'rm -rf /tmp/rustbuild' SIGQUIT SIGHUP
+  podman run -it --rm --entrypoint /bin/sh -v /tmp/rustbuild:/build ubuntu:$VERSION_ID -ec '
+    export DEBIAN_FRONTEND=noninteractive
+    apt update
+    apt install -y curl build-essential git cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev python3
+    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
+    sleep 0.5
+    source /root/.cargo/env
+
+    cargo install alacritty
+    cp /root/.cargo/bin/alacritty /build
+  '
+  cp /tmp/rustbuild/alacritty $HOME/.local/bin
+
+  alacritty_version="$(alacritty --version | awk '{print $2}')"
+  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.svg -o ~/.local/share/icons/Alacritty.svg
+  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.desktop -o ~/.local/share/applications/Alacritty.desktop
+  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.info | tic -xe alacritty,alacritty-direct -
+  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.1.gz -o $HOME/.local/share/man/alacritty.1.gz
+} &
 
 {
   exec > >(sed 's/^/rust-apps (stdout): /')

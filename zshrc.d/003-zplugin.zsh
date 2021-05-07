@@ -54,3 +54,6 @@ zinit light zdharma/fast-syntax-highlighting
 # todo consider these, do i need it? they seem cool...
 # zinit light tj/git-extras
 # zinit load zdharma/zui
+
+zinit ice ver'v0.8.0' src'asdf.sh' mv'completions/_asdf -> .'
+zinit load asdf-vm/asdf

@@ -25,6 +25,8 @@ cmd:kill
 # todo, this shouldn't be ignored by this: gits | awk '/elasticache/{gsub("modified:", "", $0); print}' | xargs -n1 git add
 cmd:gits
 
+!^gh api
+!^ssh-gen-deploy-key
 !cmd:gen-pass
 !^aws ssm get-parameter
 

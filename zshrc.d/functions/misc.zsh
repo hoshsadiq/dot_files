@@ -132,6 +132,7 @@ mans() {
   man -P "less -p ^'$section'" "$@"
 }
 
-=() {
-  bc -l <<<"$*"
+function _calc {
+    zcalc -e "$*"
 }
+aliases[=]='noglob _calc'

@@ -12,6 +12,7 @@ alias du='du -h'
 
 # Misc
 alias more='less'
+alias vim='nvim'
 alias nano='vim'
 
 # Some shortcuts for different directory listings

@@ -19,9 +19,6 @@ zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_xinp
 zinit ice as"completion" has'ufw' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_ufw
 
-zinit ice as"completion" has'fly' wait silent blockf
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_concourse
-
 zinit ice as"completion" has'fwupdmgr' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_fwupdmgr
 
@@ -29,15 +26,25 @@ zinit ice as"completion" has'openssl' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_openssl
 
 zinit ice as"completion" has'circleci' wait silent blockf
-zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/go/_circleci
+zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/go/_circleci
 
 zinit ice as"completion" has'docker-dive' wait silent blockf
-zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/go/_dive
+zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/go/_dive
 
 zinit ice as"completion" has'shellcheck' wait silent blockf
-zinit snippet https://github.com/zchee/zsh-completions/blob/master/src/zsh/_shellcheck
+zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/zsh/_shellcheck
 
-zinit ice as"completion" has'podman' wait silent blockf
-command -v podman >/dev/null && zinit snippet "https://github.com/containers/libpod/blob/v$(podman version --format '{{.Client.Version}}')/completions/zsh/_podman"
+zinit ice as"completion" wait silent blockf
+zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 
+zinit ice has'podman' id-as'podman---completions' \
+        wait silent blockf \
+        atclone'podman completion zsh >! _podman' \
+        atpull'%atclone' run-atpull
+zinit light zdharma/null
+
+# command -v podman >/dev/null && {
+#   zinit ice as"completion" has'podman' wait silent blockf
+#   zinit snippet "https://github.com/containers/libpod/blob/v$(podman version --format '{{.Client.Version}}')/completions/zsh/_podman"
+# }
 # todo pip, pipenv

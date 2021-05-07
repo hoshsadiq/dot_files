@@ -5,7 +5,11 @@
 #(( ${+commands[vlc]} )) && alias -s {ape,avi,flv,m4a,mkv,mov,mp3,mp4,mpeg,mpg,ogg,ogm,rm,wav,webm}=vlc
 #
 ##read documents
-#alias -s pdf=zathura ps=gv dvi=xdvi chm=xchm djvu=djview
+#alias -s pdf=zathura
 #
 ##list whats inside packed file
-#alias -s zip="unzip -l" rar="unrar l" tar="tar tf" tar.gz="echo " ace="unace l"
+# alias -s zip="unzip -l"
+# alias -s rar="unrar l"
+# alias -s tar="tar tf"
+# alias -s tar.gz="echo "
+# alias -s ace="unace l"

@@ -9,7 +9,7 @@ alias sqlite3='docker run --rm -i --name sqlite3 -v $(pwd):/workdir -w /workdir 
 alias travis='docker run --rm -ti --name travis -v $PWD:/workdir -v $HOME/.travis:/travis travis'
 alias xml='docker run --rm -i --name xml -v $(pwd):/workdir -w /workdir xml'
 alias xml-format='xml fo -s 2 -R'
-alias bw='docker run -it --rm -v bw:"/root/.config/Bitwarden CLI" -e BW_SESSION bitwarden-cli:latest'
+alias bw='podman run -it --rm -v bw:"/bwcli/.config/Bitwarden CLI" -e BW_SESSION bitwarden-cli:latest'
 
 #alias docker-dive='podman run --rm -it wagoodman/dive:latest'
 

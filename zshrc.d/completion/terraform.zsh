@@ -1,7 +1,3 @@
-if (( $+commands[aws] )) && (( $+commands[aws_completer] )); then
-  complete -C "$(command -v aws_completer)" aws
-fi
-
 if (( $+commands[terraform] )); then
   complete -o nospace -C "$(command -v terraform)" terraform
 fi

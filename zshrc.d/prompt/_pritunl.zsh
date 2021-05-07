@@ -1,5 +1,7 @@
 #!/usr/bin/zsh
 
+command -v pritunl-client || return
+
 create_pritunl_prompt() {
   awkScript="$(
     cat <<'AWK'

@@ -84,7 +84,7 @@ EOF
   return 1
 }
 
-export GOPATH="$HOME/Workspace"
+export WORKSPACE="$HOME/workspace/src"
 export PYENV="$GOPATH/pyenv"
 
 path-add $HOME/bin
