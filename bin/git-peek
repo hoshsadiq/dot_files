@@ -3,14 +3,13 @@
 set -euo pipefail
 
 repo="${1:-}"
-editor="${2:-EDITOR}"
 
 script="$(basename "$0")"
 [[ -n $GIT_EXEC_PATH ]] && script="${script/-/ }"
 
 if [[ -z "$repo" ]] || [[ "$repo" == "--help" ]] || [[ "$repo" == "-h" ]]; then
   printf "usage:\n"
-  printf "  %s repo [editor]\n\n" "$script"
+  printf "  %s repo\n\n" "$script"
   printf "examples:\n"
   printf "  %s hoshsadiq/dot_files idea\n" "$script"
   printf "  %s https://gitlab.com/hoshsadiq/dot_files.git idea\n" "$script"
@@ -30,5 +29,5 @@ fi
 
 dir="$(mktemp -d)"
 git clone --depth 1 "$repo" "$dir"
-"$editor" "$dir"
+"idea" --wait "$dir"
 rm -rf "$dir"

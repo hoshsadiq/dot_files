@@ -29,20 +29,23 @@ zinit snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
 #zinit ice depth=1 wait silent
 zinit snippet OMZ::plugins/globalias/globalias.plugin.zsh
 
-zinit ice depth=1 wait"1" compile'{src/*.zsh,src/strategies/*}' silent atload'_zsh_autosuggest_start'
+zinit ice depth=1 wait silent compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
 
-zinit ice wait"1" silent
+zinit ice wait silent
 zinit light hlissner/zsh-autopair
 
-zinit ice wait"2" as"program" pick"tldr" silent
+zinit ice wait as"program" pick"tldr" silent
 zinit light raylee/tldr
 
 zinit ice silent
 zinit light Aloxaf/fzf-tab
 
-zinit ice depth'1' wait"0a" atload"_zsh_highlight" silent
+zinit ice depth'1' wait silent atload"_zsh_highlight"
 zinit light zdharma/fast-syntax-highlighting
+
+zinit ice wait silent blockf
+zinit light Tarrasch/zsh-functional
 
 # this is quite buggy as of yet, so maybe in the future
 #zinit ice silent

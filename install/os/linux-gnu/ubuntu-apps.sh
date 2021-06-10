@@ -105,19 +105,6 @@ for app downloadUrl in ${(kv)binApps}; do
     } &
 done
 
-# other apps can be used through docker or something
-hashicorpApps=(packer)
-for app in "${hashicorpApps[@]}"; do
-    {
-      exec > >(sed "s/^/$app (stdout): /")
-      exec 2> >(sed "s/^/$app (stderr): /" >&2)
-
-      version="$(hashicorp-get-latest-app-version "$app")"
-      curl -fsSL "https://releases.hashicorp.com/${app}/${version}/${app}_${version}_${OS}_${ARCH}.zip" -o "/tmp/$app.zip"
-      unzip -q -o "/tmp/$app.zip" -d "$bin_dir"
-    } &
-done
-
 {
   exec > >(sed 's/^/tfenv (stdout): /')
   exec 2> >(sed 's/^/tfenv (stderr): /' >&2)

@@ -93,3 +93,5 @@ user_pref("browser.search.region", "GB");
 user_pref("browser.startup.page", 3);
 user_pref("browser.tabs.drawInTitlebar", true);
 user_pref("browser.uidensity", 1);
+
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
