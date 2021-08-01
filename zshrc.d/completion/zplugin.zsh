@@ -28,7 +28,7 @@ zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_open
 zinit ice as"completion" has'circleci' wait silent blockf
 zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/go/_circleci
 
-zinit ice as"completion" has'docker-dive' wait silent blockf
+zinit ice as"completion" has'dive' wait silent blockf
 zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/go/_dive
 
 zinit ice as"completion" has'shellcheck' wait silent blockf
@@ -36,15 +36,3 @@ zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/zsh/_shellc
 
 zinit ice as"completion" wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
-
-zinit ice has'podman' id-as'podman---completions' \
-        wait silent blockf \
-        atclone'podman completion zsh >! _podman' \
-        atpull'%atclone' run-atpull
-zinit light zdharma/null
-
-# command -v podman >/dev/null && {
-#   zinit ice as"completion" has'podman' wait silent blockf
-#   zinit snippet "https://github.com/containers/libpod/blob/v$(podman version --format '{{.Client.Version}}')/completions/zsh/_podman"
-# }
-# todo pip, pipenv

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euxo pipefail
+
 setIniVar() {
   local section="$1"
   local key="$2"
@@ -20,51 +22,65 @@ setIniVar() {
 
     {print} ' "$file")"
 
-    echo "$newIniConf" > "$file"
+  echo "$newIniConf" | sudo tee "$file"
 }
 
 disableSystemdResolved() {
   sudo systemctl disable systemd-resolved.service
   sudo systemctl stop systemd-resolved
   setIniVar main dns default /etc/NetworkManager/NetworkManager.conf
-  sudo rm /etc/resolv.conf
-  sudo service network-manager restart
+  sudo rm /etc/resolv.conf || true
+  sudo service NetworkManager restart
 }
 
 installVagrantLibvirt() {
-  exec > >(sed 's/^/rust-apps (stdout): /')
-  exec 2> >(sed 's/^/rust-apps (stderr): /' >&2)
-
-  mkdir /tmp/vagrant_build
+  mkdir -p /tmp/vagrant_build
   trap 'rm -rf /tmp/vagrant_build' SIGQUIT SIGHUP
 
-  sudo apt install qemu libvirt-daemon-system libvirt-clients ebtables dnsmasq-base nfs-common nfs-kernel-server &
-  podman run -i --rm -v /tmp/vagrant_build:/build -w /build ubuntu bash <<'EOF' &
-    apt install -y curl
+  {
+    exec > >(sed 's/^/vagrant-libvirt-run (stdout): /')
+    exec 2> >(sed 's/^/vagrant-libvirt-run (stderr): /' >&2)
 
-    {
-      version="$(curl -fsSL "https://releases.hashicorp.com/vagrant/" | awk -F/ '/href="\/[^"]+"/{print $3; exit}')"
-      curl -fsSL https://releases.hashicorp.com/vagrant/${version}/vagrant_${version}_x86_64.deb -o /tmp/vagrant.deb
-    } &
+    sudo apt-get install -y qemu libvirt-daemon-system libvirt-clients ebtables dnsmasq-base nfs-common nfs-kernel-server
+  } &
+
+  {
+    exec > >(sed 's/^/vagrant-libvirt (stdout): /')
+    exec 2> >(sed 's/^/vagrant-libvirt (stderr): /' >&2)
+
+    vagrant_version="$(vagrant --version | cut -d\  -f2)"
+
+    podman run -i --rm -v /tmp/vagrant_build:/build -w /build ubuntu bash <<EOF
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y curl
+
+    curl -fsSL https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_x86_64.deb -o /tmp/vagrant.deb &
 
     {
       sed -i '/^# deb-src/s/# //' /etc/apt/sources.list
-      apt update -y
-      apt install -y build-essential libssl-dev pkg-config \
+      apt-get update -y
+      apt-get install -y build-essential libssl-dev pkg-config \
         qemu libvirt-daemon-system libvirt-clients ebtables dnsmasq-base \
         libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev
-      apt-get build-dep vagrant ruby-libvirt
+      apt-get -y build-dep vagrant ruby-libvirt
     } &
 
     wait
 
     dpkg -i /tmp/vagrant.deb
 
+    ln -s /opt/vagrant/embedded/include/ruby-*/ruby/st.h /opt/vagrant/embedded/include/ruby-*/st.h
+
     vagrant plugin install vagrant-libvirt
+
+    sync
+
     mv ~/.gem ~/.vagrant.d /build
 EOF
+  } &
 
-  rm -rf ~/.gem ~/.vagrant.d &
+  # todo rm -rf ~/.gem ~/.vagrant.d &
 
   cat <<'EOF' | sudo tee /etc/sudoers.d/nfs-exports &
 Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/*
@@ -80,9 +96,10 @@ EOF
   mv /tmp/vagrant_build/* "$HOME"
 }
 
-# more info https://community.linuxmint.com/tutorial/view/1727
-sudo modprobe kvm-intel
-sudo apt-get install --assume-yes \
+main() {
+  # more info https://community.linuxmint.com/tutorial/view/1727
+  sudo modprobe kvm-intel
+  sudo apt-get install --assume-yes \
     libvirt-clients \
     libvirt-daemon-system \
     virtinst \
@@ -94,13 +111,15 @@ sudo apt-get install --assume-yes \
     ebtables \
     dnsmasq
 
-sudo adduser "$USER" libvirt
-newgrp libvirt
+  if ! groups | grep -qF libvirt; then
+    sudo adduser "$USER" libvirt
+    newgrp libvirt
+  fi
 
-disableSystemdResolved
+  installVagrantLibvirt
+  disableSystemdResolved
 
-sudo service libvirtd restart
+  sudo service libvirtd restart
+}
 
-#curl -L https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2 -o $HOME/bin/docker-machine-driver-kvm2 && chmod +x $HOME/bin/docker-machine-driver-kvm2
-#
-#minikube start --vm-driver kvm2
+main "$@"

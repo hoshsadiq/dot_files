@@ -7,27 +7,37 @@ repo="${1:-}"
 script="$(basename "$0")"
 [[ -n $GIT_EXEC_PATH ]] && script="${script/-/ }"
 
-if [[ -z "$repo" ]] || [[ "$repo" == "--help" ]] || [[ "$repo" == "-h" ]]; then
+needs_help=false
+[[ " $* " == *" --help "* ]] || [[ " $* " == *" -h "* ]] && needs_help=true
+if [[ -z "$repo" ]] || [[ "$needs_help" == "true" ]]; then
   printf "usage:\n"
   printf "  %s repo\n\n" "$script"
   printf "examples:\n"
-  printf "  %s hoshsadiq/dot_files idea\n" "$script"
-  printf "  %s https://gitlab.com/hoshsadiq/dot_files.git idea\n" "$script"
-  if [[ "$repo" == "--help" ]] || [[ "$repo" == "-h" ]]; then
+  printf "  %s hoshsadiq/dot_files\n" "$script"
+  printf "  %s https://gitlab.com/hoshsadiq/dot_files.git\n" "$script"
+  if [[ "$needs_help" == "true" ]]; then
     exit 0
   else
     exit 1
   fi
 fi
 
-# default $username/$repo to github
-if [[ "$repo" =~ ^[^/]+/[^/]+$ ]]; then
-  repo="https://github.com/$repo.git"
+repo_dir_template="git-peek.XXX"
+if [[ "$repo" =~ ^((https|git)(:\/\/|@)([^\/:]+)[\/:])?([^\/:]+)\/(.+)$ ]]; then
+  repo_name="${BASH_REMATCH[6]}"
+  [[ "${repo_name: -4}" == ".git" ]] && repo_name="${repo_name:0:-4}"
+  repo_dir_template="git-peek.${BASH_REMATCH[5]}_${repo_name}.XXX"
+
+  # default $username/$repo to github
+  if [[ "${BASH_REMATCH[1]}" == "" ]]; then
+    repo="https://github.com/${BASH_REMATCH[5]}/${repo_name}.git"
+  fi
+else
+  >&2 printf "arg %s might not be a valid git repo" "$repo"
+  exit 1
 fi
 
-[ -z "$repo" ] && exit 1
-
-dir="$(mktemp -d)"
+dir="$(mktemp --directory -t "$repo_dir_template")"
+trap 'rm -rf "$dir"' EXIT
 git clone --depth 1 "$repo" "$dir"
 "idea" --wait "$dir"
-rm -rf "$dir"

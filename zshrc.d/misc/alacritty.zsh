@@ -1,4 +1,4 @@
-export MANPATH="$MANPATH:$HOME/.local/share/man"
+#export MANPATH="$MANPATH:$HOME/.local/share/man"
 
 zinit ice id-as"alacritty---zsh-completions" as"completion" \
   wait silent blockf has'alacritty'

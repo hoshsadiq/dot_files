@@ -55,9 +55,6 @@ sudo apt-get upgrade -y || true
       xargs curl -fsSL -o "/tmp/vscodium.deb" &
   # todo also download _amd64.deb.sha256 and verify
 
-  gh-get-latest-release jwilm/alacritty "-ubuntu_18_04_$(get-arch).deb" | \
-      xargs curl -fsSL -o "/tmp/alacritty.deb" &
-
   {
     vagrant_version="$(hashicorp-get-latest-app-version vagrant)"
     curl -fsSL https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_x86_64.deb -o /tmp/vagrant.deb
@@ -71,6 +68,9 @@ sudo apt-get upgrade -y || true
   sudo apt-get install -f -y
 
   run_keybase
+
+  systemctl enable --now --user podman.socket
+  systemctl start --user podman.socket
 } &
 
 wait
@@ -84,10 +84,7 @@ wait
 
 wait
 
-# todo user asdf or move below stuff to zinit
-source "$HOME/.gvm/scripts/gvm"
-gvm use "$go_version"
-
+# todo use asdf or move below stuff to zinit
 OS="$(go env GOOS)"
 ARCH="$(go env GOARCH)"
 
@@ -105,25 +102,6 @@ for app downloadUrl in ${(kv)binApps}; do
     } &
 done
 
-{
-  exec > >(sed 's/^/tfenv (stdout): /')
-  exec 2> >(sed 's/^/tfenv (stderr): /' >&2)
-
-  curl -fsSL "https://api.github.com/repos/tfutils/tfenv/releases/latest" | \
-    jq -r .tarball_url | \
-    xargs curl -fsSL -o- | \
-    tar --strip-components=1 \
-        --exclude='test' \
-        --exclude='.*' \
-        --exclude='*.md' \
-        --exclude='LICENSE' \
-        --directory="$HOME/.local" \
-        --extract \
-        --gzip \
-        --verbose \
-        --file -
-} &
-
 #{
 #  exec > >(sed 's/^/git-hooks (stdout): /')
 #  exec 2> >(sed 's/^/git-hooks (stderr): /' >&2)
@@ -131,20 +109,6 @@ done
 #  curl -fsSL -o- https://github.com/git-hooks/git-hooks/releases/latest/download/git-hooks_${OS}_${ARCH}.tar.gz | \
 #    tar -xzv --transform 's!.*/git-hooks_.*!git-hooks!' --show-transformed-names -C "$bin_dir" -f-
 #} &
-
-{
-  exec > >(sed 's/^/dive (stdout): /')
-  exec 2> >(sed 's/^/dive (stderr): /' >&2)
-
-  gh-get-latest-release wagoodman/dive "_$(get-os)_$(get-arch).deb" | \
-  xargs curl -fsSL | \
-  dpkg-deb --fsys-tarfile - | \
-  tar -xvf - --strip-components=3 --directory $(systemd-path user-binaries) usr/local/bin/dive
-
-  # todo:
-  # mkdir -p ~/.config/dive
-  # ln -fs $DOT_FILES/config/dive $HOME/.config/dive
-} &
 
 {
   exec > >(sed 's/^/jiq (stdout): /')
@@ -172,15 +136,6 @@ done
 #      xargs curl -fsSL "$doctlUrl" | \
 #      tar xzvf - -C "$bin_dir"
 #} &
-
-{
-  exec > >(sed 's/^/awless (stdout): /')
-  exec 2> >(sed 's/^/awless (stderr): /' >&2)
-
-   gh-get-latest-release wallix/awless "$(get-os)-$(get-arch).tar.gz" | \
-      xargs curl -fsSL $goJqUrl -o- | \
-      tar -xzf - -C "$bin_dir"
-} &
 
 #{
 #  exec > >(sed 's/^/speedtest-cli (stdout): /')
@@ -220,44 +175,6 @@ done
   rm -rf awscliv2.zip aws
 } &
 
-{
-  exec > >(sed 's/^/go-delve (stdout): /')
-  exec 2> >(sed 's/^/go-delve (stderr): /' >&2)
-
-  go get -u github.com/go-delve/delve/cmd/dlv || echo "go-delve installation failed, skipping."
-} &
-
-{
-  exec > >(sed 's/^/goimports (stdout): /')
-  exec 2> >(sed 's/^/goimports (stderr): /' >&2)
-
-  go get -u golang.org/x/tools/cmd/goimports
-} &
-
-{
-  exec > >(sed 's/^/gosec (stdout): /')
-  exec 2> >(sed 's/^/gosec (stderr): /' >&2)
-
-  go get -u github.com/securego/gosec/cmd/gosec &
-} &
-
-{
-  exec > >(sed 's/^/gh-cli (stdout): /')
-  exec 2> >(sed 's/^/gh-cli (stderr): /' >&2)
-
-  gh-get-latest-release cli/cli "linux_amd64.tar.gz" | \
-    xargs curl -fsSL -o- | \
-    tar -xzvf - -C "$bin_dir" --wildcards --strip-components=2 'gh_*_linux_amd64/bin/gh'
-} &
-
-{
-  exec > >(sed 's/^/podman-compose (stdout): /')
-  exec 2> >(sed 's/^/podman-compose (stderr): /' >&2)
-
-  curl -fsSL -o ~/.local/bin/podman-compose https://raw.githubusercontent.com/containers/podman-compose/devel/podman_compose.py
-  chmod +x ~/.local/bin/podman-compose
-} &
-
 #{
 #  exec > >(sed 's/^/rust (stdout): /')
 #  exec 2> >(sed 's/^/rust (stderr): /' >&2)
@@ -265,33 +182,33 @@ done
 #  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
 #} &
 
-{
-  source /etc/os-release
-
-  exec > >(sed 's/^/alacritty (stdout): /')
-  exec 2> >(sed 's/^/alacritty (stderr): /' >&2)
-
-  mkdir /tmp/rustbuild
-  trap 'rm -rf /tmp/rustbuild' SIGQUIT SIGHUP
-  podman run -it --rm --entrypoint /bin/sh -v /tmp/rustbuild:/build ubuntu:$VERSION_ID -ec '
-    export DEBIAN_FRONTEND=noninteractive
-    apt update
-    apt install -y curl build-essential git cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev python3
-    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
-    sleep 0.5
-    source /root/.cargo/env
-
-    cargo install alacritty
-    cp /root/.cargo/bin/alacritty /build
-  '
-  cp /tmp/rustbuild/alacritty $HOME/.local/bin
-
-  alacritty_version="$(alacritty --version | awk '{print $2}')"
-  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.svg -o ~/.local/share/icons/Alacritty.svg
-  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.desktop -o ~/.local/share/applications/Alacritty.desktop
-  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.info | tic -xe alacritty,alacritty-direct -
-  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.1.gz -o $HOME/.local/share/man/alacritty.1.gz
-} &
+#{
+#  source /etc/os-release
+#
+#  exec > >(sed 's/^/alacritty (stdout): /')
+#  exec 2> >(sed 's/^/alacritty (stderr): /' >&2)
+#
+#  mkdir /tmp/rustbuild
+#  trap 'rm -rf /tmp/rustbuild' SIGQUIT SIGHUP
+#  podman run -it --rm --entrypoint /bin/sh -v /tmp/rustbuild:/build ubuntu:$VERSION_ID -ec '
+#    export DEBIAN_FRONTEND=noninteractive
+#    apt update
+#    apt install -y curl build-essential git cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev python3
+#    curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
+#    sleep 0.5
+#    source /root/.cargo/env
+#
+#    cargo install alacritty
+#    cp /root/.cargo/bin/alacritty /build
+#  '
+#  cp /tmp/rustbuild/alacritty $HOME/.local/bin
+#
+#  alacritty_version="$(alacritty --version | awk '{print $2}')"
+#  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.svg -o ~/.local/share/icons/Alacritty.svg
+#  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/Alacritty.desktop -o ~/.local/share/applications/Alacritty.desktop
+#  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.info | tic -xe alacritty,alacritty-direct -
+#  curl -fsSL https://github.com/alacritty/alacritty/releases/download/v${alacritty_version}/alacritty.1.gz -o $HOME/.local/share/man/alacritty.1.gz
+#} &
 
 {
   exec > >(sed 's/^/rust-apps (stdout): /')

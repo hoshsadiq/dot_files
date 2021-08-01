@@ -10,27 +10,25 @@ source "$HOME/.zinit/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
+zinit light-mode for zinit-zsh/z-a-patch-dl
+
+function _zsh_rebind_globalias() {
+    bindkey -r -M viins " "
+    bindkey -r -M viins "^ "
+    bindkey -M viins "^ " globalias
+    bindkey -M viins " " magic-space
+
+    unfunction _zsh_rebind_globalias
+}
+
 # oh my zsh plugins
-zinit ice depth=1 wait silent
-zinit snippet OMZ::lib/clipboard.zsh
-zinit ice depth=1 wait silent
-zinit snippet OMZ::lib/grep.zsh
-zinit ice depth=1 wait silent
-zinit snippet OMZ::lib/spectrum.zsh
-zinit ice depth=1 wait silent
-zinit snippet OMZ::lib/termsupport.zsh
-
-#zinit ice depth=1 wait'1' silent
-#zinit snippet OMZ::plugins/common-aliases/common-aliases.plugin.zsh
-zinit ice depth=1 wait silent
-zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-zinit ice depth=1 wait silent
-zinit snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
-#zinit ice depth=1 wait silent
-zinit snippet OMZ::plugins/globalias/globalias.plugin.zsh
-
-zinit ice depth=1 wait silent compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start'
-zinit light zsh-users/zsh-autosuggestions
+zinit depth=1 wait silent for \
+    OMZ::lib/grep.zsh \
+    OMZ::lib/spectrum.zsh \
+    OMZ::lib/clipboard.zsh \
+    OMZ::lib/termsupport.zsh \
+    OMZ::plugins/command-not-found/command-not-found.plugin.zsh \
+    atload'_zsh_rebind_globalias' OMZ::plugins/globalias/globalias.plugin.zsh
 
 zinit ice wait silent
 zinit light hlissner/zsh-autopair
@@ -38,14 +36,14 @@ zinit light hlissner/zsh-autopair
 zinit ice wait as"program" pick"tldr" silent
 zinit light raylee/tldr
 
-zinit ice silent
-zinit light Aloxaf/fzf-tab
+zinit lucid wait'1' for \
+  @dracula/zsh-syntax-highlighting \
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" atload"_zsh_highlight" @zdharma/fast-syntax-highlighting
 
-zinit ice depth'1' wait silent atload"_zsh_highlight"
-zinit light zdharma/fast-syntax-highlighting
-
-zinit ice wait silent blockf
-zinit light Tarrasch/zsh-functional
+zinit lucid depth=1 wait for \
+  compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start' @zsh-users/zsh-autosuggestions \
+  blockf @Tarrasch/zsh-functional \
+  as"program" pick"$ZPFX/bin/git-*" src"etc/git-extras-completion.zsh" make"PREFIX=$ZPFX" @tj/git-extras
 
 # this is quite buggy as of yet, so maybe in the future
 #zinit ice silent
@@ -54,9 +52,12 @@ zinit light Tarrasch/zsh-functional
 # todo these need to be loaded conditionally
 # zinit snippet OMZ::plugins/osx/osx.plugin.zsh
 
-# todo consider these, do i need it? they seem cool...
-# zinit light tj/git-extras
-# zinit load zdharma/zui
+# todo is this atclone necessary?
+zinit lucid wait light-mode as"program" from"gh-r" for \
+    bpick"*_linux_amd64.tar.gz" pick"dive" @wagoodman/dive \
+    atclone"gh completion -s zsh > _gh; mv gh*/share/man/man1/gh* $ZPFX/share/man/man1" atpull"%atclone" bpick'*_linux_amd64.tar.gz' pick"gh_*/bin/gh" @cli/cli \
+    pick"awless" @wallix/awless \
+    @nektos/act
 
-zinit ice ver'v0.8.0' src'asdf.sh' mv'completions/_asdf -> .'
-zinit load asdf-vm/asdf
+#zinit lucid wait nocompletions from"gh-r" for \
+#      bpick"*.appimage" as"program" mv"nvim.appimage -> nvim" pick"nvim" neovim/neovim

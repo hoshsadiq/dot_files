@@ -1,3 +1,5 @@
+PATH_DEBUG=false
+
 join_by() {
   local IFS="$1"
   shift
@@ -27,8 +29,18 @@ path-add() {
   done
 
   paths_sep="$(join_by ":" "${paths[@]}")"
-  [[ "$add_before" == "true" ]] && PATH="$paths_sep:$PATH"
-  [[ "$add_before" != "true" ]] && PATH="$PATH:$paths_sep"
+  if [[ -z "$paths_sep" ]]; then
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: skipping empty path (args: '%s')\n" "$*"
+    return
+  fi
+
+  if [[ "$add_before" == "true" ]]; then
+    PATH="$paths_sep:$PATH"
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: added '%s' before\n" "$paths_sep"
+  else
+    PATH="$PATH:$paths_sep"
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: added '%s' after" "$paths_sep"
+  fi
   PATH="$(echo "$PATH" | sed -e 's;^:\+\|:\+$;;g' -e 's;::\*;:;g')"
 }
 
@@ -87,14 +99,14 @@ EOF
 export WORKSPACE="$HOME/workspace/src"
 export PYENV="$GOPATH/pyenv"
 
-path-add $HOME/bin
-path-add $GOPATH/bin
-path-add $DOT_FILES/bin
+[[ -d "$GOPATH" ]] && path-add "$GOPATH/bin"
+path-add --before "$DOT_FILES/bin"
 
-# move to ~/apps/android/bin
-path-add $HOME/apps/android/platform-tools
-path-add $HOME/apps/android/tools/bin
-path-add $JAVA_HOME/bin
+if [[ -d "$HOME/apps/android" ]]; then
+  path-add "$HOME/apps/android/platform-tools"
+  path-add "$HOME/apps/android/tools/bin"
+fi
+[[ -n "$JAVA_HOME" ]] && path-add "$JAVA_HOME/bin"
 
 # always at the very end.
 #path-add ./bin

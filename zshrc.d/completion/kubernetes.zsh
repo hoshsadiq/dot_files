@@ -1,34 +1,8 @@
-zinit ice has'kubectl' id-as'kubernetes---kubectl-completions' \
-        wait silent blockf nocompletions \
-        atclone'kubectl completion zsh >! kubectl-completions.zsh' \
-        atpull'%atclone' run-atpull \
-        pick'kubectl-completions.zsh' src'kubectl-completions.zsh' \
-        atload'zinit cdreplay -q'
-zinit light zdharma/null
-
-zinit ice has'kops' id-as'kubernetes---kops-completions' \
-        wait silent blockf nocompletions \
-        atclone'kops completion zsh >! kops-completions.zsh' \
-        atpull'%atclone' run-atpull \
-        pick'kops-completions.zsh' src'kops-completions.zsh' \
-        atload'zinit cdreplay -q'
-zinit light zdharma/null
-
-zinit ice has'minikube' id-as'kubernetes---minikube-completion' \
-        wait silent blockf nocompletions \
-        atclone'minikube completion zsh >! minikube-completions.zsh' \
-        atpull'%atclone' run-atpull \
-        pick'minikube-completions.zsh' src'minikube-completions.zsh' \
-        atload'zinit cdreplay -q'
-zinit light zdharma/null
-
-zinit ice has'kompose' id-as'kubernetes---kompose-completion' \
-        wait silent blockf nocompletions \
-        atclone'kompose completion zsh >! kompose-completions.zsh' \
-        atpull'%atclone' run-atpull \
-        pick'kompose-completions.zsh' src'kompose-completions.zsh' \
-        atload'zinit cdreplay -q'
-zinit light zdharma/null
+zinit lucid wait light-mode blockf nocompletions atpull'%atclone' run-atpull atload'zinit cdreplay -q' for \
+  has'kubectl' id-as'kubernetes---kubectl-completions' atclone'kubectl completion zsh >! kubectl-completions.zsh' pick'kubectl-completions.zsh' src'kubectl-completions.zsh' @zdharma/null \
+  has'kops' id-as'kubernetes---kops-completions' atclone'kops completion zsh >! kops-completions.zsh' pick'kops-completions.zsh' src'kops-completions.zsh' @zdharma/null \
+  has'minikube' id-as'kubernetes---minikube-completion' atclone'minikube completion zsh >! minikube-completions.zsh' pick'minikube-completions.zsh' src'minikube-completions.zsh' @zdharma/null \
+  has'kompose' id-as'kubernetes---kompose-completion' atclone'kompose completion zsh >! kompose-completions.zsh' pick'kompose-completions.zsh' src'kompose-completions.zsh' @zdharma/null
 
 zinit ice wait='2' lucid pick'/dev/null' sbin='kubectx' sbin='kubens' \
   atclone='
@@ -37,3 +11,10 @@ zinit ice wait='2' lucid pick'/dev/null' sbin='kubectx' sbin='kubens' \
   ' \
   atpull='%atclone'
 zinit light ahmetb/kubectx
+
+zinit ice has'podman' id-as'podman---completions' \
+        wait silent blockf \
+        atinit"zinit cdreplay -q" \
+        atclone'podman completion zsh >! _podman' \
+        atpull'%atclone' run-atpull
+zinit light zdharma/null

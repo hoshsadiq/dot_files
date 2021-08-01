@@ -19,6 +19,9 @@ alias pml='podman logs'
 alias pc='podman-compose'
 alias pcx='podman-compose exec'
 
+# requires podman 3.2.0 +
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+
 shit() {
   podman run -it --rm --entrypoint /bin/sh -v "${PWD}:/workdir" -w /workdir "$@" -c '# shit-run
 command -v bash >/dev/null || {
