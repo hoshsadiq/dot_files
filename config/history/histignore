@@ -29,6 +29,7 @@ cmd:gits
 !^ssh-gen-deploy-key
 !cmd:gen-pass
 !^aws ssm get-parameter
+!^aws logs tail
 
 # Sensitive looking lines (export AWS_SECRET_ACCESS KEY, for example. I never do that. Ever. I promise.)
 (api|token|key|secret|pass)

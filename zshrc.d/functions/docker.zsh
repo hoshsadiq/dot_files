@@ -6,14 +6,166 @@ docker-list-tags() {
 
   tags="[]"
   while [[ $? == 0 ]]; do
-     i=$((i+1))
-     tags="$(curl -s "https://registry.hub.docker.com/v2/repositories/$img/tags/?page=$i" | jq -r --arg old_tags "$tags" '. + [."results"[]["name"]]')"
-     if [[ "$(echo "$tags" | jq '. | length')" -ge "$max" ]]; then
-       break
-     fi
+    i=$((i + 1))
+    tags="$(curl -s "https://registry.hub.docker.com/v2/repositories/$img/tags/?page=$i" | jq -r --arg old_tags "$tags" '. + [."results"[]["name"]]')"
+    if [[ "$(echo "$tags" | jq '. | length')" -ge "$max" ]]; then
+      break
+    fi
   done
 
-  echo "$tags"  | jq -r '. | @tsv' # todo actually we want to separate them at intervals
+  echo "$tags" | jq -r '. | @tsv' # todo actually we want to separate them at intervals
+}
+
+# todo maybe utilise: https://github.com/LEI/porcelain/blob/master/porcelain.sh
+_shit_run_get_bash_profile() {
+  local bashHistoryFile
+  bashHistoryFile="$1"
+
+  cat <<'EOF'
+function __fastgit_ps1 () {
+    local headfile head branch status
+    local dir="$PWD"
+
+    while [ -n "$dir" ]; do
+        if [ -e "$dir/.git/HEAD" ]; then
+            headfile="$dir/.git/HEAD"
+            break
+        fi
+        dir="${dir%/*}"
+    done
+
+    if [ -e "$headfile" ]; then
+        read -r head < "$headfile" || return
+        case "$head" in
+            ref:*) branch="${head#*/}"; branch="${branch#*/}" ;;
+            "") branch="" ;;
+            *) branch="${head:0:7}" ;;
+        esac
+    fi
+
+    if [ -z "$branch" ]; then
+        return 0
+    fi
+
+    # modified from https://github.com/jethrokuan/git_porcelain/blob/master/functions/git_porcelain.fish
+    if command -v git >/dev/null; then
+      status="$(git status --porcelain 2>/dev/null | \
+                    awk "
+                      /^A[MCDR ]/                  { sa++ }
+                      /^M[ACDRM ]/ || /^[ACDRM ]M/ { sm++ }
+                      /^D[AMCR ]/ || /^[AMCR ]D/   { sd++ }
+                      /^R[AMCD ]/                  { sr++ }
+                      /^C[AMDR ]/                  { sc++ }
+                      /^\?\?/                      { uu++ }
+                      END {
+                        if (sa > 0) { printf(\" %dA\", sa); }
+                        if (sm > 0) { printf(\" %dM\", sm); }
+                        if (sd > 0) { printf(\" %dD\", sd); }
+                        if (sr > 0) { printf(\" %dR\", sr); }
+                        if (sc > 0) { printf(\" %dC\", sc); }
+                        if (su > 0) { printf(\" %dU\", su); }
+                      }"
+                )"
+    else
+      status=""
+    fi
+
+    if [[ -z "$1" ]]; then
+        printf "(%s%s) " "$branch" "$status"
+    else
+        printf "$1" "$branch" "$status"
+    fi
+}
+
+shopt -s histappend                                       # Append to the history file, do not overwrite it
+shopt -s cmdhist                                          # Save multi-line commands as one command
+PROMPT_COMMAND="history -a"                               # Record each line as it gets issued
+HISTSIZE=500000                                           # Huge history. Does not appear to slow things down, so why not?
+HISTFILESIZE=100000
+HISTCONTROL="erasedups:ignoreboth"                        # Avoid duplicate entries
+HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"           # Do not record some commands
+HISTTIMEFORMAT="%F %T "                                   # Use standard ISO 8601 timestamp
+EOF
+
+cat <<EOF
+HISTFILE=${bashHistoryFile}
+EOF
+
+cat <<'EOF'
+shopt -s autocd 2> /dev/null                              # Prepend cd to directory names automatically
+shopt -s dirspell 2> /dev/null                            # Correct spelling errors during tab-completion
+shopt -s cdspell 2> /dev/null                             # Correct spelling errors in arguments supplied to cd
+
+PROMPT_DIRTRIM="3"
+
+PS1=""
+if command -v apt-get >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]apt\[\e[m\]\[\e[32m\])\[\e[m\] "
+elif command -v apk >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]apk\[\e[m\]\[\e[32m\])\[\e[m\] "
+elif command -v yum >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]yum\[\e[m\]\[\e[32m\])\[\e[m\] "
+else PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]???\[\e[m\]\[\e[32m\])\[\e[m\] "
+fi
+PS1="$PS1\[\e[32m\][\[\e[m\]"
+PS1="$PS1\[\e[31m\]\u\[\e[m\]"
+PS1="$PS1\[\e[32m\]:\[\e[m\]"
+PS1="$PS1\[\e[36m\]\w\[\e[m\]"
+PS1="$PS1\$(__fastgit_ps1 \"\[\e[32m\]@\[\e[m\]\[\e[01;32m\]%s%s\[\e[m\]\")"
+PS1="$PS1\[\e[32m\]]\[\e[m\]"
+PS1="$PS1\[\e[32m\]\\$\[\e[m\] "
+EOF
+}
+
+
+_shit_run_script() {
+  local user user_gid user_uid bashHistoryFile
+  user="$1"
+  bashHistoryFile="$2"
+
+  user_uid="$(id -u)"
+  user_gid="$(id -g)"
+
+  # language=shell
+  cat <<EOF
+[ ! -f /.dockerenv ] && >&2 printf "Must be run inside docker" && return 1
+
+. /etc/os-release
+
+packages="sudo neovim"
+command -v bash >/dev/null || packages="\$packages bash"
+
+>&2 echo "installing packages '\$packages' first..."
+{
+  command -v apt-get >/dev/null && apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install \$packages
+  command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
+  command -v yum >/dev/null && yum install -q \$packages
+} >/tmp/docker-setup.log 2>&1
+
+if command -v apt-get >/dev/null; then
+  echo "\e[33mSetting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need.\e[m"
+  export DEBIAN_FRONTEND=noninteractive
+fi
+
+env | egrep -v '^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)' >> /etc/environment
+ln -fs \$(which nvim) /usr/bin/vim
+ln -fs \$(which nvim) /usr/bin/vi
+
+{
+  # todo this might not work for non-alpine instances
+  addgroup --gid ${user_gid} ${USER}
+  adduser --uid ${user_uid} --ingroup $(awk -F: "\$3 == ${user_gid}{print \$1}" /etc/group) --home /home/${USER} --gecos '' --disabled-password ${USER}
+  echo "${USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
+} >>/tmp/docker-setup.log 2>&1
+
+echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd root | cut -d: -f 6)/.bash_profile"
+echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd ${USER} | cut -d: -f 6)/.bash_profile"
+if [ $user != ${USER} ] && [ $user != root ]; then
+echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd ${user} | cut -d: -f 6)/.bash_profile"
+fi
+
+commandArg="--session-command"
+[ "\$ID" = "alpine" ] && commandArg="-c"
+exec su -s /bin/sh "\$commandArg" "cd \$PWD; exec bash --login -i" '${user}'
+EOF
+
 }
 
 shit() {
@@ -24,55 +176,59 @@ shit() {
 
   args=()
   while [[ $# -gt 0 ]]; do
-  arg="$1"
-  case $arg in
-      -u|--user)
+    arg="$1"
+    case $arg in
+    -u=)
+      user="${arg#*=}"
+      shift
+      ;;
+    -u | --user)
       user="$2"
       shift
       shift
       ;;
-      -u=)
-      user="${arg#*=}"
-      shift
-      ;;
-      -u*)
+    -u*)
       user="${arg:2}"
       shift
       ;;
-      -*)
+    --rm|--tty|-t|-P|--publish-all|-d|--detach|--help|--init|--no-healthcheck|--oom-kill-disable|--privileged|--sig-proxy)
       args+=("$arg")
-      ;;
-      *)
-        if [[ -z $container ]]; then
-          container="$arg"
-        else
-          args+=("$arg")
-        fi
       shift
       ;;
-  esac
+    *)
+      if [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)= ]]; then
+        args+=("$arg")
+        shift
+      elif [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)$ ]]; then
+        args+=("$arg" "$2")
+        shift
+        shift
+      elif [[ -z $container ]]; then
+        container="$arg"
+        shift
+      else
+        >&2 printf "WARNING: found an unmatched argument '%s', will continue, but something probably went wrong with parsing docker args\n" "$arg"
+        args+=("$arg")
+        shift
+      fi
+      ;;
+    esac
   done
 
   if [[ $user == "" ]]; then
-    user="$(docker inspect --format="{{ .ContainerConfig.User }}" "$container")"
+    user="$(docker image inspect --format="{{ .ContainerConfig.User }}" "$container")"
+    user="${user:-root}"
   fi
 
-  docker run -it --rm --entrypoint /bin/sh -v "${PWD}:/workdir" -u root -w /workdir "${args[@]}" "$container" -c '
-command -v bash >/dev/null || {
-  >&2 echo "Bash not available, installing first..."
-  command -v apt-get >/dev/null && export DEBIAN_FRONTEND=noninteractive && apt-get update -q && apt-get install bash
-  command -v apk >/dev/null && apk add --no-cache -q --no-progress bash
-  command -v yum >/dev/null && yum install -q bash
-}
+  \mkdir -p "$HOME/tmp/docker-bash"
+  localBashHistoryFile="$(mktemp -p "$HOME/tmp/docker-bash" -t "XXXXXXXX.${container//[:\/]/}.bash_history")"
+  \chmod 777 "$localBashHistoryFile"
+  remoteBashHistoryFile="$(mktemp -t 'XXXXXXXX.bash_history' --dry-run)"
 
-if grep -qFi debian /etc/os-release; then
-  echo "Setting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need"
-  export DEBIAN_FRONTEND=noninteractive
-fi
+  >&2 printf "\e[33mINFO: Running docker with args '%s' for container '%s'\e[m\n" "${args[*]}" "$container"
+  >&2 printf "\e[33mINFO: The container's bash_history is at '%s'\e[m\n" "$localBashHistoryFile"
+  docker run -it --rm --entrypoint /bin/sh -v "$localBashHistoryFile:$remoteBashHistoryFile" -v "${PWD}:/workdir" -u root -w /workdir "${args[@]}" "$container" -c "$(_shit_run_script "$user" "$remoteBashHistoryFile")"
+  >&2 printf "\e[33mINFO: Remember, your container's bash_history is at '%s'\e[m\n" "$localBashHistoryFile"
 
-# todo need to find additional env vars that might be needed
-echo "PATH=$PATH" >> ~/.bash_profile
-
-exec su -s /bin/sh - '"$user"' -c /bin/bash -l
-'
+  # todo add cron to clean up bash histories
 }

@@ -21,3 +21,45 @@ aws-get-ami-region-map() {
 
   echo "$regionMap"
 }
+
+aws-ec2-attach-sg-id() {
+  local instanceId newGroupId newGroupName currentGroups
+
+  instanceId="$1"
+  newGroupName="$2"
+  if [[ -z $instanceId ]] || [[ -z $newGroupName ]]; then
+    echo "usage: $0 instance-id new-group-name"
+    return 1
+  fi
+
+  newGroupId="$(aws ec2 describe-security-groups --filters "Name=group-name,Values=$newGroupName" --query 'SecurityGroups[*].GroupId' --output text)"
+  currentGroups=($(aws ec2 describe-instances --instance-ids="$instanceId" --query 'Reservations[0].Instances[0].SecurityGroups[*].GroupId' --output text))
+  aws ec2 modify-instance-attribute --instance-id="$instanceId" --groups "${currentGroups[@]}" "$newGroupId"
+}
+
+aws-ec2-detach-sg-id() {
+  local instanceId oldGroupName oldGroupName updatedGroups
+
+  instanceId="$1"
+  oldGroupName="$2"
+  if [[ -z $instanceId ]] || [[ -z $oldGroupName ]]; then
+    echo "usage: $0 instance-id old-group-name"
+    return 1
+  fi
+
+  oldGroupName="$(aws ec2 describe-security-groups --filters "Name=group-name,Values=$oldGroupName" --query 'SecurityGroups[*].GroupId' --output text)"
+  updatedGroups=($(aws ec2 describe-instance-attribute --instance-id=i-0eda1dd3a4b5eecf2 --attribute=groupSet --query "Groups[?GroupId != '$vpnSshGroupId'].GroupId" --output text))
+  aws ec2 modify-instance-attribute --instance-id="$instanceId" --groups "${updatedGroups[@]}"
+}
+
+aws-ec2-get-private-ip() {
+  local instanceId
+
+  instanceId="$1"
+  if [[ -z $instanceId ]]; then
+    echo "usage: $0 instance-id"
+    return 1
+  fi
+
+  aws ec2 describe-instances --instance-ids=i-0eda1dd3a4b5eecf2 --query 'Reservations[0].Instances[0].NetworkInterfaces[*].PrivateIpAddress' --output text
+}

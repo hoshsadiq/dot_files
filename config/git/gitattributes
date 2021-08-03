@@ -38,7 +38,7 @@
 json            text diff=json
 *.json          text diff=json
 *.yml           text eol=lf
-*.toml          text
+*.toml          text eol=lf
 *.ini           text
 *.conf          text
 *.config        text
@@ -50,7 +50,7 @@ package-lock.json   text -diff
 *.min.css   text -diff
 *.min.js    text -diff
 
-*.xml   text diff=xml
+#*.xml   text diff=xml
 
 *.map   text -diff
 

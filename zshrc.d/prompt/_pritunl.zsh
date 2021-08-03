@@ -1,10 +1,10 @@
 #!/usr/bin/zsh
 
-command -v pritunl-client || return
+command -v pritunl-client >/dev/null || return
 
 create_pritunl_prompt() {
   awkScript="$(
-    cat <<'AWK'
+    <<'AWK'
     BEGIN {
       disconnected=0
       connecting=0
@@ -34,7 +34,6 @@ create_pritunl_prompt() {
       getline
       gsub(/^[ \(]+|[ \)]+$/, "", $3)
       profile=$3
-      print ""
     }
     END {
       if (connected == 0) {

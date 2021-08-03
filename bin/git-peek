@@ -5,7 +5,7 @@ set -euo pipefail
 repo="${1:-}"
 
 script="$(basename "$0")"
-[[ -n $GIT_EXEC_PATH ]] && script="${script/-/ }"
+[[ -n ${GIT_EXEC_PATH:-} ]] && script="${script/-/ }"
 
 needs_help=false
 [[ " $* " == *" --help "* ]] || [[ " $* " == *" -h "* ]] && needs_help=true

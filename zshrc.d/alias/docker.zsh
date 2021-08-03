@@ -21,24 +21,3 @@ alias pcx='podman-compose exec'
 
 # requires podman 3.2.0 +
 export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
-
-shit() {
-  podman run -it --rm --entrypoint /bin/sh -v "${PWD}:/workdir" -w /workdir "$@" -c '# shit-run
-command -v bash >/dev/null || {
-  >&2 echo "Bash not available, installing first..."
-  command -v apt-get >/dev/null && export DEBIAN_FRONTEND=noninteractive && apt-get update -q && apt-get install bash
-  command -v apk >/dev/null && apk add --no-cache -q --no-progress bash
-  command -v yum >/dev/null && yum install -q bash
-}
-
-if grep -qFi debian /etc/os-release; then
-  echo "Setting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need"
-  export DEBIAN_FRONTEND=noninteractive
-fi
-
-# todo need to find additional env vars that might be needed
-echo "PATH=$PATH" >> ~/.bash_profile
-
-exec bash -l
-'
-}

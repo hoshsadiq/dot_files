@@ -70,7 +70,12 @@ zinit for light-mode from'gh-r' as'program' wait'2' silent \
       atclone'./saml2aws --completion-script-zsh > _saml2aws' \
       atpull'%atclone' run-atpull Versent/saml2aws
 
-zinit for light-mode as'program' pick'bin/*' wait'2' silent tfutils/tfenv
+zinit for light-mode as'program' wait'2' silent \
+      pick'bin/*' @tfutils/tfenv
+#      pick'gnome-shell-extension-installer' @brunelli/gnome-shell-extension-installer
+
+zinit light-mode wait'2' silent for \
+      @johanhaleby/kubetail
 
 # use https://github.com/zinit-zsh/z-a-readurl
 # todo install minikube
