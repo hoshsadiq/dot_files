@@ -80,22 +80,25 @@ jqf() (
   _jqf_preview_cmd() {
     cat <<EOF
   query={q}
-  [ ! -n $query ] && query="."
+  [ ! -n \$query ] && query="." # todo this doesn't work
 
   command jq $(printf "%q" "$@") \$(cat "$preview_cmd_args_file") "\$query" "$input" >"$tmp_dir/out.tmp" 2>&1
   rc=\$?
 
-  headers="\$(grep -vE '^(err|null|OK)$' $header_file)"
+  headers="\$(sed 's/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g' $header_file | grep -vE '^(err|null|OK)$')"
   if [[ ! -f $tmp_dir/out ]]; then
     command mv $tmp_dir/out.tmp $tmp_dir/out
-    headers="\$(printf 'OK\n%s\n' "\$headers")"
+    headers="\$(printf '\x1b[1;32mOK\x1b[0m\n%s\n' "\$headers")"
   elif [[ \$rc != 0 ]]; then
-    headers="\$(printf 'err\n%s\n' "\$headers")"
+    headers="\$(printf '\x1b[1;31merr\x1b[0m\n%s\n' "\$headers")"
+    echo -n "\x1b[1;31m"
+    command cat "$tmp_dir/out.tmp"
+    echo "---\x1b[0m"
   elif [[ "\$(sed 's/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g' $tmp_dir/out.tmp)" == 'null' ]]; then
-    headers="\$(printf 'null\n%s\n' "\$headers")"
+    headers="\$(printf '\x1b[1;33mnull\x1b[0m\n%s\n' "\$headers")"
   else
     command mv $tmp_dir/out.tmp $tmp_dir/out
-    headers="\$(printf 'OK\n%s\n' "\$headers")"
+    headers="\$(printf '\x1b[1;32mOK\x1b[0m\n%s\n' "\$headers")"
   fi
   echo "\$headers" > $header_file
   sync
@@ -128,27 +131,36 @@ EOF
 EOF
   }
 
-  # todo sleep 0.1 is hacky. Need a better way of ensuring the header file is updated.
-  query="$(echo -e "$(tr '\n' ' ' <"$header_file")\n" |
-    fzf --phony \
-      --no-extended \
-      --disabled \
-      --ansi \
-      --tabstop=4 \
-      --prompt='jq> ' \
-      --history="$history_file" \
-      --preview-window='up:99%' \
-      --bind "change:refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-r:execute-silent($(_jqf_update_flag_cmd "-r"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-c:execute-silent($(_jqf_update_flag_cmd "-c"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-j:execute-silent($(_jqf_update_flag_cmd "-j")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-0:execute-silent($(_jqf_update_flag_cmd "-0")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-M:execute-silent($(_jqf_update_flag_cmd "-M" "-C")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --bind="alt-C:execute-silent($(_jqf_update_flag_cmd "-C" "-M")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
-      --info=hidden \
-      --header-lines=1 \
-      --print-query \
-      --preview "$(_jqf_preview_cmd "${jq_args[@]}")")"
+  query="$(
+    echo -e "$(<"$header_file")\n" |
+      fzf --phony \
+        --no-extended \
+        --disabled \
+        --sync \
+        --ansi \
+        --tabstop=4 \
+        --prompt='jq> ' \
+        --history="$history_file" \
+        --info=hidden \
+        --header-lines=1 \
+        --print-query \
+        --preview-window='down:99%' \
+        --preview "$(_jqf_preview_cmd "${jq_args[@]}")" \
+        `# todo sleep 0.1 is hacky. Need a better way of ensuring the header file is updated before FZF is reloaded.` \
+        --bind "change:refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-r:execute-silent($(_jqf_update_flag_cmd "-r"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-c:execute-silent($(_jqf_update_flag_cmd "-c"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-j:execute-silent($(_jqf_update_flag_cmd "-j")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-0:execute-silent($(_jqf_update_flag_cmd "-0")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-M:execute-silent($(_jqf_update_flag_cmd "-M" "-C")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        --bind="alt-C:execute-silent($(_jqf_update_flag_cmd "-C" "-M")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+        `# vim bindings` \
+        --bind="ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up" \
+        --bind="ctrl-j:preview-down,ctrl-k:preview-up" \
+        `# normal bindings` \
+        --bind="pgdn:preview-half-page-down,pgup:preview-half-page-up" \
+        --bind="down:preview-down,up:preview-up" \
+    )"
 
   if [[ -n "$exec" ]]; then
     jq "${jq_args[@]}" $(cat "$preview_cmd_args_file") "$query" "$input"

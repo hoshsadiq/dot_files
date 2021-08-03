@@ -1,0 +1,10 @@
+golang 1.16
+golangci-lint 1.41.1
+terraform 0.15.0
+goreleaser 0.162.1
+php 7.4.19
+packer 1.7.2
+nodejs 16.3.0
+hugo 0.83.1
+potato 0.83.1
+awscli 2.2.13

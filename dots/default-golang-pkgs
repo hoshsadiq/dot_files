@@ -1,0 +1,9 @@
+golang.org/x/tools/cmd/goimports
+github.com/spf13/cobra/cobra
+github.com/go-delve/delve/cmd/dlv
+github.com/daixiang0/gci
+github.com/securego/gosec/cmd/gosec
+golang.org/x/tools/gopls@latest
+github.com/cosmos72/gomacro
+github.com/google/wire/cmd/wire
+

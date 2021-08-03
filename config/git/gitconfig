@@ -150,15 +150,21 @@
 [commit]
 	#gpgSign = true
 	verbose = true
+	template = ~/dot_files/config/git/gitmessage
+
 [pull]
 	rebase = true
 	ff = only
+
 [rebase]
 	autoStash = true
+
 [sendpack]
 	sideband = false
+
 [gc]
 	auto = 256
+
 [status]
 	submoduleSummary = false
 [format]
