@@ -99,10 +99,13 @@ shopt -s cdspell 2> /dev/null                             # Correct spelling err
 PROMPT_DIRTRIM="3"
 
 PS1=""
-if command -v apt-get >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]apt\[\e[m\]\[\e[32m\])\[\e[m\] "
-elif command -v apk >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]apk\[\e[m\]\[\e[32m\])\[\e[m\] "
-elif command -v yum >/dev/null; then PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]yum\[\e[m\]\[\e[32m\])\[\e[m\] "
-else PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]???\[\e[m\]\[\e[32m\])\[\e[m\] "
+for pkgMan in apt-get apk yum microdnf; do
+  if command -v $pkgMan >/dev/null; then
+    PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]$pkgMan\[\e[m\]\[\e[32m\])\[\e[m\] "
+  fi
+done
+if [[ -z $PS1 ]]; then
+  PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]???\[\e[m\]\[\e[32m\])\[\e[m\] "
 fi
 PS1="$PS1\[\e[32m\][\[\e[m\]"
 PS1="$PS1\[\e[31m\]\u\[\e[m\]"
@@ -127,33 +130,39 @@ _shit_run_script() {
   cat <<EOF
 [ ! -f /.dockerenv ] && >&2 printf "Must be run inside docker" && return 1
 
+set -eu
+
 . /etc/os-release
 
 packages="sudo neovim"
 command -v bash >/dev/null || packages="\$packages bash"
-
->&2 echo "installing packages '\$packages' first..."
-{
-  command -v apt-get >/dev/null && apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install \$packages
-  command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
-  command -v yum >/dev/null && yum install -q \$packages
-} >/tmp/docker-setup.log 2>&1
 
 if command -v apt-get >/dev/null; then
   echo "\e[33mSetting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need.\e[m"
   export DEBIAN_FRONTEND=noninteractive
 fi
 
+command -v microdnf >/dev/null && packages="\${packages/neovim/vim}"
+>&2 echo "installing packages '\$packages' first..."
+{
+  command -v apt-get >/dev/null && apt-get update -qq && apt-get install -qq -y \$packages
+  command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
+  command -v yum >/dev/null && yum install -q \$packages
+  command -v microdnf >/dev/null && microdnf install \$packages >/dev/null 2>&1
+} 2>&1 | tee /tmp/container-setup.log
+
 env | egrep -v '^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)' >> /etc/environment
-ln -fs \$(which nvim) /usr/bin/vim
-ln -fs \$(which nvim) /usr/bin/vi
+if command -v nvim >/dev/null; then
+  ln -fs \$(command -v nvim) /usr/bin/vim
+  ln -fs \$(command -v nvim) /usr/bin/vi
+fi
 
 {
   # todo this might not work for non-alpine instances
   addgroup --gid ${user_gid} ${USER}
   adduser --uid ${user_uid} --ingroup $(awk -F: "\$3 == ${user_gid}{print \$1}" /etc/group) --home /home/${USER} --gecos '' --disabled-password ${USER}
   echo "${USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
-} >>/tmp/docker-setup.log 2>&1
+} 2>&1 | tee a /tmp/container-setup.log
 
 echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd root | cut -d: -f 6)/.bash_profile"
 echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd ${USER} | cut -d: -f 6)/.bash_profile"
@@ -161,9 +170,7 @@ if [ $user != ${USER} ] && [ $user != root ]; then
 echo '$(_shit_run_get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd ${user} | cut -d: -f 6)/.bash_profile"
 fi
 
-commandArg="--session-command"
-[ "\$ID" = "alpine" ] && commandArg="-c"
-exec su -s /bin/sh "\$commandArg" "cd \$PWD; exec bash --login -i" '${user}'
+exec sudo -u '${user}' /bin/sh -c "cd \$PWD; exec bash --login -i"
 EOF
 
 }
@@ -207,7 +214,7 @@ shit() {
         container="$arg"
         shift
       else
-        >&2 printf "WARNING: found an unmatched argument '%s', will continue, but something probably went wrong with parsing docker args\n" "$arg"
+        >&2 printf "WARNING: found an unmatched argument '%s', will continue, but something probably went wrong with parsing docker/podman args\n" "$arg"
         args+=("$arg")
         shift
       fi
@@ -216,18 +223,18 @@ shit() {
   done
 
   if [[ $user == "" ]]; then
-    user="$(docker image inspect --format="{{ .ContainerConfig.User }}" "$container")"
+    user="$("$CONTAINER_RUNTIME" image inspect --format="{{ .ContainerConfig.User }}" "$container")"
     user="${user:-root}"
   fi
 
-  \mkdir -p "$HOME/tmp/docker-bash"
-  localBashHistoryFile="$(mktemp -p "$HOME/tmp/docker-bash" -t "XXXXXXXX.${container//[:\/]/}.bash_history")"
+  \mkdir -p "$HOME/tmp/container-bash"
+  localBashHistoryFile="$(mktemp -p "$HOME/tmp/container-bash" -t "XXXXXXXX.${container//[:\/]/}.bash_history")"
   \chmod 777 "$localBashHistoryFile"
   remoteBashHistoryFile="$(mktemp -t 'XXXXXXXX.bash_history' --dry-run)"
 
-  >&2 printf "\e[33mINFO: Running docker with args '%s' for container '%s'\e[m\n" "${args[*]}" "$container"
+  >&2 printf "\e[33mINFO: Running container '%s' with args '%s'\e[m\n" "$container" "${args[*]}"
   >&2 printf "\e[33mINFO: The container's bash_history is at '%s'\e[m\n" "$localBashHistoryFile"
-  docker run -it --rm --entrypoint /bin/sh -v "$localBashHistoryFile:$remoteBashHistoryFile" -v "${PWD}:/workdir" -u root -w /workdir "${args[@]}" "$container" -c "$(_shit_run_script "$user" "$remoteBashHistoryFile")"
+  "$CONTAINER_RUNTIME" run -it --rm --entrypoint /bin/sh -v "$localBashHistoryFile:$remoteBashHistoryFile" -v "${PWD}:/workdir" -u root -w /workdir "${args[@]}" "$container" -c "$(_shit_run_script "$user" "$remoteBashHistoryFile")"
   >&2 printf "\e[33mINFO: Remember, your container's bash_history is at '%s'\e[m\n" "$localBashHistoryFile"
 
   # todo add cron to clean up bash histories

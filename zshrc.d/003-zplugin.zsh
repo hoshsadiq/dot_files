@@ -48,10 +48,7 @@ zinit light itchyny/gojq
 
 zinit lucid wait'1' for \
   @dracula/zsh-syntax-highlighting \
-  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" atload"_zsh_highlight" @zdharma/fast-syntax-highlighting
-
-zinit ice depth'1' wait"0a" atload"_zsh_highlight" silent
-zinit light zdharma/fast-syntax-highlighting
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" @zdharma/fast-syntax-highlighting
 
 zinit for light-mode from'gh-r' as'program' wait'2' silent pick'shellcheck-*/shellcheck' \
       koalaman/shellcheck
@@ -61,14 +58,9 @@ zinit light-mode from'gh-r' as'program' wait'2' silent for \
       jesseduffield/lazygit
 
 # todo completion doesn't work yet
-zinit for light-mode from'gh-r' as'program' wait'2' silent \
-      atclone'./awless completion zsh > _awless' src'_awless' \
-      atpull'%atclone' run-atpull wallix/awless
-
-# todo completion doesn't work yet
-zinit for light-mode from'gh-r' as'program' wait'2' silent \
-      atclone'./saml2aws --completion-script-zsh > _saml2aws' \
-      atpull'%atclone' run-atpull Versent/saml2aws
+zinit for light-mode from'gh-r' as'program' wait'2' atpull'%atclone' run-atpull silent \
+      atclone'./awless completion zsh > _awless' src'_awless' @wallix/awless \
+      atclone'./saml2aws --completion-script-zsh > _saml2aws' @Versent/saml2aws
 
 zinit for light-mode as'program' wait'2' silent \
       pick'bin/*' @tfutils/tfenv
