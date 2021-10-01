@@ -56,7 +56,7 @@ user_pref('network.allow-experiments', false);
 user_pref('network.captive-portal-service.enabled', false);
 user_pref('network.cookie.cookieBehavior', 1);
 user_pref('network.dns.disablePrefetch', true);
-user_pref('network.http.referer.spoofSource', true);
+// user_pref('network.http.referer.spoofSource', true);
 user_pref('network.http.speculative-parallel-limit', 0);
 user_pref('network.prefetch-next', false);
 user_pref('network.trr.mode', 5);
@@ -96,7 +96,5 @@ user_pref('browser.search.region', 'GB');
 user_pref('browser.startup.page', 3);
 user_pref('browser.tabs.drawInTitlebar', true);
 user_pref('browser.uidensity', 1);
-
-user_pref('toolkit.legacyUserProfileCustomizations.stylesheets', true);
 
 user_pref('toolkit.legacyUserProfileCustomizations.stylesheets', true);

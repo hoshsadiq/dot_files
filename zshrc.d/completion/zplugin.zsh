@@ -10,9 +10,6 @@ zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_setc
 zinit ice as"completion" has'vagrant' wait silent blockf
 zinit snippet https://raw.githubusercontent.com/soapy1/vagrant/master/contrib/zsh/_vagrant
 
-zinit ice as"completion" has'virtualbox' wait silent blockf
-zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_virtualbox
-
 zinit ice as"completion" has'xinput' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_xinput
 
@@ -34,5 +31,6 @@ zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/go/_dive
 zinit ice as"completion" has'shellcheck' wait silent blockf
 zinit snippet https://github.com/zchee/zsh-completions/blob/main/src/zsh/_shellcheck
 
-zinit ice as"completion" wait silent blockf
+# todo doesn't work yet
+zinit ice as"completion" has'go' wait silent blockf
 zinit snippet https://github.com/zsh-users/zsh-completions/blob/master/src/_golang

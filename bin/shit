@@ -1,0 +1,313 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# todo some of these functions should go into a separate script and mounted instead of output as a script.
+
+run_usage() {
+  if [[ " $* " != *" -h "* ]] && [[ " $* " != *" --help "* ]]; then
+    return
+  fi
+
+  cat <<EOF
+usage: $0 [options] image
+  options:
+    -cr, --container-runtime    Forces the container-runtime.
+                                Valid values are podman or docker.
+                                Defaults to binary detection with podman taking precedence.
+
+All docker run and podman run options are permitted.
+
+example:
+  shit alpine:3.14
+  shit -u$USER alpine:3.14
+EOF
+
+  exit 0
+}
+
+log() {
+  printf >&2 "\e[33m%s: $2\e[m\n" "$1" "${@:3}"
+}
+
+info() {
+  log INFO "$@"
+}
+
+warn() {
+  log WARNING "$@"
+}
+
+# todo maybe utilise: https://github.com/LEI/porcelain/blob/master/porcelain.sh
+get_bash_profile() {
+  local bashHistoryFile
+  bashHistoryFile="$1"
+
+  \cat <<'EOF'
+function __fastgit_ps1 () {
+    return 0
+
+    local headfile head branch status
+    local dir="$PWD"
+
+    while [ -n "$dir" ]; do
+        if [ -e "$dir/.git/HEAD" ]; then
+            headfile="$dir/.git/HEAD"
+            break
+        fi
+        dir="${dir%/*}"
+    done
+
+    if [ -e "$headfile" ]; then
+        read -r head < "$headfile" || return
+        case "$head" in
+            ref:*) branch="${head#*/}"; branch="${branch#*/}" ;;
+            "") branch="" ;;
+            *) branch="${head:0:7}" ;;
+        esac
+    fi
+
+    if [ -z "$branch" ]; then
+        return 0
+    fi
+
+    # modified from https://github.com/jethrokuan/git_porcelain/blob/master/functions/git_porcelain.fish
+    if command -v git >/dev/null; then
+      status="$(git status --porcelain 2>/dev/null | \
+                    awk "
+                      /^A[MCDR ]/                  { sa++ }
+                      /^M[ACDRM ]/ || /^[ACDRM ]M/ { sm++ }
+                      /^D[AMCR ]/ || /^[AMCR ]D/   { sd++ }
+                      /^R[AMCD ]/                  { sr++ }
+                      /^C[AMDR ]/                  { sc++ }
+                      /^\?\?/                      { uu++ }
+                      END {
+                        if (sa > 0) { printf(\" %dA\", sa); }
+                        if (sm > 0) { printf(\" %dM\", sm); }
+                        if (sd > 0) { printf(\" %dD\", sd); }
+                        if (sr > 0) { printf(\" %dR\", sr); }
+                        if (sc > 0) { printf(\" %dC\", sc); }
+                        if (su > 0) { printf(\" %dU\", su); }
+                      }"
+                )"
+    else
+      status=""
+    fi
+
+    if [[ -z "$1" ]]; then
+        printf "(%s%s) " "$branch" "$status"
+    else
+        printf "$1" "$branch" "$status"
+    fi
+}
+
+shopt -s histappend                                       # Append to the history file, do not overwrite it
+shopt -s cmdhist                                          # Save multi-line commands as one command
+PROMPT_COMMAND="history -a"                               # Record each line as it gets issued
+HISTSIZE=500000                                           # Huge history. Does not appear to slow things down, so why not?
+HISTFILESIZE=100000
+HISTCONTROL="erasedups:ignoreboth"                        # Avoid duplicate entries
+HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"           # Do not record some commands
+HISTTIMEFORMAT="%F %T "                                   # Use standard ISO 8601 timestamp
+EOF
+
+  \cat <<EOF
+HISTFILE=${bashHistoryFile}
+EOF
+
+  \cat <<'EOF'
+shopt -s autocd 2> /dev/null                              # Prepend cd to directory names automatically
+shopt -s dirspell 2> /dev/null                            # Correct spelling errors during tab-completion
+shopt -s cdspell 2> /dev/null                             # Correct spelling errors in arguments supplied to cd
+
+PROMPT_DIRTRIM="3"
+
+PS1=""
+for pkgMan in apt-get apk yum microdnf; do
+  if command -v $pkgMan >/dev/null; then
+    PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]$pkgMan\[\e[m\]\[\e[32m\])\[\e[m\] "
+  fi
+done
+if [[ -z $PS1 ]]; then
+  PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]???\[\e[m\]\[\e[32m\])\[\e[m\] "
+fi
+PS1="$PS1\[\e[32m\][\[\e[m\]"
+PS1="$PS1\[\e[31m\]\u\[\e[m\]"
+PS1="$PS1\[\e[32m\]:\[\e[m\]"
+PS1="$PS1\[\e[36m\]\w\[\e[m\]"
+PS1="$PS1\$(__fastgit_ps1 \"\[\e[32m\]@\[\e[m\]\[\e[01;32m\]%s%s\[\e[m\]\")"
+PS1="$PS1\[\e[32m\]]\[\e[m\]"
+PS1="$PS1\[\e[32m\]\\$\[\e[m\] "
+EOF
+}
+
+run_script() {
+  local user user_gid user_uid bashHistoryFile
+  user="$1"
+  bashHistoryFile="$2"
+
+  user_uid="$(id -u)"
+  user_gid="$(id -g)"
+
+  # language=shell
+  \cat <<EOF
+[ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ] && >&2 printf "Must be run inside docker" && return 1
+
+set -eu
+
+. /etc/os-release
+
+packages="sudo neovim"
+command -v bash >/dev/null || packages="\$packages bash"
+
+if command -v apt-get >/dev/null; then
+  echo "\e[33mSetting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need.\e[m"
+  export DEBIAN_FRONTEND=noninteractive
+fi
+
+command -v microdnf >/dev/null && packages="\${packages/neovim/vim}"
+>&2 echo "installing packages '\$packages' first..."
+{
+  command -v apt-get >/dev/null && echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf.d/quiet && apt-get update -qq && apt-get -qq install -y \$packages
+  command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
+  command -v yum >/dev/null && yum install -q \$packages
+  command -v microdnf >/dev/null && microdnf install \$packages >/dev/null 2>&1
+} 2>&1 | tee /tmp/container-setup.log
+
+env | egrep -v '^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)' >> /etc/environment
+if command -v nvim >/dev/null; then
+  ln -fs \$(command -v nvim) /usr/bin/vim
+  ln -fs \$(command -v nvim) /usr/bin/vi
+fi
+
+{
+  addgroup --gid ${user_gid} ${USER}
+  grp_in_ctr="\$(awk -F: '\$3 == ${user_gid}{print \$1}' /etc/group)"
+  adduser --uid ${user_uid} --ingroup \$grp_in_ctr --home /home/${USER} --gecos "" --disabled-password ${USER}
+  echo "${USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
+} 2>&1 | tee /tmp/container-setup.log
+
+echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd root | cut -d: -f 6)/.bash_profile"
+echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd "${USER}" | cut -d: -f 6)/.bash_profile"
+if [ -n "$user" ] && [ "$user" != "${USER}" ] && [ "$user" != "root" ]; then
+  echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd "${user}" | cut -d: -f 6)/.bash_profile"
+fi
+
+exec sudo -u '${user}' /bin/sh -c "cd \$PWD; exec bash --login -i"
+EOF
+
+}
+
+cleanup_bash_history() {
+  bashHistDir="$1"
+  localBashHistoryFile="$2"
+  if [[ -s $localBashHistoryFile ]]; then
+    info "Remember, your container's bash_history is at '%s'" "$localBashHistoryFile"
+  else
+    warn "The container's bash_history is empty, removing..."
+  fi
+  find "$bashHistDir" -type f -mtime +14 -or -size 0 -exec rm -f {} +
+}
+
+shit() {
+  local user args container runtime
+
+  user=""
+  container=""
+  runtime=""
+
+  if [[ -z $runtime ]]; then
+    if command -v podman >/dev/null; then
+      runtime="podman"
+    else
+      runtime="docker"
+    fi
+  fi
+
+  args=()
+  while [[ $# -gt 0 ]]; do
+    arg="$1"
+    case $arg in
+    -cr=* | --container-runtime=*)
+      runtime="${arg#*=}"
+      shift
+      ;;
+    -cr | --container-runtime)
+      runtime="$2"
+      shift
+      shift
+      ;;
+    -u=* | --user=*)
+      user="${arg#*=}"
+      shift
+      ;;
+    -u | --user)
+      user="$2"
+      shift
+      shift
+      ;;
+    -u*)
+      user="${arg:2}"
+      shift
+      ;;
+    --rm | --tty | -t | -P | --publish-all | -d | --detach | --help | --init | --no-healthcheck | --oom-kill-disable | --privileged | --sig-proxy)
+      args+=("$arg")
+      shift
+      ;;
+    *)
+      if [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)= ]]; then
+        args+=("$arg")
+        shift
+      elif [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)$ ]]; then
+        args+=("$arg" "$2")
+        shift
+        shift
+      elif [[ -z $container ]]; then
+        container="$arg"
+        shift
+      else
+        warn "Found an unmatched argument '%s', will continue, but something probably went wrong with parsing docker/podman args\n" "$arg"
+        args+=("$arg")
+        shift
+      fi
+      ;;
+    esac
+  done
+
+  if [[ $user == "" ]]; then
+    local format
+
+    format=".User"
+    if [[ $runtime == "docker" ]]; then
+      format=".ContainerConfig$format"
+    fi
+
+    user="$("$runtime" image inspect --format="{{ $format }}" "$container" || true)"
+  fi
+  user="${user:-root}"
+
+  if [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$): ]]; then
+    user="${user//:*/}"
+    warn "Unable to deal with user:group notation, taking user only: %s" "$user"
+  fi
+
+  bashHistDir="$HOME/tmp/container-bash"
+  \mkdir -p "$bashHistDir"
+  localBashHistoryFile="$(mktemp -p "$bashHistDir" -t "${container//[:\/]/}.XXXXXXXX.bash_history")"
+  trap 'cleanup_bash_history "$bashHistDir" "$localBashHistoryFile"' EXIT
+  \chmod 777 "$localBashHistoryFile"
+  remoteBashHistoryFile="$(mktemp -t 'XXXXXXXX.bash_history' --dry-run)"
+
+  if [[ -z "${args[*]}" ]]; then
+    info "Running %s container '%s'" "$runtime" "$container"
+  else
+    info "Running %s container '%s' with args '%s'" "$runtime" "$container" "${args[*]}"
+  fi
+  info "The container's bash_history is at '%s'" "$localBashHistoryFile"
+  "$runtime" run -it --rm --entrypoint /bin/sh -v "$localBashHistoryFile:$remoteBashHistoryFile" -v "${PWD}:/workdir" -u root -w /workdir "${args[@]}" "$container" -c "$(run_script "$user" "$remoteBashHistoryFile")"
+
+  # todo add cron to clean up bash histories
+}
+
+run_usage "$@"
+shit "$@"

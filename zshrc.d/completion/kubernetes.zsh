@@ -9,7 +9,7 @@ zinit ice wait='2' lucid pick'/dev/null' sbin='kubectx' sbin='kubens' \
     mv completion/kubectx.zsh _kubectx;
     mv completion/kubens.zsh _kubens;
   ' \
-  atpull='%atclone'
+  atpull='%atclone' run-atpull
 zinit light ahmetb/kubectx
 
 zinit ice has'podman' id-as'podman---completions' \
