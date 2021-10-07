@@ -72,17 +72,28 @@
 	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
 	branchm = "!git branch -m $2 $3 && git push $1 :$2 $3 -u #"
-	mkbr = !git fetch origin && git checkout -b \"$1\" \"origin/$(git remote show origin 2>/dev/null | awk \"/HEAD branch/ {print \\$NF}\")\"
+	mkbr = "!f() { \
+                set -eu; \
+                git fetch origin; \
+                git checkout -b \"$1\" \"origin/$(git main-branch)\"; \
+            }; f"
 
-    main-branch = "!f() { for branch in main trunk; do if command git show-ref -q --verify refs/heads/$branch; then echo $branch; return; fi; done; echo master; }; f"
+    main-branch = "!f() { \
+                        set -eu; \
+                        for branch in main trunk; do \
+                            if command git show-ref -q --verify refs/heads/$branch; then \
+                                echo $branch; \
+                                return; \
+                            fi; \
+                        done; \
+                        echo master; \
+                    }; f"
 
 	patch = --no-pager diff --no-color
     permission-reset = "!f() { \
-                                set -ex; \
-                                git diff -p -R --no-color | \
-                                grep -E '^(diff|(old|new) mode)' --color=never | \
-                                git apply; \
-                                set +x; \
+                            git diff -p -R --no-color | \
+                            grep -E '^(diff|(old|new) mode)' --color=never | \
+                            git apply; \
                         }; f"
 
 	diff-intellij = difftool --tool=intellij

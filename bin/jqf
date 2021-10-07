@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+
+_jqf_panic() {
+  # shellcheck disable=SC2059
+  printf >&2 "$@"
+  exit 1
+}
+
+jq_args=()
+parse_args() {
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --)
+    skip=1
+    shift
+    ;;
+  *)
+    [[ -n "$skip" ]] && jq_args+=("$1") && shift && continue
+    [[ "$1" == "-e" ]] && exec=1 && shift && continue
+    [[ -f "$1" ]] && [[ -n "$input" ]] && panic "expected only a single input, already got $input"
+    if [[ -f "$1" ]]; then
+      if [[ ! -r "$1" ]]; then
+        panic "file %s does not exist" "$input"
+      fi
+
+      input="$1"
+      shift
+      continue
+    fi
+    jq_args+=("$1") && shift
+    ;;
+  esac
+done
+}
+
+tmp_dir="$(mktemp --directory -t jqf.XXXXXXXXXX)"
+trap 'command rm -rf $tmp_dir' EXIT
+
+# todo this doesn't allow for streaming any more. It will block until stdin is finished.
+if [[ -z "$input" ]]; then
+  input="$tmp_dir/in"
+  cat /dev/stdin >"$input"
+fi
+
+preview_cmd_args_file="$tmp_dir/args"
+header_file="$tmp_dir/header"
+touch "$preview_cmd_args_file"
+printf '%s\n' '-C' >>"$preview_cmd_args_file"
+command cp "$preview_cmd_args_file" "$header_file"
+
+history_file="$HOME/.cache/fzf/.jqfhistory"
+[[ ! -d $(dirname "$history_file") ]] && mkdir -p "$(dirname "$history_file")"
+touch "$history_file"
+
+_jqf_preview_cmd() {
+  cat <<EOF
+  set -x
+query={q}
+[ ! -n \$query ] && query="." # todo this doesn't work
+
+#args=()
+#while IFS='' read -r arg; do
+#  if [[ -n \$(printf "\$arg" | awk '{\$1=\$1};1') ]]; then
+#    args+=("\$arg");
+#  fi
+#done < <(printf '%q\n' "$@"; cat "$preview_cmd_args_file")
+#echo "\${args[@]}"
+#command jq "\${args[@]}" "\$query" "$input" >"$tmp_dir/out.tmp" 2>&1
+command jq $(printf "%q" "$@") \$(cat "$preview_cmd_args_file") "\$query" "$input" >"$tmp_dir/out.tmp" 2>&1
+rc=\$?
+
+headers="\$(sed 's/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g' $header_file | grep -vE '^(err|null|OK)$')"
+if [[ ! -f $tmp_dir/out ]]; then
+  command mv $tmp_dir/out.tmp $tmp_dir/out
+  headers="\$(printf '\x1b[1;32mOK\x1b[0m\n%s\n' "\$headers")"
+elif [[ \$rc != 0 ]]; then
+  headers="\$(printf '\x1b[1;31merr\x1b[0m\n%s\n' "\$headers")"
+  echo -n "\x1b[1;31m"
+  command cat "$tmp_dir/out.tmp"
+  echo "---\x1b[0m"
+elif [[ "\$(sed 's/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g' $tmp_dir/out.tmp)" == 'null' ]]; then
+  headers="\$(printf '\x1b[1;33mnull\x1b[0m\n%s\n' "\$headers")"
+else
+  command mv $tmp_dir/out.tmp $tmp_dir/out
+  headers="\$(printf '\x1b[1;32mOK\x1b[0m\n%s\n' "\$headers")"
+fi
+echo "\$headers" > $header_file
+sync
+
+command cat $tmp_dir/out
+EOF
+}
+
+_jqf_update_flag_cmd() {
+  opt="$1"
+  opt_exclusive="${2:-}"
+
+  # language=shell
+  command cat <<EOF
+  if grep -qF -- "$opt" "$preview_cmd_args_file"; then
+    sed -i "/^$opt/d" "$preview_cmd_args_file"
+  else
+EOF
+  if [[ -n $opt_exclusive ]]; then
+    command cat <<EOF
+    sed -i "/^$opt_exclusive/d" "$preview_cmd_args_file";
+EOF
+  fi
+
+  command cat <<EOF
+    printf "%s\n" "$opt" >> "$preview_cmd_args_file";
+  fi
+  command cp "$preview_cmd_args_file" "$header_file"
+  sync
+EOF
+}
+
+# todo sleep 0.1 is hacky. Need a better way of ensuring the header file is updated before FZF is reloaded.
+query="$(
+  echo -e "$(<"$header_file")\n" |
+    fzf --phony \
+      --no-extended \
+      --disabled \
+      --sync \
+      --ansi \
+      --tabstop=4 \
+      --prompt='jq> ' \
+      --history="$history_file" \
+      --info=hidden \
+      --header-lines=1 \
+      --print-query \
+      --preview-window='down:99%' \
+      --preview "$(_jqf_preview_cmd "${jq_args[@]}")" \
+      --bind "change:refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-r:execute-silent($(_jqf_update_flag_cmd "-r"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-c:execute-silent($(_jqf_update_flag_cmd "-c"))+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-j:execute-silent($(_jqf_update_flag_cmd "-j")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-0:execute-silent($(_jqf_update_flag_cmd "-0")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-M:execute-silent($(_jqf_update_flag_cmd "-M" "-C")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="alt-C:execute-silent($(_jqf_update_flag_cmd "-C" "-M")+refresh-preview+reload(sleep 0.1; tr '\n' ' ' <$header_file)" \
+      --bind="ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up" \
+      --bind="ctrl-j:preview-down,ctrl-k:preview-up" \
+      --bind="pgdn:preview-half-page-down,pgup:preview-half-page-up" \
+      --bind="down:preview-down,up:preview-up"
+  )"
+
+if [[ -n "$exec" ]]; then
+  jq "${jq_args[@]}" $(cat "$preview_cmd_args_file") "$query" "$input"
+  return $?
+fi
+
+printf "%s" "$query"

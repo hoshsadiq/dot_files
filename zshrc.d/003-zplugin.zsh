@@ -54,7 +54,7 @@ zinit light-mode from'gh-r' as'program' wait'2' silent for \
 #      pick'bin/*' @tfutils/tfenv
 #      pick'gnome-shell-extension-installer' @brunelli/gnome-shell-extension-installer
 
-# use krew instead
+# todo use kubectl krew instead.
 #zinit light-mode wait'2' silent for \
 #      @johanhaleby/kubetail
 
@@ -105,7 +105,9 @@ zinit lucid wait light-mode as"program" from"gh-r" for \
     bpick"*_linux_amd64.tar.gz" pick"dive" @wagoodman/dive \
     @matsuyoshi30/gitsu \
     @nektos/act \
-    @hoshsadiq/big-fat-converter
+    @hoshsadiq/big-fat-converter \
+    @hrkfdn/ncspot \
+    atinit'alias watch=viddy' @sachaos/viddy
 
 zinit lucid wait light-mode as"program" for \
     atclone"md2man -in=README.md -out=$ZPFX/share/man/man1/x11docker.1" pick'x11docker x11docker-gui' @mviereck/x11docker \

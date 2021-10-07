@@ -43,8 +43,9 @@ bind --mode=hint   <C-q> js alert("<C-q> is for quitters.")
 " Don't run Tridactyl on some web sites because it doesn't work well, or
 " because the web site has its own keybindings.
 autocmd DocStart mail.google.com mode ignore
-autocmd DocStart accounts.google.com mode normal
+autocmd DocStart docs.google.com mode ignore
 autocmd DocStart mail.protonmail.com mode ignore
+autocmd DocStart accounts.google.com mode normal
 
 " Sometimes the status bar in the bottom left corner overlaps the Tridactyl
 " command line, so set an option to move the status bar to the right.
@@ -52,6 +53,8 @@ guiset_quiet hoverlink right
 
 " Comment toggler for Reddit, Hacker News and Lobste.rs
 bind ;c hint -Jc [class*="expand"],[class="togg"],[class="comment_folder"]
+
+bindurl ^https://signin.aws.amazon.com/saml f hint -Jc [class=saml-role]
 
 " GitHub pull request add upstream command to clipboard
 " bind gys composite js (() => { var items = document.querySelector('.user-select-contain.head-ref a').querySelectorAll('.css-truncate-target'); return "git remote add "+items[0].textContent+" git@github.com:"+items[0].textContent+"/"+items[1].textContent+".git\ngit fetch " + items[0].textContent; })() | yank
