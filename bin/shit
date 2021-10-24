@@ -304,7 +304,7 @@ shit() {
     info "Running %s container '%s' with args '%s'" "$runtime" "$container" "${args[*]}"
   fi
   info "The container's bash_history is at '%s'" "$localBashHistoryFile"
-  "$runtime" run -it --rm --entrypoint /bin/sh --volume "$localBashHistoryFile:$remoteBashHistoryFile" --volume "$PWD:$PWD" -u root --workdir "$PWD" "${args[@]}" "$container" -c "$(_shit_run_script "$user" "$remoteBashHistoryFile")"
+  "$runtime" run -it --rm --entrypoint /bin/sh --volume "$localBashHistoryFile:$remoteBashHistoryFile" --volume "$PWD:$PWD" -u root --workdir "$PWD" "${args[@]}" "$container" -c "$(run_script "$user" "$remoteBashHistoryFile")"
   info "Remember, your container's bash_history is at '%s'" "$localBashHistoryFile"
 
   # todo add cron to clean up bash histories

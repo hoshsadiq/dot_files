@@ -107,7 +107,9 @@ zinit lucid wait light-mode as"program" from"gh-r" for \
     @nektos/act \
     @hoshsadiq/big-fat-converter \
     @hrkfdn/ncspot \
-    atinit'alias watch=viddy' @sachaos/viddy
+    atinit'alias watch=viddy' @sachaos/viddy \
+    pick'tfq' @mattcanty/terraform-query
+
 
 zinit lucid wait light-mode as"program" for \
     atclone"md2man -in=README.md -out=$ZPFX/share/man/man1/x11docker.1" pick'x11docker x11docker-gui' @mviereck/x11docker \
