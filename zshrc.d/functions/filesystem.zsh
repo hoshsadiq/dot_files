@@ -20,22 +20,6 @@ mkcd() {
   cd "$foundDir" || return $?
 }
 
-# cdup <number>
-# cds <number> of times up
-# cd 3 == cd ../../..
-cdup() {
-  local d=""
-  limit=$1
-  for ((i = 1; i <= limit; i++)); do
-    d="$d/.."
-  done
-  d=$(echo $d | sed 's/^\///')
-  if [[ -z "$d" ]]; then
-    d=..
-  fi
-  cd $d || return $?
-}
-
 force-link() {
   link="$1"
 

@@ -6,7 +6,7 @@
 #	signingKey = 3418AF82F76A502A507C5370AF4AB10ED697B4C9
 
 [core]
-	pager = "delta --theme='Monokai Extended Origin'"
+	pager = "delta"
 	editor = vim
 #	autocrlf = false
 	excludesfile = ~/dot_files/config/git/gitignore
@@ -35,6 +35,9 @@
 
 [delta]
 	line-numbers = true
+
+[include]
+    path = ~/dot_files/config/git/theme.gitconfig
 
 [push]
 	default = simple

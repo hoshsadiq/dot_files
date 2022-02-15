@@ -38,7 +38,6 @@ gsettings set org.gnome.desktop.notifications show-in-lock-screen false
 gsettings set org.gnome.desktop.interface clock-format '24h'
 gsettings set org.gtk.Settings.FileChooser clock-format '24h'
 
-
 gsettings set org.gnome.desktop.wm.keybindings unmaximize "[]"
 gsettings set org.gnome.desktop.wm.keybindings toggle-maximized "['<Super>m']"
 gsettings set org.gnome.desktop.wm.keybindings toggle-fullscreen "['<Super>f']"
@@ -62,7 +61,20 @@ gsettings set org.gnome.settings-daemon.plugins.power sleep-display-battery 600
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 900
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'suspend'
 
+gnome-extensions disable cosmic-workspaces@system76.com
 
+gsettings set org.gnome.mutter.keybindings toggle-tiled-left '[]'
+gsettings set org.gnome.mutter.keybindings toggle-tiled-right '[]'
+
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up '[]'
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down '[]'
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down '[]'
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up '[]'
+
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right '["<Control><Super>Right","<Control><Super>L"]'
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left '["<Control><Super>Left","<Control><Super>H"]'
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left "['<Shift><Super>Left','<Shift><Super>H']"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Shift><Super>Right','<Shift><Super>L']"
 
 
 # sudo ufw status

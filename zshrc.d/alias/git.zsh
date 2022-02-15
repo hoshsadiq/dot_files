@@ -32,3 +32,7 @@ git_suffix_clone() {
 }
 
 alias -s git="git_suffix_clone"
+
+git-repos() {
+	find . -name .git -type d -prune -exec dirname {} \;
+}

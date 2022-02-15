@@ -4,6 +4,7 @@ setopt auto_cd                   # Automatically cd in to directories if it's no
 setopt multios
 setopt local_options             # Options set/unset inside functions, stay within the function.
 setopt interactive_comments      # Allow me to comment lines in an interactive shell.
+setopt no_flow_control           # Free up Ctrl-Q and Ctrl-S
 
 # Completion Options
 setopt auto_list                 # Always automatically show a list of ambiguous completions.

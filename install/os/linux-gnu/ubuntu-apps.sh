@@ -175,13 +175,6 @@ done
 } &
 
 #{
-#  exec > >(sed 's/^/rust (stdout): /')
-#  exec 2> >(sed 's/^/rust (stderr): /' >&2)
-#
-#  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path --quiet -y
-#} &
-
-#{
 #  source /etc/os-release
 #
 #  exec > >(sed 's/^/alacritty (stdout): /')

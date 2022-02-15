@@ -26,7 +26,8 @@ repo_dir_template="git-peek.XXX"
 if [[ "$repo" =~ ^((https|git)(:\/\/|@)([^\/:]+)[\/:])?([^\/:]+)\/(.+)$ ]]; then
   repo_name="${BASH_REMATCH[6]}"
   [[ "${repo_name: -4}" == ".git" ]] && repo_name="${repo_name:0:-4}"
-  repo_dir_template="git-peek.${BASH_REMATCH[5]}_${repo_name}.XXX"
+  printf ":%s:\n" "${BASH_REMATCH[@]}"
+  repo_dir_template="git-peek.${BASH_REMATCH[2]}_${BASH_REMATCH[4]}_${BASH_REMATCH[5]}_${repo_name}.XXX"
 
   # default $username/$repo to github
   if [[ "${BASH_REMATCH[1]}" == "" ]]; then

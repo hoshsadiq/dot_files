@@ -23,4 +23,6 @@ alias map="xargs -n1"
 
 alias diff="git diff --no-index --exit-code --color-words"
 
+alias man="batman"
+
 alias ansistrip='sed "s/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g"'

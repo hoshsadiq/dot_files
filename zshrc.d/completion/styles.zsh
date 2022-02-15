@@ -30,7 +30,7 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle -e ':completion:*:hosts' hosts 'reply=(
   ${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) 2>/dev/null)"}%%[#| ]*}//,/ }
   ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2>/dev/null))"}%%\#*}
-  ${=${${${${(@M)${(f)"$(cat ~/.ssh/config 2>/dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
+  ${=${${${${(@M)${(f)"$(cat ~/.ssh/config ~/.ssh/config_local $(awk "tolower($0) ~ /\s*include/{print $2}" ~/.ssh/config) 2>/dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
 )'
 zstyle -e ':completion:*:(ping|host):*' hosts 'reply=(
   ${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) 2>/dev/null)"}%%[# ]*}//,/ }

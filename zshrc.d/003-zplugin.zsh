@@ -1,16 +1,17 @@
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    print -P "%F{33}%F{220}Installing %F{33}zdharma-continuum/zinit%F{220}…%f"
     command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}%F{34}Installation successful.%f%b" || \
+        print -P "%F{160}The clone has failed.%f%b"
 fi
 
 source "$HOME/.zinit/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
-zinit light-mode for zinit-zsh/z-a-patch-dl
+zinit light-mode for \
+  @zdharma-continuum/zinit-annex-patch-dl
 
 function _zsh_rebind_globalias() {
     bindkey -r -M viins " "
@@ -25,25 +26,22 @@ function _zsh_rebind_globalias() {
 zinit depth=1 wait silent for \
     OMZ::lib/grep.zsh \
     OMZ::lib/spectrum.zsh \
-    OMZ::lib/clipboard.zsh \
     OMZ::lib/termsupport.zsh \
     OMZ::plugins/command-not-found/command-not-found.plugin.zsh \
     atload'_zsh_rebind_globalias' OMZ::plugins/globalias/globalias.plugin.zsh
 
-zinit ice wait silent
-zinit light hlissner/zsh-autopair
+zinit light-mode silent wait silent as"program" for \
+  pick"tldr" @raylee/tldr
 
-zinit ice wait as"program" pick"tldr" silent
-zinit light raylee/tldr
-
-zinit lucid depth=1 wait for \
+zinit light-mode depth=1 wait silent for \
+  @hlissner/zsh-autopair \
   compile'{src/*.zsh,src/strategies/*}' atload'_zsh_autosuggest_start' @zsh-users/zsh-autosuggestions \
   blockf @Tarrasch/zsh-functional \
   as"program" pick"$ZPFX/bin/git-*" src"etc/git-extras-completion.zsh" make"PREFIX=$ZPFX" @tj/git-extras
 
 zinit lucid wait'1' for \
   @dracula/zsh-syntax-highlighting \
-  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" @zdharma/fast-syntax-highlighting
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" @zdharma-continuum/fast-syntax-highlighting
 
 zinit light-mode from'gh-r' as'program' wait'2' silent for \
   pick'shellcheck-*/shellcheck' koalaman/shellcheck \
@@ -58,7 +56,7 @@ zinit light-mode from'gh-r' as'program' wait'2' silent for \
 #zinit light-mode wait'2' silent for \
 #      @johanhaleby/kubetail
 
-# use https://github.com/zinit-zsh/z-a-readurl
+# use https://github.com/zdharma-continuum/zinit-annex-readurl
 # todo install minikube
 # todo install container-diff
 
@@ -96,24 +94,28 @@ __spicetify_setup_flatpak() {
   unfunction __spicetify_setup_flatpak
 }
 
-zinit lucid wait light-mode as"program" from"gh-r" for \
-    pick"gojq_*/gojq jq" atclone'ln -fs gojq_*/gojq jq; compdef _gojq jq' atpull'%atclone' atinit'zicompinit; zicdreplay' @itchyny/gojq \
+zinit light-mode wait silent as"program" from"gh-r" for \
+    atclone'ln -fs gojq_*/gojq jq; compdef _gojq jq' atpull'%atclone' pick"gojq_*/gojq jq" atinit'zicompinit; zicdreplay' @itchyny/gojq \
     atclone"gh completion -s zsh > _gh; mv gh*/share/man/man1/gh* $ZPFX/share/man/man1" atpull"%atclone" bpick'*_linux_amd64.tar.gz' pick"gh_*/bin/gh" @cli/cli \
     atclone"__spicetify_setup_spicetify_themes" atpull"%atclone" pick'spicetify' atload'__spicetify_setup_flatpak' @khanhas/spicetify-cli \
     atload'!source <(./saml2aws --completion-script-zsh)' @Versent/saml2aws \
     atload'!source <(./awless completion zsh)' @wallix/awless \
     bpick"*_linux_amd64.tar.gz" pick"dive" @wagoodman/dive \
+    @wader/fq \
     @matsuyoshi30/gitsu \
     @nektos/act \
+    @PaulJuliusMartinez/jless \
     @hoshsadiq/big-fat-converter \
     @hrkfdn/ncspot \
     atinit'alias watch=viddy' @sachaos/viddy \
-    pick'tfq' @mattcanty/terraform-query
+    pick'tfq' @mattcanty/terraform-query \
+    @benibela/xidel
 
 
-zinit lucid wait light-mode as"program" for \
+zinit light-mode wait silent as"program" for \
     atclone"md2man -in=README.md -out=$ZPFX/share/man/man1/x11docker.1" pick'x11docker x11docker-gui' @mviereck/x11docker \
     make'!' atclone"mv bin/go-md2man bin/md2man; md2man -in=go-md2man.1.md -out=$ZPFX/share/man/man1/md2man.1" atpull"%atclone" pick"bin/md2man" @cpuguy83/go-md2man
 
-#zinit lucid wait nocompletions from"gh-r" for \
-#      bpick"*.appimage" as"program" mv"nvim.appimage -> nvim" pick"nvim" neovim/neovim
+# for neovim
+zinit light-mode wait silent as'program' from"gh-r" for \
+      mv'tree-sitter* -> tree-sitter' pick'tree-sitter' @tree-sitter/tree-sitter

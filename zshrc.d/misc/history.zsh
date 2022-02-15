@@ -3,9 +3,9 @@ alias history='fc -t "%d/%m/%Y %H:%M:%S" -l 1'
 ## History file configuration
 [ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
 
-HISTSIZE=100000
-HISTFILESIZE=$HISTSIZE
-SAVEHIST=$HISTSIZE
+HISTSIZE=1200000  # Larger than $SAVEHIST for HIST_EXPIRE_DUPS_FIRST to work
+# shellcheck disable=SC2034
+SAVEHIST=1000000
 
 ## History command configuration
 setopt bang_hist              # Treat the '!' character specially during expansion.
@@ -27,15 +27,17 @@ bindkey -r '^[OB'
 function __bind_history_keys() {
   bindkey '^[OA' history-substring-search-up
   bindkey '^[OB' history-substring-search-down
+
+  unfunction __bind_history_keys
 }
 
 zinit ice depth=1 wait silent
-zinit light zdharma/history-search-multi-word
+zinit light zdharma-continuum/history-search-multi-word
 
 zinit ice depth=1 silent
 zinit snippet OMZ::lib/history.zsh
 
-zinit ice depth=1 silent atload'__bind_history_keys'
+zinit ice wait depth=1 silent atload'__bind_history_keys'
 zinit light zsh-users/zsh-history-substring-search
 
 function clear-scrollback-buffer {

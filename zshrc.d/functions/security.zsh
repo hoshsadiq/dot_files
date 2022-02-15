@@ -1,3 +1,44 @@
+import-gpg-key() {
+  key="$1"
+  shift
+
+  for server in "$@"; do
+      echo "Fetching GPG key $key from $server"
+
+      if gpg --keyserver "$server" --recv-keys "$key"; then
+          echo "Key '$key' successful added from server '$server'"
+          return 0
+      fi
+
+      echo "Failed add key '$key' from server '$server'. Try another server"
+  done
+
+  return 1
+}
+
+gpg-verify-file-sign() (
+  keyID="$1"
+  sigFile="$2"
+  file="$3"
+
+  declare -a keyservers=(
+      "hkp://keyserver.ubuntu.com:80" "keyserver.ubuntu.com"
+      "hkp://ha.pool.sks-keyservers.net:80" "ha.pool.sks-keyservers.net"
+      "hkp://p80.pool.sks-keyservers.net:80" "p80.pool.sks-keyservers.net"
+      "hkp://pgp.mit.edu:80" "pgp.mit.edu"
+  )
+
+  GNUPGHOME="$(mktemp -d -t gpgverifyhome.XXXXXXXXX)";
+  export GNUPGHOME
+
+  import-gpg-key "$keyID" "${keyservers[@]}"
+  printf "%s:6:\n" "$keyID" | gpg --import-ownertrust
+
+  tmpfifo="$(mktemp -u -t gpgverify.XXXXXXXXX)"
+  gpg --status-fd 3 --verify "$sigFile" "$file" 3>"$tmpfifo"
+  exec grep -Eq '^\[GNUPG:\] TRUST_(ULTIMATE|FULLY)' "$tmpfifo"
+)
+
 ssh-priv-to-pub() {
   sshPrivKey="$1"
   ssh-keygen -y -f "$sshPrivKey"

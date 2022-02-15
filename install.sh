@@ -12,7 +12,7 @@ elif command -v yum &>/dev/null; then
     sudo yum update && sudo yum install git zsh tmux -y
 fi
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/master/doc/install.sh)"
 
 zshExec="$(command -v zsh)"
 if command -v chsh >/dev/null; then

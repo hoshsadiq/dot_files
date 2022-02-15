@@ -13,17 +13,6 @@ zinit light Aloxaf/fzf-tab
 zinit ice silent as'program' pick'bin/*'
 zinit light bigH/git-fuzzy
 
-manf() {
-  MAN="$(command -pv man)"
-  if [ -n "$1" ]; then
-    batman "$@"
-    return $?
-  else
-    $MAN --manpath="$($MAN -w)" -k . | fzf --reverse --preview="echo {1,2} | sed -E -e 's/ \(/./' -e 's/\)\s*$//' | xargs batman --color=always" | awk '{print $1 "." $2}' | tr -d '()' | xargs -r batman
-    return $?
-  fi
-}
-
 rga-fzf() {
   RG_PREFIX="rga --files-with-matches"
   local file
@@ -185,4 +174,14 @@ fco() {
   fi
 
   git checkout "$(echo "$query" | awk '{print $2}')"
+}
+
+kp() {
+  local pid
+  pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+
+  if [ "x$pid" != "x" ]
+  then
+    echo $pid | xargs kill -${1:-9}
+  fi
 }

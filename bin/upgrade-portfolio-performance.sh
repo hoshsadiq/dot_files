@@ -11,12 +11,12 @@ gpg_key_id="E46E6F8FF02E4C83569084589239277F560C95AC"
 gpg_key_short_id="${gpg_key_id:(-16)}"
 gpg_key_location=https://github.com/buchen.gpg
 
-tmpdir="$(mktemp -d)" && trap 'rm -rf $tmpdir' EXIT || exit 255
-curl -fsSL "$gpg_key_location" | gpg --homedir "$tmpdir" --import 2>&1 | awk "/key $gpg_key_short_id.*imported/" >&2
+{ tmpdir="$(mktemp -d)" && trap 'rm -rf $tmpdir' EXIT; } || exit 255
+curl -fsSL "$gpg_key_location" | gpg --homedir "$tmpdir" --import 2>&1 | grep -qE "key $gpg_key_short_id.*imported" >&2
 printf "%s:6:\n" "$gpg_key_id" | gpg --homedir "$tmpdir" --import-ownertrust
 
 cd "$tmpdir"
-downloadUrl="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | jq --arg ending "$platformEnding" -r '.assets[] | select(.name | endswith($ending)).browser_download_url')"
+downloadUrl="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | jq --arg file_ending "$platformEnding" -r '.assets[] | select(.name | endswith($file_ending)).browser_download_url')"
 curl -fsSL "$downloadUrl" -o "$tmpdir/portfolio-performance.tar.gz"
 curl -fsSL "$downloadUrl.asc" -o "$tmpdir/portfolio-performance.tar.gz.asc"
 

@@ -150,7 +150,7 @@ run_script() {
   user_gid="$(id -g)"
 
   # language=shell
-  \cat <<EOF
+  command cat <<EOF
 [ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ] && >&2 printf "Must be run inside docker" && return 1
 
 set -eu
@@ -292,10 +292,10 @@ shit() {
   fi
 
   bashHistDir="$HOME/tmp/container-bash"
-  \mkdir -p "$bashHistDir"
+  command mkdir -p "$bashHistDir"
   localBashHistoryFile="$(mktemp -p "$bashHistDir" -t "${container//[:\/]/}.XXXXXXXX.bash_history")"
   trap 'cleanup_bash_history "$bashHistDir" "$localBashHistoryFile"' EXIT
-  \chmod 777 "$localBashHistoryFile"
+  command chmod 777 "$localBashHistoryFile"
   remoteBashHistoryFile="$(mktemp -t 'XXXXXXXX.bash_history' --dry-run)"
 
   if [[ -z "${args[*]}" ]]; then
@@ -304,8 +304,17 @@ shit() {
     info "Running %s container '%s' with args '%s'" "$runtime" "$container" "${args[*]}"
   fi
   info "The container's bash_history is at '%s'" "$localBashHistoryFile"
-  "$runtime" run -it --rm --entrypoint /bin/sh --volume "$localBashHistoryFile:$remoteBashHistoryFile" --volume "$PWD:$PWD" -u root --workdir "$PWD" "${args[@]}" "$container" -c "$(run_script "$user" "$remoteBashHistoryFile")"
-  info "Remember, your container's bash_history is at '%s'" "$localBashHistoryFile"
+  "$runtime" run --interactive \
+      --tty \
+      --rm \
+      --init \
+      --entrypoint /bin/sh \
+      --volume "$localBashHistoryFile:$remoteBashHistoryFile" \
+      --volume "$PWD:$PWD" \
+      --user root \
+      --workdir "$PWD" \
+      "${args[@]}" \
+      "$container" -c "$(run_script "$user" "$remoteBashHistoryFile")"
 
   # todo add cron to clean up bash histories
 }
