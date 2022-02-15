@@ -170,7 +170,7 @@ command -v microdnf >/dev/null && packages="\${packages/neovim/vim}"
 {
   command -v apt-get >/dev/null && echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf.d/quiet && apt-get update -qq && apt-get -qq install -y \$packages
   command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
-  command -v yum >/dev/null && yum install -q \$packages
+  command -v yum >/dev/null && yum install -y -q \$packages
   command -v microdnf >/dev/null && microdnf install \$packages >/dev/null 2>&1
 } 2>&1 | tee /tmp/container-setup.log
 

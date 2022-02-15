@@ -57,7 +57,14 @@ guiset_quiet hoverlink right
 " Comment toggler for Reddit, Hacker News and Lobste.rs
 bind ;c hint -Jc [class*="expand"],[class="togg"],[class="comment_folder"]
 
+" Some AWS magic
 bindurl ^https://signin.aws.amazon.com/saml f hint -Jc [class=saml-role]
+autocmd DocLoad launchdarkly\.okta\.com js const primaryAuth = document.querySelector('.primary-auth'); if (primaryAuth) { const userField = document.querySelector('#okta-signin-username'); if (userField.value !== "") { document.querySelector('#okta-signin-submit').click(); }}
+
+command aws-shd tabopen -c AWS[shd-svc] https://launchdarkly.okta.com/app/amazon_aws/0oaj4aow7gPk26Fy6356/login?fromHome=true
+command aws-ld tabopen -c AWS[ld] https://launchdarkly.okta.com/app/amazon_aws/0oaj4aow7gPk26Fy6356/login?fromHome=true
+
+autocmd DocLoad .*.runpanther.net\/sign-in js [...document.querySelectorAll('button')].filter(el => el.textContent.trim() === "Sign in with SSO")[0].click()
 
 " GitHub pull request add upstream command to clipboard
 " bind gys composite js (() => { var items = document.querySelector('.user-select-contain.head-ref a').querySelectorAll('.css-truncate-target'); return "git remote add "+items[0].textContent+" git@github.com:"+items[0].textContent+"/"+items[1].textContent+".git\ngit fetch " + items[0].textContent; })() | yank
@@ -67,6 +74,13 @@ bind yp composite js document.getElementById("clone-help-step-1").textContent.re
 
 " Git{Hub,Lab} git clone via SSH yank
 bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replaceAll(/(:[^\/]+\/[^\/]+).*/g, "$1").replace(/$/,".git") | clipboard yank
+
+" Automatically sign into to SSO
+autocmd DocLoad github\.com js const ssoForm = document.querySelector('form[action*="/saml/"]'); if (ssoForm) { ssoForm.submit(); }
+autocmd DocLoad github\.com\/notifications js const ssoLink = document.querySelector('a[href^="/orgs/"][href*="/sso?"]'); if (ssoLink) { ssoLink.click(); }
+
+" Old reddit if not logged in.
+autocmd DocLoad ^http(s?)://www.reddit.com js if (document.getElementById("SearchDropdown")) tri.excmds.urlmodify("-t", "www", "old")
 
 " As above but execute it and open terminal in folder
 " bind ,g js let uri = document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replace(/$/,".git"); tri.native.run("cd ~/tmp/projects; git clone " + uri + "; cd \"$(basename \"" + uri + "\" .git)\"; st")

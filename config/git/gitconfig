@@ -7,7 +7,7 @@
 
 [core]
 	pager = "delta"
-	editor = vim
+	editor = lvim
 #	autocrlf = false
 	excludesfile = ~/dot_files/config/git/gitignore
 	attributesfile = ~/dot_files/config/git/gitattributes

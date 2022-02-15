@@ -1,2 +1,4 @@
 [include]
 	path = ~/dot_files/config/git/gitconfig
+[core]
+	editor = lvim

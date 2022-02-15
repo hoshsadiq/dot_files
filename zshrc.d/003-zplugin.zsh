@@ -48,8 +48,7 @@ zinit light-mode from'gh-r' as'program' wait'2' silent for \
   jesseduffield/lazydocker \
   jesseduffield/lazygit
 
-#zinit for light-mode as'program' wait'2' silent \
-#      pick'bin/*' @tfutils/tfenv
+# zinit for light-mode as'program' wait'2' silent \
 #      pick'gnome-shell-extension-installer' @brunelli/gnome-shell-extension-installer
 
 # todo use kubectl krew instead.
@@ -96,7 +95,6 @@ __spicetify_setup_flatpak() {
 
 zinit light-mode wait silent as"program" from"gh-r" for \
     atclone'ln -fs gojq_*/gojq jq; compdef _gojq jq' atpull'%atclone' pick"gojq_*/gojq jq" atinit'zicompinit; zicdreplay' @itchyny/gojq \
-    atclone"gh completion -s zsh > _gh; mv gh*/share/man/man1/gh* $ZPFX/share/man/man1" atpull"%atclone" bpick'*_linux_amd64.tar.gz' pick"gh_*/bin/gh" @cli/cli \
     atclone"__spicetify_setup_spicetify_themes" atpull"%atclone" pick'spicetify' atload'__spicetify_setup_flatpak' @khanhas/spicetify-cli \
     atload'!source <(./saml2aws --completion-script-zsh)' @Versent/saml2aws \
     atload'!source <(./awless completion zsh)' @wallix/awless \
@@ -109,6 +107,7 @@ zinit light-mode wait silent as"program" from"gh-r" for \
     @hrkfdn/ncspot \
     atinit'alias watch=viddy' @sachaos/viddy \
     pick'tfq' @mattcanty/terraform-query \
+    pick"nvim*/bin/nvim" @neovim/neovim \
     @benibela/xidel
 
 

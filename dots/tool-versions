@@ -1,9 +1,9 @@
 awscli 2.2.13
-golang 1.17
+golang 1.17.3
 golangci-lint 1.44.0
-goreleaser 0.181.1
+goreleaser 1.2.5
 hugo 0.88.1
-nodejs 16.3.0
+nodejs 14.15.5
 packer 1.7.2
 php 7.4.22
 potato 0.83.1

@@ -6,3 +6,5 @@
 *.iml
 *.iws
 .idea-compl
+
+*no-commit*
