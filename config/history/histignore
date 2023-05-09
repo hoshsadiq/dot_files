@@ -22,7 +22,7 @@ cmd:car
 cmd:xit
 cmd:kill
 
-# todo, this shouldn't be ignored by this: gits | awk '/elasticache/{gsub("modified:", "", $0); print}' | xargs -n1 git add
+!^\s*gits\s*\|
 cmd:gits
 
 !^gh api

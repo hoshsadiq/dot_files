@@ -74,9 +74,9 @@ function _zshaddhistory_ignore_command {
 	local show_msg msg_prefix msg_suffix
 	local except_show_msg except_msg_prefix except_msg_suffix
 
-	show_msg="${HISTIGNORE_SHOW_MSG:-true}"
-	msg_prefix="${HISTIGNORE_MSG_PREFIX:-\033[94m \uf12a histignore: }"
-	msg_suffix="${HISTIGNORE_MSG_SUFFIX:-\033[0m}"
+	show_msg="${HISTIGNORE_SHOW_MSG:-false}"
+	msg_prefix="${HISTIGNORE_MSG_PREFIX:-\033[94m \uf12a histignore: }" # "
+	msg_suffix="${HISTIGNORE_MSG_SUFFIX:-\033[0m}" # "
 
 	except_show_msg="${HISTIGNORE_EXCEPT_MSG:-$msg}"
 	except_msg_prefix="${HISTIGNORE_EXCEPT_MSG_PREFIX:-$msg_prefix}"

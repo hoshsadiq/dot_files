@@ -1,3 +1,18 @@
+apt-gpg-key-migrate() {
+  local keyID="$1"
+  local sourceFileName="$2"
+
+  sudo apt-key export "${keyID}" | gpg --dearmor | sudo tee "/usr/share/keyrings/${sourceFileName}.gpg" >/dev/null
+  sudo apt-key del "${keyID}"
+
+  if grep -qF '[' "/etc/apt/sources.list.d/${sourceFileName}.list"; then
+    sudo sed -i "s@\]@ signed-by=/usr/share/keyrings/${sourceFileName}.gpg]@" "/etc/apt/sources.list.d/${sourceFileName}.list"
+  else
+    echo "no ] found in file '/etc/apt/sources.list.d/${sourceFileName}.list'... plz implement"
+    return 1
+  fi
+}
+
 import-gpg-key() {
   key="$1"
   shift

@@ -94,9 +94,8 @@ __spicetify_setup_flatpak() {
 }
 
 zinit light-mode wait silent as"program" from"gh-r" for \
-    atclone'ln -fs gojq_*/gojq jq; compdef _gojq jq' atpull'%atclone' pick"gojq_*/gojq jq" atinit'zicompinit; zicdreplay' @itchyny/gojq \
-    atclone"__spicetify_setup_spicetify_themes" atpull"%atclone" pick'spicetify' atload'__spicetify_setup_flatpak' @khanhas/spicetify-cli \
-    atload'!source <(./saml2aws --completion-script-zsh)' @Versent/saml2aws \
+    atclone'mv gojq_*/_gojq .; ln -fs gojq_*/gojq jq; compdef _gojq jq' atpull'%atclone' pick"gojq_*/gojq jq" atinit'zicompinit; zicdreplay' @itchyny/gojq \
+    atclone"__spicetify_setup_spicetify_themes" atpull"%atclone" pick'spicetify' atload'__spicetify_setup_flatpak' @spicetify/spicetify-cli \
     atload'!source <(./awless completion zsh)' @wallix/awless \
     bpick"*_linux_amd64.tar.gz" pick"dive" @wagoodman/dive \
     @wader/fq \
@@ -104,16 +103,15 @@ zinit light-mode wait silent as"program" from"gh-r" for \
     @nektos/act \
     @PaulJuliusMartinez/jless \
     @hoshsadiq/big-fat-converter \
-    @hrkfdn/ncspot \
     atinit'alias watch=viddy' @sachaos/viddy \
     pick'tfq' @mattcanty/terraform-query \
     pick"nvim*/bin/nvim" @neovim/neovim \
-    @benibela/xidel
-
+    @benibela/xidel \
+    @sters/yaml-diff
 
 zinit light-mode wait silent as"program" for \
     atclone"md2man -in=README.md -out=$ZPFX/share/man/man1/x11docker.1" pick'x11docker x11docker-gui' @mviereck/x11docker \
-    make'!' atclone"mv bin/go-md2man bin/md2man; md2man -in=go-md2man.1.md -out=$ZPFX/share/man/man1/md2man.1" atpull"%atclone" pick"bin/md2man" @cpuguy83/go-md2man
+    make'!' atclone"mv bin/go-md2man bin/md2man; ./bin/md2man -in=go-md2man.1.md -out=$ZPFX/share/man/man1/md2man.1" atpull"%atclone" pick"bin/md2man" @cpuguy83/go-md2man
 
 # for neovim
 zinit light-mode wait silent as'program' from"gh-r" for \

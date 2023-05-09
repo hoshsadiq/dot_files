@@ -1,6 +1,8 @@
-# export JAVA_HOME='/usr/lib/jvm/java-11-openjdk-amd64'
-
 export DOT_FILES="$HOME/dot_files"
+
 source $DOT_FILES/config/zsh/zshrc
 
+path-add "$HOME/.local/bin"
 path-add "$HOME/.cargo/bin"
+path-add "$HOME/workspace/dev/bin"
+#source "$(command -v virtualenvwrapper.sh)"

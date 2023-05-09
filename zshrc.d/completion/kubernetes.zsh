@@ -12,7 +12,7 @@ zinit ice wait='2' lucid pick'/dev/null' sbin='kubectx' sbin='kubens' \
   atpull='%atclone' run-atpull
 zinit light ahmetb/kubectx
 
-zinit ice haspodman id-as'podman---completions' \
+zinit ice has'podman' id-as'podman---completions' \
         wait silent blockf nocompile \
         atinit"zinit cdreplay -q" \
         atclone'podman completion zsh >! _podman' \

@@ -75,10 +75,6 @@ bind yp composite js document.getElementById("clone-help-step-1").textContent.re
 " Git{Hub,Lab} git clone via SSH yank
 bind yg composite js "git clone " + document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replaceAll(/(:[^\/]+\/[^\/]+).*/g, "$1").replace(/$/,".git") | clipboard yank
 
-" Automatically sign into to SSO
-autocmd DocLoad github\.com js const ssoForm = document.querySelector('form[action*="/saml/"]'); if (ssoForm) { ssoForm.submit(); }
-autocmd DocLoad github\.com\/notifications js const ssoLink = document.querySelector('a[href^="/orgs/"][href*="/sso?"]'); if (ssoLink) { ssoLink.click(); }
-
 " Old reddit if not logged in.
 autocmd DocLoad ^http(s?)://www.reddit.com js if (document.getElementById("SearchDropdown")) tri.excmds.urlmodify("-t", "www", "old")
 

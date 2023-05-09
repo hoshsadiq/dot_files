@@ -31,14 +31,12 @@ _zsh_asdf_install_all_tools() {
 }
 
 _zsh_asdf_load() {
-  trap 'unfunction _zsh_asdf_load _zsh_asdf_install_all_tools' EXIT;
-
   # shellcheck disable=SC1090
-  if asdf current direnv >/dev/null; then
+  if [[ -f ~/.asdf/installs/direnv ]] && asdf current direnv >/dev/null; then
     source <(asdf exec direnv hook zsh)
   fi
 
-  source "$HOME/.asdf/plugins/java/set-java-home.zsh"
+  [[ -f "$HOME/.asdf/plugins/java/set-java-home.zsh" ]] && source "$HOME/.asdf/plugins/java/set-java-home.zsh"
 
   zpcompinit -q
   zpcdreplay -q

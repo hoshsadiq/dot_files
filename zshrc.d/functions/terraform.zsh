@@ -1,27 +1,37 @@
-# automatically copy terraform plan output
-# todo this should be update to terraform once rake isn't use any more?
-rake() {
-  if [[ "$1" == "plan" ]]; then
-    command rake "$@" | tee >(tf-plan-only | clipcopy)
+ws2wsfile() {
+  local ws
+  ws="$1"
+  if [[ $ws =~ ([a-z\-]+)_(catamorphic_dr|[a-z\-]+)_([a-z0-9\-]+)_([a-z\-]+)_([a-z0-9\-]+) ]]; then
+    printf "accounts/terraform-cloud/workspaces/%s_%s/workspace" "${match[1]}" "${match[2]}"
+    printf "_%s" "${match[1]}" "${match[2]}" "${match[3]}" "${match[4]}" "${match[5]}"
+    printf ".tf"
   else
-    command rake "$@"
+    >&2 "invalid workspace: %s" "$ws"
+    return 1
   fi
 }
 
-__tfc_api_prefix="https://app.terraform.io/api/v2"
-
-tf-plan-only() {
-  sed -r -n '/^-{72}$/,/^-{72}$/p'
+ws2dir() {
+  local ws
+  ws="$1"
+  if [[ $ws =~ ([a-z\-]+)_(catamorphic_dr|[a-z\-]+)_([a-z0-9\-]+)_([a-z\-]+)_([a-z0-9\-]+) ]]; then
+    printf "accounts"
+    printf "/%s" "${match[1]}" "${match[2]}" "${match[3]}" "${match[4]}" "${match[5]}"
+  else
+    >&2 "invalid workspace: %s" "$ws"
+    return 1
+  fi
 }
 
-tf-atlas-token() {
-  local credentials_file
-  credentials_file="$HOME/.terraform.d/credentials.tfrc.json"
-  [[ -r "$credentials_file" ]] || {
-    printf >&2 "Unable to locate terraform credentials file. Make sure you run terraform login first!"
-    return 1
-  }
-  jq -r '.credentials["app.terraform.io"].token' "$credentials_file"
+dir2ws() {
+  dir="$1"
+  s=${dir//\/}
+  if ((((${#dir} - ${#s}) / 1) != 5)); then
+    dir="${dir//.\/}"
+    dir="${dir%/}"
+  fi
+
+  awk -F/ '{print $2"_"$3"_"$4"_"$5"_"$6}' <<<"$dir"
 }
 
 tf-list-unused-vars() {
@@ -50,137 +60,3 @@ $tf_modules
 EOF
 }
 
-tfc-curl() {
-  local tfc_path
-  tfc_path="$1"
-  shift
-
-  curl --silent --fail --show-error --header "Authorization: Bearer $(tf-atlas-token)" "$@" "https://app.terraform.io/api/v2/${tfc_path#/}"
-}
-
-tfc-get-first-org() {
-  local orgs org_count org workspace
-  orgs="$(tfc-get-orgs)"
-  org_count="$(jq -r '.data|length' <<<"$orgs")"
-  if ((org_count != 1)); then
-    printf >&2 "expected 1 org in account, found %d" "$org_count"
-  fi
-  jq -r '.data[0].attributes.name' <<<"$orgs"
-}
-
-tfc-get-orgs() {
-  tfc-curl "/organizations"
-}
-
-tfc-get-workspaces() {
-  all_workspaces=""
-  url_path="/organizations/$(tfc-get-first-org)/workspaces?page%5Dsize=100"
-  while true; do
-    workspaces="$(tfc-curl "$url_path")"
-    all_workspaces="$(jq -s '.[0] + .[1]' <<<"$all_workspaces"$'\n'"$(jq .data <<<"$workspaces")")"
-
-    if [[ "$(jq -r .links.next <<<"$workspaces")" == "null" ]]; then
-      jq -s '{data: .[0], links: .[1].links, meta: .[1].meta}' <<<"$all_workspaces"$'\n'"$workspaces"
-      break
-    fi
-
-    next_link="$(jq -r .links.next <<<"$workspaces")"
-    if [[ ${next_link:0:${#__tfc_api_prefix}} != "$__tfc_api_prefix" ]]; then
-      printf >&2 "Failed to retrieve next link, expected it to be prefixed with %s but was not" "$__tfc_api_prefix"
-      return 1
-    fi
-
-    url_path="${next_link:${#__tfc_api_prefix}}"
-  done
-}
-
-tfc-get-ws-by-name() {
-  local org workspace
-  org="$(tfc-get-first-org)"
-  workspace="$1"
-
-  tfc-curl "/organizations/$org/workspaces/$workspace"
-}
-
-tfc-get-ws-teams() {
-  local all_teams team
-
-  all_teams=""
-  while read -r team_id team_access_id; do
-    team="$(tfc-curl "/teams/$team_id")"
-    all_teams="$(jq -s '.[0] + .[1]' <<<"$all_teams"$'\n'"$(jq --arg team_access_id "$team_access_id" '[.data + {team_access_id: $team_access_id}]' <<<"$team")")"
-  done < <(tfc-get-team-access "$1" | jq '.data[] | [.relationships.team.data.id, .id] | @tsv' -r)
-
-  jq '{data: .}' <<<"$all_teams"
-}
-
-tfc-get-team-access() {
-  tfc-curl "/team-workspaces?filter%5Bworkspace%5D%5Bid%5D=$(tfc-get-ws-id "$1")"
-}
-
-tfc-get-ws-notification-configurations() {
-  tfc-curl "/workspaces/$(tfc-get-ws-id "$1")/notification-configurations"
-}
-
-tfc-get-ws-vars() {
-  tfc-curl "/workspaces/$(tfc-get-ws-id "$1")/vars"
-}
-
-tfc-get-ws-id() {
-  local name
-  name="$1"
-  if ((${#name} >= 3)) && [[ "${name:0:3}" == "ws-" ]]; then
-    echo "$name"
-    return
-  fi
-
-  tfc-get-ws-by-name "$@" | jq '.data.id' -r
-}
-
-tfc-get-state() {
-  tfc-curl "/workspaces/$(tfc-get-ws-id "$1")/current-state-version" --header "content-type: application/vnd.api+json" | jq '.data.attributes."hosted-state-download-url"' -r | xargs curl --silent --fail --show-error
-}
-
-tfc-get-state-by-ws-name() {
-  tfc-curl "/runs/$1/plan" --header "content-type: application/vnd.api+json" | jq '.data.attributes."log-read-url"' -r | xargs curl -s
-}
-
-tfc-get-run() {
-  tfc-curl "/runs/$1"
-}
-
-tfc-get-run-plan() {
-  tfc-curl "/runs/$1/plan" --header "content-type: application/vnd.api+json" | jq '.data.attributes."log-read-url"' -r | xargs curl -s
-}
-
-tfc-create-run() {
-  local workspace_id run_message
-
-  workspace_id="$(tfc-get-ws-id "$1")"
-  run_message="${2:-Run triggered from CLI via API}"
-
-  payload="$(
-    cat <<JSON | jq --arg run_message "$run_message" --arg workspace_id "$workspace_id" '.data.attributes.message=$run_message | .data.relationships.workspace.data.id=$workspace_id'
-{
-  "data": {
-    "attributes": {
-    },
-    "type":"runs",
-    "relationships": {
-      "workspace": {
-        "data": {
-          "type": "workspaces"
-        }
-      }
-    }
-  }
-}
-JSON
-  )"
-
-  tfc-curl \
-    --header "Content-Type: application/vnd.api+json" \
-    --request POST \
-    --data "$payload" \
-    https://app.terraform.io/api/v2/runs
-}

@@ -6,4 +6,4 @@ gh-get-latest-release() {
 }
 
 zinit lucid wait light-mode as"program" from"gh-r" for \
-    atclone"gh completion -s zsh > _gh; mv gh*/share/man/man1/gh* $ZPFX/share/man/man1" atpull"%atclone" bpick'*_linux_amd64.tar.gz' pick"gh_*/bin/gh" @cli/cli \
+    atclone"./gh_*/bin/gh completion -s zsh > _gh; mv gh*/share/man/man1/gh* $ZPFX/share/man/man1" atpull"%atclone" bpick'*_linux_amd64.tar.gz' pick"gh_*/bin/gh" @cli/cli \

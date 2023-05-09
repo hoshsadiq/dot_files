@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+__default_tfe_api_domain="app.terraform.io"
+
+tfe-atlas-token() {
+  local credentials_file
+  credentials_file="$HOME/.terraform.d/credentials.tfrc.json"
+  [[ -r "$credentials_file" ]] || {
+    printf >&2 "Unable to locate terraform credentials file. Make sure you run terraform login first!"
+    return 1
+  }
+  jq -r --arg api_domain "${TFE_DOMAIN:-$__default_tfe_api_domain}" '.credentials[$api_domain].token' "$credentials_file"
+}
+
+tfe-curl() {
+  local tfc_path
+  tfc_path="${1#/}"
+  shift
+
+  if [[ $tfc_path == "api/v2/"* ]]; then
+    tfc_path="${tfc_path:7}"
+  fi
+
+  curl --silent --fail --show-error --header "Authorization: Bearer $(tfe-atlas-token)" "$@" "https://${TFE_DOMAIN:-$__default_tfe_api_domain}/api/v2/${tfc_path}"
+}
+
+tfe-get-first-org() {
+  local orgs org_count org workspace
+  orgs="$(tfe-get-orgs)"
+  org_count="$(jq -r '.data|length' <<<"$orgs")"
+  if ((org_count != 1)); then
+    printf >&2 "expected 1 org in account, found %d" "$org_count"
+  fi
+  jq -r '.data[0].attributes.name' <<<"$orgs"
+}
+
+tfe-get-orgs() {
+  tfe-curl "/organizations"
+}
+
+tfe-get-workspaces() {
+  local tfc_api all_workspaces url_path workspaces next_link
+
+  tfc_api="https://${TFE_DOMAIN:-$__default_tfe_api_domain}/api/v2"
+
+  all_workspaces=""
+  url_path="/organizations/$(tfe-get-first-org)/workspaces?page%5Dsize=100"
+  while true; do
+    workspaces="$(tfe-curl "$url_path")"
+    all_workspaces="$(jq -s '.[0] + .[1]' <<<"$all_workspaces"$'\n'"$(jq .data <<<"$workspaces")")"
+
+    if [[ "$(jq -r .links.next <<<"$workspaces")" == "null" ]]; then
+      jq -s '{data: .[0], links: .[1].links, meta: .[1].meta}' <<<"$all_workspaces"$'\n'"$workspaces"
+      break
+    fi
+
+    next_link="$(jq -r .links.next <<<"$workspaces")"
+    if [[ ${next_link:0:${#tfc_api}} != "$tfc_api" ]]; then
+      printf >&2 "Failed to retrieve next link, expected it to be prefixed with %s but was not" "$tfc_api"
+      return 1
+    fi
+
+    url_path="${next_link:${#tfc_api}}"
+  done
+}
+
+tfe-get-ws-by-name() {
+  local org workspace
+  org="$(tfe-get-first-org)"
+  workspace="$1"
+
+  tfe-curl "/organizations/$org/workspaces/$workspace"
+}
+
+tfe-get-ws-teams() {
+  local all_teams team
+
+  all_teams=""
+  while read -r team_id team_access_id; do
+    team="$(tfe-curl "/teams/$team_id")"
+    all_teams="$(jq -s '.[0] + .[1]' <<<"$all_teams"$'\n'"$(jq --arg team_access_id "$team_access_id" '[.data + {team_access_id: $team_access_id}]' <<<"$team")")"
+  done < <(tfe-get-team-access "$1" | jq '.data[] | [.relationships.team.data.id, .id] | @tsv' -r)
+
+  jq '{data: .}' <<<"$all_teams"
+}
+
+tfe-get-team-access() {
+  tfe-curl "/team-workspaces?filter%5Bworkspace%5D%5Bid%5D=$(tfe-get-ws-id "$1")"
+}
+
+tfe-get-ws-notification-configurations() {
+  tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/notification-configurations"
+}
+
+tfe-get-ws-vars() {
+  tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/vars"
+}
+
+tfe-get-ws-id() {
+  local name
+  name="$1"
+  if ((${#name} >= 3)) && [[ "${name:0:3}" == "ws-" ]]; then
+    echo "$name"
+    return
+  fi
+
+  tfe-get-ws-by-name "$@" | jq '.data.id' -r
+}
+
+tfe-get-state() {
+  tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/current-state-version" --header "content-type: application/vnd.api+json" |
+    jq '.data.attributes."hosted-state-download-url"' -r |
+    xargs curl --silent --fail --show-error
+}
+
+tfe-get-plan-by-run-id() {
+  tfe-curl "/runs/$1/plan" --header "content-type: application/vnd.api+json" | jq '.data.attributes."log-read-url"' -r | xargs curl -s
+}
+
+tfe-run-cancel() {
+  tfe-curl "/runs/$1/actions/cancel"
+}
+
+tfe-get-run() {
+  tfe-curl "/runs/$1"
+}
+
+tfe-get-run-plan-json-filter() {
+  local ignored_addresses=""
+  local remove_attributes=""
+
+  while getopts "v:f:" opt; do
+    case "$opt" in
+    v)
+      ignored_addresses="${ignored_addresses:+$ignored_addresses|}$OPTARG"
+      ;;
+    f)
+      remove_attributes="${remove_attributes:+$remove_attributes|}$OPTARG"
+      ;;
+    *) ;;
+    esac
+  done
+
+  tfe-curl "/runs/$1/plan/json-output" --header "content-type: application/vnd.api+json" -L |
+    jq --arg ignored_addresses "$ignored_addresses" -c '.resource_changes[] | select(($ignored_addresses | split("|")) | index(.address) == null)' |
+    while read -r -d $'\n' diff; do
+      if jq --argjson diff "$diff" \
+        --arg remove_attributes "$remove_attributes" \
+        -n '
+           def post_recurse(f): def r: (f | select(. != null) | r), .; r;
+           def post_recurse: post_recurse(.[]?);
+           ($diff.change.before | del(.tags, .tags_all) |
+               if ($diff.type == "aws_iam_role") and ($diff.change.before | has("assume_role_policy")) and ($diff.change.after | has("assume_role_policy") | not) then
+                 del(.assume_role_policy)
+               else
+                 .
+               end |
+               (post_recurse | arrays) |= sort) as $a |
+           ($diff.change.after | del(.tags, .tags_all) | (post_recurse | arrays) |= sort) as $b |
+           $a == $b' | grep -qFx false; then
+        return 1
+      fi
+    done
+}
+
+tfe-get-run-plan-json() {
+  tfe-curl "/runs/$1/plan/json-output" --header "content-type: application/vnd.api+json" -L
+}
+
+tfe-get-run-plan() {
+  tfe-curl "/runs/$1/plan" --header "content-type: application/vnd.api+json" | jq '.data.attributes."log-read-url"' -r | xargs curl -s
+}
+
+tfe-get-state-resource-by-provider-type() {
+  local ws="$1"
+  local provider_type="$2"
+  tfe get-state "$ws" |
+    jq --arg provider_type "$provider_type" '.resources |= map(select(select(.provider == "provider[\"\($provider_type)\"]" and .mode != "data")))'
+}
+
+tfe-state-filter-attr-map() {
+  local attr_key="$1"
+  local attr_value="${2:-}"
+  local attr_name="${3:-tags}"
+  jq \
+    --arg attr_name "$attr_name" \
+    --arg attr_key "$attr_key" \
+    --arg attr_value "$attr_value" \
+    '.resources |= (
+        map(.instances |= map(select(.attributes|has($attr_name))))
+      | if $attr_value != "" then map(.instances |= map(select(.attributes."\($attr_name)" == $attr_value))) end
+      | map(select(.instances|length > 0))
+    )'
+}
+
+tfe-create-run() {
+  local workspace_id run_message
+
+  workspace_id="$(tfe-get-ws-id "$1")"
+  run_message="${2:-Run triggered from CLI via API}"
+
+  payload="$(
+    cat <<JSON | jq --arg run_message "$run_message" --arg workspace_id "$workspace_id" '.data.attributes.message=$run_message | .data.relationships.workspace.data.id=$workspace_id'
+{
+  "data": {
+    "attributes": {
+    },
+    "type":"runs",
+    "relationships": {
+      "workspace": {
+        "data": {
+          "type": "workspaces"
+        }
+      }
+    }
+  }
+}
+JSON
+  )"
+
+  tfe-curl /runs --header "Content-Type: application/vnd.api+json" \
+    --request POST \
+    --data "$payload"
+}
+
+#tfe-update-workspace() {
+#  local workspace_id
+#
+#  workspace_id="$(tfe-get-ws-id "$1")"
+#
+#  payload="$(
+#    cat <<JSON | jq --arg workspace_id "$workspace_id" '.data.relationships.workspace.data.id=$workspace_id | data.attributes.execution-mode="local"'
+#{
+#  "data": {
+#    "attributes": {},
+#    "type":"workspaces"
+#  }
+#}
+#JSON
+#  )"
+#
+#  tfe-curl /runs\
+#    --header "Content-Type: application/vnd.api+json" \
+#    --request POST \
+#    --data "$payload"
+#}
+
+main() {
+  local cmd="$1"
+  shift
+
+  if declare -f -F "tfe-${cmd}" >/dev/null; then
+    "tfe-${cmd}" "$@"
+  fi
+}
+
+main "$@"

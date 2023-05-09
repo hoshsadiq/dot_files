@@ -14,6 +14,8 @@ inArray () {
 }
 
 path-add() {
+  local paths add_before # ensure_before
+
   paths=()
   add_before=false
   for arg in "$@"; do
@@ -107,6 +109,8 @@ if [[ -d "$HOME/apps/android" ]]; then
   path-add "$HOME/apps/android/tools/bin"
 fi
 [[ -n "$JAVA_HOME" ]] && path-add "$JAVA_HOME/bin"
+
+export GOPATH="$HOME/.gopath"
 
 # always at the very end.
 #path-add ./bin
