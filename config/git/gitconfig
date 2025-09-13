@@ -6,7 +6,6 @@
 #	signingKey = 3418AF82F76A502A507C5370AF4AB10ED697B4C9
 
 [core]
-	pager = "delta"
 	editor = lvim
 #	autocrlf = false
 	excludesfile = ~/dot_files/config/git/gitignore
@@ -16,14 +15,19 @@
 	untrackedCache = true
 	#hooksPath = ~/dot_files/config/git/hooks
 
-;[url "git@github.com:"]
-;	insteadOf = https://github.com/
-;	insteadOf = git@github.com/
-;[url "git://"]
-;	insteadOf = https://
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
 
 [fetch]
 	prune = true
+    pruneTags = true
+    all = true
 
 [color]
 	diff = auto
@@ -33,17 +37,29 @@
 	interactive = auto
 	pager = true
 
-[delta]
-	line-numbers = true
-
 [include]
-    path = ~/dot_files/config/git/theme.gitconfig
+    path = ~/dot_files/config/git/delta.gitconfig
+
+# [include]
+#     path = ~/dot_files/config/git/theme.gitconfig
+
+[column]
+    ui = auto
 
 [push]
 	default = simple
+    autoSetupRemote = true
+    followTags = true
 
 [branch]
 	autosetupmerge = true
+	sort = -committerdate
+
+[tag]
+    sort = version:refname
+
+[init]
+    defaultBranch = main
 
 [alias]
 	unstage = reset HEAD --
@@ -123,7 +139,9 @@
 	compactionHeuristic = true
 	indentHeuristic = true
 	mnemonicPrefix = true
-	renames = copies
+    renames = true
+    algorithm = histogram
+    colorMoved = plain
 
 [diff "json"]
 	textconv = gojq .
@@ -150,6 +168,7 @@
 
 [merge]
 	tool = intellij
+
 [mergetool "intellij"]
 	cmd = idea merge "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 	trustExitCode = true
@@ -164,6 +183,9 @@
 	changed = green
 	untracked = cyan
 
+[color "diff"]
+    whitespace = red reverse
+
 [apply]
 	whitespace = fix
 
@@ -177,7 +199,9 @@
 	ff = only
 
 [rebase]
-	autoStash = true
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
 
 [sendpack]
 	sideband = false
@@ -192,7 +216,8 @@
 [grep]
 	lineNumber = true
 [help]
-	autoCorrect = 1
+	autocorrect = 1
 [log]
 	abbrevCommit = true
 	decorate = short
+    date = iso

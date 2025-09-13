@@ -1,0 +1,22 @@
+# vim: syntax=gitconfig
+# vim: tabstop=4
+
+[core]
+    pager = "delta"
+
+[blame]
+    pager = "delta"
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    line-numbers = true
+    navigate = true
+    true-color = always
+
+[merge]
+    conflictStyle = zdiff3
+
+[alias]
+    diff-side-by-side = -c delta.features=side-by-side diff

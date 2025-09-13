@@ -3,6 +3,7 @@
 set -euo pipefail
 
 # todo some of these functions should go into a separate script and mounted instead of output as a script.
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 run_usage() {
   if [[ " $* " != *" -h "* ]] && [[ " $* " != *" --help "* ]]; then
@@ -39,165 +40,6 @@ warn() {
 }
 
 # todo maybe utilise: https://github.com/LEI/porcelain/blob/master/porcelain.sh
-get_bash_profile() {
-  local bashHistoryFile
-  bashHistoryFile="$1"
-
-  \cat <<'EOF'
-function __fastgit_ps1 () {
-    return 0
-
-    local headfile head branch status
-    local dir="$PWD"
-
-    while [ -n "$dir" ]; do
-        if [ -e "$dir/.git/HEAD" ]; then
-            headfile="$dir/.git/HEAD"
-            break
-        fi
-        dir="${dir%/*}"
-    done
-
-    if [ -e "$headfile" ]; then
-        read -r head < "$headfile" || return
-        case "$head" in
-            ref:*) branch="${head#*/}"; branch="${branch#*/}" ;;
-            "") branch="" ;;
-            *) branch="${head:0:7}" ;;
-        esac
-    fi
-
-    if [ -z "$branch" ]; then
-        return 0
-    fi
-
-    # modified from https://github.com/jethrokuan/git_porcelain/blob/master/functions/git_porcelain.fish
-    if command -v git >/dev/null; then
-      status="$(git status --porcelain 2>/dev/null | \
-                    awk "
-                      /^A[MCDR ]/                  { sa++ }
-                      /^M[ACDRM ]/ || /^[ACDRM ]M/ { sm++ }
-                      /^D[AMCR ]/ || /^[AMCR ]D/   { sd++ }
-                      /^R[AMCD ]/                  { sr++ }
-                      /^C[AMDR ]/                  { sc++ }
-                      /^\?\?/                      { uu++ }
-                      END {
-                        if (sa > 0) { printf(\" %dA\", sa); }
-                        if (sm > 0) { printf(\" %dM\", sm); }
-                        if (sd > 0) { printf(\" %dD\", sd); }
-                        if (sr > 0) { printf(\" %dR\", sr); }
-                        if (sc > 0) { printf(\" %dC\", sc); }
-                        if (su > 0) { printf(\" %dU\", su); }
-                      }"
-                )"
-    else
-      status=""
-    fi
-
-    if [[ -z "$1" ]]; then
-        printf "(%s%s) " "$branch" "$status"
-    else
-        printf "$1" "$branch" "$status"
-    fi
-}
-
-shopt -s histappend                                       # Append to the history file, do not overwrite it
-shopt -s cmdhist                                          # Save multi-line commands as one command
-PROMPT_COMMAND="history -a"                               # Record each line as it gets issued
-HISTSIZE=500000                                           # Huge history. Does not appear to slow things down, so why not?
-HISTFILESIZE=100000
-HISTCONTROL="erasedups:ignoreboth"                        # Avoid duplicate entries
-HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"           # Do not record some commands
-HISTTIMEFORMAT="%F %T "                                   # Use standard ISO 8601 timestamp
-EOF
-
-  \cat <<EOF
-HISTFILE=${bashHistoryFile}
-EOF
-
-  \cat <<'EOF'
-shopt -s autocd 2> /dev/null                              # Prepend cd to directory names automatically
-shopt -s dirspell 2> /dev/null                            # Correct spelling errors during tab-completion
-shopt -s cdspell 2> /dev/null                             # Correct spelling errors in arguments supplied to cd
-
-PROMPT_DIRTRIM="3"
-
-PS1=""
-for pkgMan in apt-get apk yum microdnf; do
-  if command -v $pkgMan >/dev/null; then
-    PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]$pkgMan\[\e[m\]\[\e[32m\])\[\e[m\] "
-  fi
-done
-if [[ -z $PS1 ]]; then
-  PS1="$PS1\[\e[32m\](\[\e[m\]\[\e[33m\]???\[\e[m\]\[\e[32m\])\[\e[m\] "
-fi
-PS1="$PS1\[\e[32m\][\[\e[m\]"
-PS1="$PS1\[\e[31m\]\u\[\e[m\]"
-PS1="$PS1\[\e[32m\]:\[\e[m\]"
-PS1="$PS1\[\e[36m\]\w\[\e[m\]"
-PS1="$PS1\$(__fastgit_ps1 \"\[\e[32m\]@\[\e[m\]\[\e[01;32m\]%s%s\[\e[m\]\")"
-PS1="$PS1\[\e[32m\]]\[\e[m\]"
-PS1="$PS1\[\e[32m\]\\$\[\e[m\] "
-EOF
-}
-
-run_script() {
-  local user user_gid user_uid bashHistoryFile
-  user="$1"
-  bashHistoryFile="$2"
-
-  user_uid="$(id -u)"
-  user_gid="$(id -g)"
-
-  # language=shell
-  command cat <<EOF
-[ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ] && >&2 printf "Must be run inside docker" && return 1
-
-set -eu
-
-. /etc/os-release
-
-packages="sudo neovim"
-command -v bash >/dev/null || packages="\$packages bash"
-
-if command -v apt-get >/dev/null; then
-  echo "\e[33mSetting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need.\e[m"
-  export DEBIAN_FRONTEND=noninteractive
-fi
-
-command -v microdnf >/dev/null && packages="\${packages/neovim/vim}"
->&2 echo "installing packages '\$packages' first..."
-{
-  command -v apt-get >/dev/null && echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf.d/quiet && apt-get update -qq && apt-get -qq install -y \$packages
-  command -v apk >/dev/null && apk add --no-cache -q --no-progress \$packages
-  command -v yum >/dev/null && yum install -y -q \$packages
-  command -v microdnf >/dev/null && microdnf install \$packages >/dev/null 2>&1
-} 2>&1 | tee /tmp/container-setup.log
-
-env | egrep -v '^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)' >> /etc/environment
-if command -v nvim >/dev/null; then
-  ln -fs \$(command -v nvim) /usr/bin/vim
-  ln -fs \$(command -v nvim) /usr/bin/vi
-fi
-
-{
-  addgroup --gid ${user_gid} ${USER}
-  grp_in_ctr="\$(awk -F: '\$3 == ${user_gid}{print \$1}' /etc/group)"
-  adduser --uid ${user_uid} --ingroup \$grp_in_ctr --home /home/${USER} --gecos "" --disabled-password ${USER}
-  echo "${USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
-} 2>&1 | tee /tmp/container-setup.log
-
-echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd root | cut -d: -f 6)/.bash_profile"
-echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd "${USER}" | cut -d: -f 6)/.bash_profile"
-if [ -n "$user" ] && [ "$user" != "${USER}" ] && [ "$user" != "root" ]; then
-  echo '$(get_bash_profile "$bashHistoryFile")' >> "\$(getent passwd "${user}" | cut -d: -f 6)/.bash_profile"
-fi
-
-exec sudo -u '${user}' /bin/sh -c "cd \$PWD; exec bash --login -i"
-EOF
-
-}
-
 cleanup_bash_history() {
   bashHistDir="$1"
   localBashHistoryFile="$2"
@@ -210,11 +52,12 @@ cleanup_bash_history() {
 }
 
 shit() {
-  local user args container runtime
+  local user args container runtime dind
 
   user=""
   container=""
   runtime=""
+  dind=""
 
   if [[ -z $runtime ]]; then
     if command -v podman >/dev/null; then
@@ -235,6 +78,10 @@ shit() {
     -cr | --container-runtime)
       runtime="$2"
       shift
+      shift
+      ;;
+    -dind)
+      dind=true
       shift
       ;;
     -u=* | --user=*)
@@ -274,6 +121,12 @@ shit() {
     esac
   done
 
+  if [[ $dind == true ]]; then
+    [[ $runtime == "docker" ]] && warn "TODO: -dind needs docker support" && exit 1
+    local socket="$(systemctl --user show podman.socket --value --property=Listen | sed 's/ (Stream)$//')"
+    args=(--security-opt label:type:container_runtime_t --volume "$socket:/var/run/docker.sock:Z" "${args[@]}")
+  fi
+
   if [[ $user == "" ]]; then
     local format
 
@@ -309,12 +162,17 @@ shit() {
       --rm \
       --init \
       --entrypoint /bin/sh \
+      --volume "$SCRIPT_DIR/../resources/shit:/etc/shit:z,ro" \
       --volume "$localBashHistoryFile:$remoteBashHistoryFile" \
-      --volume "$PWD:$PWD" \
+      --volume "$PWD:$PWD:z" \
+      --env SHIT_REAL_USERNAME="$USER" \
+      --env SHIT_DOCKER_USER="$user" \
+      --env SHIT_USER_UID="$(id -u)" \
+      --env SHIT_USER_GID="$(id -g)" \
       --user root \
       --workdir "$PWD" \
       "${args[@]}" \
-      "$container" -c "$(run_script "$user" "$remoteBashHistoryFile")"
+      "$container" -c /etc/shit/init.sh
 
   # todo add cron to clean up bash histories
 }

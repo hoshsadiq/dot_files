@@ -249,9 +249,9 @@ function() {
 
   # Set the clipcopy/clippaste functions
   functions[clipcopy]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clipcopy]}"
-  functions[copy]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clipcopy]}"
+  # functions[copy]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clipcopy]}"
   functions[clippaste]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clippaste]}"
-  functions[paste]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clippaste]}"
+  # functions[paste]="${functions[__omz_clipboard_${ZSH_CLIPBOARD:-null}_clippaste]}"
 
   unfunction "${(@f)"$(printf "%s\n" "${(@k)functions}" | grep '^__omz_clipboard_')"}"
   # }}

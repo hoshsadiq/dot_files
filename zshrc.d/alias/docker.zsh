@@ -26,3 +26,17 @@ alias pmx='podman exec'
 alias pml='podman logs'
 alias pc='podman-compose'
 alias pcx='podman-compose exec'
+
+run_ollama() {
+  podman run \
+    --volume "$HOME/.ollama:/root/.ollama:z" \
+    --publish 11434:11434 \
+    --detach \
+    --rm \
+    --device nvidia.com/gpu=all \
+    --security-opt=no-new-privileges \
+    --security-opt label=type:nvidia_container_t \
+    --cap-drop=ALL \
+    --name ollama \
+    ollama/ollama
+}

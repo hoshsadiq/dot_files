@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 export DOT_FILES="$HOME/dot_files"
 
 source $DOT_FILES/config/zsh/zshrc
@@ -5,4 +12,6 @@ source $DOT_FILES/config/zsh/zshrc
 path-add "$HOME/.local/bin"
 path-add "$HOME/.cargo/bin"
 path-add "$HOME/workspace/dev/bin"
-#source "$(command -v virtualenvwrapper.sh)"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f $DOT_FILES/config/zsh/plugins/p10k.zsh ]] || source $DOT_FILES/config/zsh/plugins/p10k.zsh

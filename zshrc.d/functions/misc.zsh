@@ -136,3 +136,23 @@ function _calc {
     zcalc -e "$*"
 }
 aliases[=]='noglob _calc'
+
+timer() {
+  sleep $1
+  paplay /usr/share/sounds/sound-icons/electric-piano-3.wav
+}
+
+trim() {
+    local var="$*"
+    # remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+    # remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"
+    printf '%s' "$var"
+}
+
+trimstdin() {
+  while IFS= read -r line; do
+     printf "%s\n" "$(trim "$line")"
+  done
+}

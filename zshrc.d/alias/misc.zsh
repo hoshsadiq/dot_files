@@ -2,6 +2,9 @@
 alias sudo='sudo '
 alias watch='watch '
 
+# disable sym by default and run locally by default.
+alias make='make RUN_LOCAL=true'
+
 # Reload the shell completely
 alias shreload='exec $SHELL -l'
 
@@ -22,7 +25,5 @@ alias lsd='ll | grep --color=never "^d"'
 alias map="xargs -n1"
 
 alias diff="git diff --no-index --exit-code --color-words"
-
-alias man="batman"
 
 alias ansistrip='sed "s/\x1B\[\([0-9]\{1,2\}\(;[0-9]\{1,2\}\)\?\)\?[mGK]//g"'

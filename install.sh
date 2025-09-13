@@ -3,13 +3,15 @@
 set -ex
 
 mkdir -p "$HOME/bin"
-mkdir -p "$HOME/Workspace"
+mkdir -p "$HOME/workspace"
 
 # todo need to add other platforms (mac, windows)
 if command -v apt-get &>/dev/null; then
     sudo apt-get update && sudo apt-get install git zsh tmux -y
 elif command -v yum &>/dev/null; then
     sudo yum update && sudo yum install git zsh tmux -y
+elif command -v brew &>/dev/null; then
+    #brew install git tmux # zsh is already installed
 fi
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/master/doc/install.sh)"
@@ -45,7 +47,7 @@ for file in "${dots[@]}"; do
     echo "$dot -> $abs_dot"
     [ -f "$dot" ] && mkdir -p "$(dirname $DOT_FILES/backup/.$file)" &&  mv "$dot" "$DOT_FILES/backup/.$file"
     mkdir -p "$(dirname "$dot")"
-    ln -s "$abs_dot" "$dot"
+    ln -fs "$abs_dot" "$dot"
 done
 
 # if [[ "$OSTYPE" == "darwin"* ]]; then

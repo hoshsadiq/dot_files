@@ -2,16 +2,46 @@
 
 set -euo pipefail
 
-__default_tfe_api_domain="app.terraform.io"
+__default_api_domain="commercial"
+declare -A __tfe_api_domains=(
+  [commercial]="app.terraform.io"
+)
 
+tfe-api-domain() {
+  if [[ -n "${TFE_DOMAIN:-}" ]]; then
+    if [[ -v __tfe_api_domains[$TFE_DOMAIN] ]]; then
+      printf "%s" "${__tfe_api_domains[$TFE_DOMAIN]}"
+      return 0
+    fi
+
+    printf >&2 "Invalid TFE_DOMAIN selected: %s. Valid options are:\n" "$TFE_DOMAIN"
+    printf >&2 " - %s\n" "${!__tfe_api_domains[@]}"
+    return 1
+  fi
+
+  printf "%s" "${__tfe_api_domains[$__default_api_domain]}"
+  return
+}
+
+# shellcheck disable=SC2120
 tfe-atlas-token() {
+  local doExport="${1:-false}"
+
   local credentials_file
   credentials_file="$HOME/.terraform.d/credentials.tfrc.json"
   [[ -r "$credentials_file" ]] || {
     printf >&2 "Unable to locate terraform credentials file. Make sure you run terraform login first!"
     return 1
   }
-  jq -r --arg api_domain "${TFE_DOMAIN:-$__default_tfe_api_domain}" '.credentials[$api_domain].token' "$credentials_file"
+
+  token="$(jq -r --arg api_domain "$(tfe-api-domain)" '.credentials[$api_domain].token' "$credentials_file")"
+
+  if [[ $doExport == "true" ]]; then
+    printf "export TFE_TOKEN=%s" "$token"
+    return
+  fi
+
+  printf "%s" "$token"
 }
 
 tfe-curl() {
@@ -23,7 +53,7 @@ tfe-curl() {
     tfc_path="${tfc_path:7}"
   fi
 
-  curl --silent --fail --show-error --header "Authorization: Bearer $(tfe-atlas-token)" "$@" "https://${TFE_DOMAIN:-$__default_tfe_api_domain}/api/v2/${tfc_path}"
+  curl --silent --fail --show-error --header "Authorization: Bearer $(tfe-atlas-token)" "$@" "https://$(tfe-api-domain)/api/v2/${tfc_path}"
 }
 
 tfe-get-first-org() {
@@ -32,6 +62,7 @@ tfe-get-first-org() {
   org_count="$(jq -r '.data|length' <<<"$orgs")"
   if ((org_count != 1)); then
     printf >&2 "expected 1 org in account, found %d" "$org_count"
+    return 1
   fi
   jq -r '.data[0].attributes.name' <<<"$orgs"
 }
@@ -43,7 +74,7 @@ tfe-get-orgs() {
 tfe-get-workspaces() {
   local tfc_api all_workspaces url_path workspaces next_link
 
-  tfc_api="https://${TFE_DOMAIN:-$__default_tfe_api_domain}/api/v2"
+  tfc_api="https://$(tfe-api-domain)/api/v2"
 
   all_workspaces=""
   url_path="/organizations/$(tfe-get-first-org)/workspaces?page%5Dsize=100"
@@ -94,6 +125,10 @@ tfe-get-ws-notification-configurations() {
   tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/notification-configurations"
 }
 
+tfe-get-configuration-version() {
+  tfe-curl "/configuration-versions/$1"
+}
+
 tfe-get-ws-vars() {
   tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/vars"
 }
@@ -112,7 +147,7 @@ tfe-get-ws-id() {
 tfe-get-state() {
   tfe-curl "/workspaces/$(tfe-get-ws-id "$1")/current-state-version" --header "content-type: application/vnd.api+json" |
     jq '.data.attributes."hosted-state-download-url"' -r |
-    xargs curl --silent --fail --show-error
+    xargs curl --location --silent --fail --show-error --header "Authorization: Bearer $(tfe-atlas-token)"
 }
 
 tfe-get-plan-by-run-id() {
@@ -181,12 +216,10 @@ tfe-get-state-resource-by-provider-type() {
 }
 
 tfe-state-filter-attr-map() {
-  local attr_key="$1"
+  local attr_name="${1}"
   local attr_value="${2:-}"
-  local attr_name="${3:-tags}"
   jq \
     --arg attr_name "$attr_name" \
-    --arg attr_key "$attr_key" \
     --arg attr_value "$attr_value" \
     '.resources |= (
         map(.instances |= map(select(.attributes|has($attr_name))))
@@ -202,22 +235,26 @@ tfe-create-run() {
   run_message="${2:-Run triggered from CLI via API}"
 
   payload="$(
-    cat <<JSON | jq --arg run_message "$run_message" --arg workspace_id "$workspace_id" '.data.attributes.message=$run_message | .data.relationships.workspace.data.id=$workspace_id'
+    jq -n --arg run_message "$run_message" --arg workspace_id "$workspace_id" "$(
+      cat <<'JSON'
 {
   "data": {
     "attributes": {
+      "message": $run_message
     },
     "type":"runs",
     "relationships": {
       "workspace": {
         "data": {
-          "type": "workspaces"
+          "type": "workspaces",
+          "id": $workspace_id
         }
       }
     }
   }
 }
 JSON
+    )"
   )"
 
   tfe-curl /runs --header "Content-Type: application/vnd.api+json" \
@@ -257,3 +294,6 @@ main() {
 }
 
 main "$@"
+
+#$ tfe get-state intuit_production_common_security_iam-roles | tfe state-filter-attr-map tags_all | jqf
+#.resources[].instances | map(select(.attributes.tags_all|has("environment"))) | select(length > 0)

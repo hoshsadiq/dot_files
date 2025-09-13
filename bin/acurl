@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+declare -A host_headers=(
+  [api.datadoghq.com:DD-API-KEY]="op://Employee/Datadog Commercial/api_key"
+  [api.datadoghq.com:DD-APPLICATION-KEY]="op://Employee/Datadog Commercial/app_key"
+  [api.github.com:Authorization]="$(gh auth token)"
+)
+
+extract_hostname_from_curl() {
+  declare -r URI_REGEX='(([^:/?#]+):)?(//((([^:/?#]+)@)?([^:/?#]+)(:([0-9]+))?))?((/|$)([^?#]*))(\?([^#]*))?(#(.*))?'
+  #                    ↑↑            ↑  ↑↑↑            ↑         ↑ ↑            ↑ ↑        ↑  ↑        ↑ ↑
+  #                    |2 scheme     |  ||6 userinfo   7 host    | 9 port       | 11 rpath |  13 query | 15 fragment
+  #                    1 scheme:     |  |5 userinfo@             8 :…           10 path    12 ?…       14 #…
+  #                                  |  4 authority
+  #                                  3 //…
+
+  for arg; do
+    if [[ $arg =~ ^--url=$URI_REGEX$ || $arg =~ ^$URI_REGEX$ ]]; then
+      printf "%s" "${BASH_REMATCH[7]}"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+main() {
+  local requested_hostname
+  requested_hostname=$(extract_hostname_from_curl "$@")
+
+  local inject_string
+  for host_header in "${!host_headers[@]}"; do
+    [[ $requested_hostname != "${host_header%%:*}" ]] && continue
+    inject_string="${inject_string}"$'\n'"args+=(-H '${host_header#*:}: {{ ${host_headers[$host_header]} }}')"
+  done
+
+  local args=()
+  source <(op <<<"$inject_string" inject)
+  exec curl "${args[@]}" "$@"
+}
+
+main "$@"

@@ -22,24 +22,6 @@ setopt hist_reduce_blanks     # Remove superfluous blanks before recording entry
 setopt hist_verify            # Don't execute immediately upon history expansion.
 setopt hist_beep              # Beep when accessing nonexistent history.
 
-bindkey -r '^[OA'
-bindkey -r '^[OB'
-function __bind_history_keys() {
-  bindkey '^[OA' history-substring-search-up
-  bindkey '^[OB' history-substring-search-down
-
-  unfunction __bind_history_keys
-}
-
-zinit ice depth=1 wait silent
-zinit light zdharma-continuum/history-search-multi-word
-
-zinit ice depth=1 silent
-zinit snippet OMZ::lib/history.zsh
-
-zinit ice wait depth=1 silent atload'__bind_history_keys'
-zinit light zsh-users/zsh-history-substring-search
-
 function clear-scrollback-buffer {
   # clear screen
   clear

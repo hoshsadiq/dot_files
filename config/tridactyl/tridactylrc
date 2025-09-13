@@ -28,27 +28,20 @@ set findcase smart
 " Smooth scrolling, yes please. This is still a bit janky in Tridactyl.
 set smoothscroll true
 
-" The default jump of 10 is a bit much.
-bind j scrollline 5
-bind k scrollline -5
-
-" K and J should move between tabs. Invert them from the default for Sideberry
-bind K tabprev
-bind J tabnext
-
-" Disable <C-q>
-bind --mode=insert <C-q> js alert("<C-q> is for quitters.")
-bind --mode=input  <C-q> js alert("<C-q> is for quitters.")
-bind --mode=normal <C-q> js alert("<C-q> is for quitters.")
-bind --mode=ex     <C-q> js alert("<C-q> is for quitters.")
-bind --mode=hint   <C-q> js alert("<C-q> is for quitters.")
-
 " Don't run Tridactyl on some web sites because it doesn't work well, or
 " because the web site has its own keybindings.
-autocmd DocStart mail.google.com mode ignore
-autocmd DocStart docs.google.com mode ignore
-autocmd DocStart mail.protonmail.com mode ignore
-autocmd DocStart accounts.google.com mode normal
+blacklistadd docs\.google\.com/.*/edit.*
+blacklistadd ilocz16280190\.salocs\.com
+
+unbindurl mail\.google\.com j
+unbindurl mail\.google\.com k
+unbindurl mail\.google\.com o
+unbindurl mail\.google\.com x
+unbindurl mail\.google\.com e
+
+unbindurl mail\.protonmail\.com x
+unbindurl mail\.protonmail\.com a
+" unbindurl mail\.protonmail\.com t " For now we can use C-v t
 
 " Sometimes the status bar in the bottom left corner overlaps the Tridactyl
 " command line, so set an option to move the status bar to the right.
@@ -56,15 +49,58 @@ guiset_quiet hoverlink right
 
 " Comment toggler for Reddit, Hacker News and Lobste.rs
 bind ;c hint -Jc [class*="expand"],[class="togg"],[class="comment_folder"]
+bind ;u hint -Jc [class*="arrow"]
+
+" Make gu take you back to subreddit from comments
+bindurl reddit\.com gu urlparent 4
+
+" Google hinting
+bindurl www\.google\.com f hint -Jc .rc > .r > a
+bindurl www\.google\.com F hint -Jtc .rc > .r > a
+bindurl www\.google\.com gF hint -Jqbc .rc > .r > a
+
+" DuckDuckGo hinting
+bindurl duckduckgo\.com / focusinput 2
+bindurl duckduckgo\.com f hint -Jc .result__a,.result__url__domain
+bindurl duckduckgo\.com F hint -Jtc .result__a,.result__url__domain
+bindurl duckduckgo\.com gF hint -Jqbc .result__a,.result__url__domain
+
+" Hacker News hinting
+bindurl news\.ycombinator\.com f hint -Jc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
+bindurl news\.ycombinator\.com F hint -Jtc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
+bindurl news\.ycombinator\.com gF hint -Jqbc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
+
+bindurl news\.ycombinator\.com/item f hint -Jc span.pagetop > a,a.storylink,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item F hint -Jtc span.pagetop > a,a.storylink,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item gF hint -Jqbc span.pagetop > a,a.storylink,a.hnuser,div.comment a
+
+bindurl github\.com / focusinput 0
+
+" Reddit hinting
+" bindurl www.reddit.com f hint -Jc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link
+" bindurl www.reddit.com F hint -Jtc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link
+" bindurl www.reddit.com F hint -Jqbc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link
+
+" Old reddit hinting
+bindurl reddit\.com f hint -Jc a[data-event-action="title"],a.subreddit,span.user > a,a.comments,div[id="srDropdownContainer"] > a,tr > td > a,ul.tabmenu > li > a,div.dropdown,div.drop-choices > form > a
+bindurl reddit\.com F hint -Jtc a[data-event-action="title"],a.subreddit,span.user > a,a.comments,div.md > p > a,span.redditname > a,ul.tabmenu > li > a
+bindurl reddit\.com gF hint -Jqbc a[data-event-action="title"],a.subreddit,span.user > a,a.comments,div.md > p > a,span.redditname > a,ul.tabmenu > li > a
+
+bindurl reddit\.com\/r\/.*\/comments f hint -Jc a
+bindurl reddit\.com\/r\/.*\/comments F hint -Jtc a
+bindurl reddit\.com\/r\/.*\/comments gF hint -Jqbc a
 
 " Some AWS magic
 bindurl ^https://signin.aws.amazon.com/saml f hint -Jc [class=saml-role]
-autocmd DocLoad launchdarkly\.okta\.com js const primaryAuth = document.querySelector('.primary-auth'); if (primaryAuth) { const userField = document.querySelector('#okta-signin-username'); if (userField.value !== "") { document.querySelector('#okta-signin-submit').click(); }}
 
-command aws-shd tabopen -c AWS[shd-svc] https://launchdarkly.okta.com/app/amazon_aws/0oaj4aow7gPk26Fy6356/login?fromHome=true
-command aws-ld tabopen -c AWS[ld] https://launchdarkly.okta.com/app/amazon_aws/0oaj4aow7gPk26Fy6356/login?fromHome=true
-
-autocmd DocLoad .*.runpanther.net\/sign-in js [...document.querySelectorAll('button')].filter(el => el.textContent.trim() === "Sign in with SSO")[0].click()
+command aws-sso jsb -p args => {
+    const org = args[0];
+    if (!org) {
+        tri.excmds.fillcmdline_tmp("echo", "Usage: :aws-sso <org>");
+        return;
+    }
+    tri.excmds.tabopen(`https://${org}.awsapps.com/start`);
+}
 
 " GitHub pull request add upstream command to clipboard
 " bind gys composite js (() => { var items = document.querySelector('.user-select-contain.head-ref a').querySelectorAll('.css-truncate-target'); return "git remote add "+items[0].textContent+" git@github.com:"+items[0].textContent+"/"+items[1].textContent+".git\ngit fetch " + items[0].textContent; })() | yank
@@ -81,23 +117,39 @@ autocmd DocLoad ^http(s?)://www.reddit.com js if (document.getElementById("Searc
 " As above but execute it and open terminal in folder
 " bind ,g js let uri = document.location.href.replace(/https?:\/\//,"git@").replace("/",":").replace(/$/,".git"); tri.native.run("cd ~/tmp/projects; git clone " + uri + "; cd \"$(basename \"" + uri + "\" .git)\"; st")
 
-bind D composite tabprev; tabclose " make D take you to the left
+" The default jump of 10 is a bit much.
+bind j scrollline 5
+bind k scrollline -5
+
+" K and J should move between tabs. Invert them from the default for Sideberry
+bind K tabprev
+bind J tabnext
+
+" Disable <C-q>
+bind --mode=insert <C-q> js alert("<C-q> is for quitters.")
+bind --mode=input  <C-q> js alert("<C-q> is for quitters.")
+bind --mode=normal <C-q> js alert("<C-q> is for quitters.")
+bind --mode=ex     <C-q> js alert("<C-q> is for quitters.")
+bind --mode=hint   <C-q> js alert("<C-q> is for quitters.")
+
+" make D take you to the left
+bind D composite tabprev; tabclose
 bind d tabclose
 
 " make t open the selection with tabopen
 bind --mode=visual t composite js document.getSelection().toString() | fillcmdline tabopen
-
-" Make gu take you back to subreddit from comments
-bindurl reddit.com gu urlparent 4
-
-" bindurl ^https://duckduckgo.com f hint -Jc [class=result__a]
-" bindurl ^https://duckduckgo.com F hint -Jbc [class=result__a]
 
 " Allow Ctrl-a to select all in the commandline
 unbind --mode=ex <C-a>
 
 " Allow Ctrl-c to copy in the commandline
 unbind --mode=ex <C-c>
+
+" Easier keys to navigate up and down
+bind --mode=ex <Tab> ex.next_completion
+bind --mode=ex <S-Tab> ex.prev_completion
+bind --mode=ex <C-j> ex.next_completion
+bind --mode=ex <C-k> ex.prev_completion
 
 " Handy multiwindow/multitasking binds
 bind gd tabdetach
@@ -139,4 +191,3 @@ quickmark t https://github.com/tridactyl/tridactyl/issues?utf8=%E2%9C%93&q=sort%
 
 " For syntax highlighting see https://github.com/tridactyl/vim-tridactyl
 " vim: set filetype=tridactyl
-

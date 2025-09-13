@@ -121,9 +121,9 @@ done
   exec > >(sed 's/^/nerd-fonts (stdout): /')
   exec 2> >(sed 's/^/nerd-fonts (stderr): /' >&2)
 
-  curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/sourcecodepro.zip" -o /tmp/sourceCodePro.zip
   mkdir -p "$HOME/.local/share/fonts/"
-  unzip -q -o /tmp/sourceCodePro.zip -d "$HOME/.local/share/fonts/"
+  curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/sourcecodepro.tar.xz" |
+      tar --xz -xvf - -C ~/.local/share/fonts --wildcards "*.ttf"
   fc-cache -f -v
 } &
 

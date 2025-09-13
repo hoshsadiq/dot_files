@@ -1,0 +1,125 @@
+# shellcheck disable=SC2016
+
+# Start configuration added by Zim install {{{
+#
+# This is not sourced during shell startup, and it's only used to configure the
+# zimfw plugin manager.
+#
+
+#
+# Modules
+#
+
+zmodule joke/zim-mise
+
+zmodule ohmyzsh/ohmyzsh --root lib \
+    --source functions.zsh \
+    --source grep.zsh \
+    --source spectrum.zsh \
+    --source history.zsh \
+    --source termsupport.zsh \
+    --source completion.zsh \
+    --source compfix.zsh
+
+zmodule willghatch/zsh-saneopt
+
+# Sets sane Zsh built-in environment options.
+zmodule environment
+# Provides handy git aliases and functions.
+zmodule git
+# Applies correct bindkeys for input events.
+zmodule input
+# Sets a custom terminal title.
+zmodule termtitle
+# Utility aliases and functions. Adds colour to ls, grep and less.
+zmodule utility
+zmodule archive
+zmodule run-help
+zmodule fzf
+zmodule ssh
+
+zmodule Aloxaf/fzf-tab
+zmodule raylee/tldr --cmd 'export PATH="$PATH:{}"'
+zmodule gpakosz/.tmux --cmd "$DOT_FILES/config/zsh/plugins/dotmux-overrides.sh {}"
+
+zmodule ohmyzsh/ohmyzsh --root plugins/extract --on-pull 'mkdir -p functions && mv _extract functions'
+zmodule ohmyzsh/ohmyzsh --root plugins/command-not-found
+zmodule ohmyzsh/ohmyzsh --root plugins/globalias \
+    --source 'globalias.plugin.zsh' \
+    --source "$DOT_FILES/config/zsh/plugins/invert-globalias.zsh"
+
+zmodule hlissner/zsh-autopair
+zmodule Tarrasch/zsh-functional --source functional.plugin.zsh
+
+# todo on-pull should run make install with a PREFIX for manpages
+zmodule tj/git-extras \
+  --source etc/git-extras-completion.zsh \
+  --on-pull 'mkdir -p prefix && PREFIX=$PWD/prefix make install' \
+    --cmd '
+export PATH="$PATH:{}/prefix/bin"
+export MANPATH="$MANPATH:{}/prefix/share/man"
+'
+zmodule djui/alias-tips --cmd 'ZSH_PLUGINS_ALIAS_TIPS_TEXT=" 💡 "'
+
+zmodule wfxr/forgit --fpath completions --source forgit.plugin.zsh --cmd '
+alias gds="gd --staged"
+export PATH="$PATH:{}/bin"
+'
+
+zmodule marlonrichert/zsh-autocomplete
+
+if (( ${+commands[atuin]} )); then
+  zmodule atuin-init --use mkdir --if-command atuin \
+    --cmd 'if [[ ! {}/init.zsh -nt ${commands[atuin]} ]]; then
+      atuin init --disable-up-arrow zsh > {}/init.zsh
+      zcompile -UR {}/init.zsh
+    fi' \
+    --source init.zsh
+else
+  zmodule zdharma-continuum/history-search-multi-word --use degit
+fi
+
+#zmodule mviereck/x11docker \
+#  --source etc/git-extras-completion.zsh \
+#  --on-pull 'md2man -in=README.md -out=PREFIX=$PWD/man/man1/x11docker.1' \
+#    --cmd '
+#export PATH="$PATH:{}"
+#export MANPATH="$MANPATH:{}/man"
+#'
+
+#
+# Prompt
+#
+zmodule romkatv/powerlevel10k --use degit
+
+#
+# Completion
+#
+
+# Additional completion definitions for Zsh.
+zmodule zsh-users/zsh-completions --name zsh-users-completions --fpath src
+zmodule zchee/zsh-completions --name zchee-completions --fpath src/zsh
+# Enables and configures smart and extensive tab completion.
+# completion must be sourced after all modules that add completion definitions.
+zmodule completion
+
+# enhancd calls compdef, which needs to be loaded, and it is loaded as part of completion package above
+zmodule babarot/enhancd
+
+#
+# Modules that must be initialized last
+#
+
+# Fish-like syntax highlighting for Zsh.
+# zsh-users/zsh-syntax-highlighting must be sourced after completion
+zmodule zsh-users/zsh-syntax-highlighting
+zmodule zdharma-continuum/history-search-multi-word
+# Fish-like history search (up arrow) for Zsh.
+# zsh-users/zsh-history-substring-search must be sourced after zsh-users/zsh-syntax-highlighting
+zmodule zsh-users/zsh-history-substring-search
+# Fish-like autosuggestions for Zsh.
+zmodule zsh-users/zsh-autosuggestions
+# }}} End configuration added by Zim install
+
+zmodule "$DOT_FILES/config/zsh/plugins/path-updates.zsh" \
+  --name path-updates

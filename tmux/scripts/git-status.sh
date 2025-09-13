@@ -39,6 +39,7 @@ function update_settings {
 }
 
 function get_git_status {
+  set -x
   local dir
   local tmux_git_status
 
@@ -46,6 +47,13 @@ function get_git_status {
 
   dir="$(tmux display-message -p -t "$1" "#{pane_current_path}")"
 
+#  local req_id=id
+#  local dir=$PWD
+#  echo -nE $req_id$'\x1f'$dir$'\x1e' | "${settings[statusd-directory]}/gitstatusd-linux-x86_64" | {
+#    local resp
+#    IFS=$'\x1f' read -rd $'\x1e' -A resp && print -lr -- "${(@qq)resp}"
+#  }
+#  return
   source "${settings[statusd-directory]}/gitstatus.plugin.zsh"
 
   gitstatus_stop tmux && gitstatus_start tmux
@@ -90,12 +98,12 @@ function get_git_status {
 
     printf "%s" "${tmux_git_status}"
   fi
+  set +x
 }
 
 main() {
   update_settings
-
-	get_git_status "$@"
+  get_git_status "$@"
 }
 
 main "$@"

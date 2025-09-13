@@ -1,4 +1,12 @@
 [include]
 	path = ~/dot_files/config/git/gitconfig
-[core]
-	editor = lvim
+[user]
+	name = Hosh Sadiq
+	email = 600045+hoshsadiq@users.noreply.github.com
+	signingkey = 20D30E322003B1A4C3FC3073ED076FCAFECEFA92
+[commit]
+	gpgsign = true
+# [core]
+# 	hooksPath = /home/hsadiq/workspace/dev/scripts/git-global-hooks
+[alias]
+	stack = !python ~/.local/share/gitstack.py

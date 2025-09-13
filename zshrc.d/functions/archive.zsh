@@ -1,7 +1,3 @@
-zinit snippet OMZ::plugins/extract
-
-zinit ice as"completion" pick'_extract'
-zinit snippet OMZ::plugins/extract/_extract
 
 # Creates an archive from given directory
 mktar() {

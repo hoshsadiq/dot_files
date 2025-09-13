@@ -1,3 +1,5 @@
+let mapleader = "\<Space>"
+
 nnoremap <S-Left> :action EditorLeftWithSelection<CR>
 nnoremap <S-Right> :action EditorRightWithSelection<CR>
 nnoremap <S-Up> :action EditorUpWithSelection<CR>
@@ -9,8 +11,11 @@ inoremap <S-Up> <C-O>:action EditorUpWithSelection<CR>
 inoremap <S-Down> <C-O>:action EditorDownWithSelection<CR>
 
 set ignorecase
-set clipboard+=unnamed
 
+" https://raw.githubusercontent.com/wiki/JetBrains/ideavim/ideajoin-examples.md
+set ideajoin
+
+set clipboard+=unnamedplus
 
 " Use one of the following to define the camel characters.
 " Stop on capital letters.

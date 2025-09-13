@@ -1,0 +1,15 @@
+[general]
+import = ["~/dot_files/config/alacritty/alacritty.base.toml"]
+
+[terminal]
+
+#[terminal.shell]
+#program = "sh"
+#args = ["-eu", "-c", """
+#exec &>> /tmp/alacrity-startup.log
+#export EDITOR=nvim
+#set +
+#exec tmux new-session -A -s main
+#"""]
+#program = "/opt/homebrew/bin/tmux"
+#args = ["-u", "-l", "new-session", "-a", "-s", "main"]

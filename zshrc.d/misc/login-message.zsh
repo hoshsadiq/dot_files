@@ -1,4 +1,5 @@
 # processes running: ps -W | wc -l
+return
 echo -e ""
 
 echo -ne "$fg[red]Current date       : $fg[cyan]";

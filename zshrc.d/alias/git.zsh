@@ -1,9 +1,11 @@
 alias g="git"
-alias gd="git diff"
+# alias gd="git diff"
 alias gco="git checkout"
 #alias gci="git commit" # conflicts with gci command
 alias gits="git status"
 alias gph="git push -u origin HEAD"
+
+# export GIT_SSH_COMMAND=/home/hsadiq/workspace/common-actions/ssh-key-by-repo/bin/git_ssh_key_by_repo
 
 git_suffix_clone() {
   url="$1"

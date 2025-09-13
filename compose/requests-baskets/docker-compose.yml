@@ -1,0 +1,14 @@
+services:
+  request-baskets:
+    image: darklynx/request-baskets
+  ngrok:
+    image: ngrok/ngrok:latest
+    command:
+      - "http"
+      - "http://request-baskets:55555"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTH_TOKEN}
+    ports:
+      - "127.0.0.1:4040:4040"
+    depends_on:
+      - request-baskets

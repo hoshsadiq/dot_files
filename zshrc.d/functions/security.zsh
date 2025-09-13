@@ -60,17 +60,19 @@ ssh-priv-to-pub() {
 }
 
 ssh-gen-deploy-key() {
-  local output comment bytes
+  [[ -z "$1" ]] && { >&2 printf "usage: %s /path/to/key [bytes] [comment]\n  if bytes is empty, produces ed25519 key\n" "$0"; return 1; }
 
-  output="$1"
+  args=(-f "$1" -N "")
+  [[ -n "$3" ]] && args=("-C" "$3")
 
-  comment=()
-  [[ -n "$2" ]] && comment=("-C" "$2")
-  bytes="${3:-4096}"
+  if [[ ${2:-} != "" ]]; then
+    args+=("-t" "rsa")
+    args+=("-b" "${2:-4096}")
+  else
+    args+=("-t" "ed25519")
+  fi
 
-  [[ -z "$output" ]] && { >&2 echo "usage: $0 /path/to/id_rsa [comment] [bytes]"; return 1; }
-
-  ssh-keygen -t rsa -b "$bytes" -f "$output" -N '' "${comment[@]}"
+  ssh-keygen "${args[@]}"
 }
 
 ssh-get-fingerprint() {
@@ -156,6 +158,17 @@ gen-pass() {
   fi
 
   LC_ALL=C tr -dc "$regex" </dev/urandom | head -c "$length"
+}
+
+gen-pass-apple() {
+  {
+    gen-pass --no-specials --no-alphabet --no-uppercase --length 1
+    gen-pass --no-specials --no-alphabet --no-numbers --length 1
+    gen-pass --no-specials --no-uppercase --no-numbers --length 16
+  } | sed 's/./&\n/g' \
+    | shuf \
+    | paste -d'\0' - - - - - - \
+    | paste -d'-' - - -
 }
 
 sudo-keep-alive() {

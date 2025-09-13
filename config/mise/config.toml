@@ -1,0 +1,318 @@
+[env]
+FZF_DEFAULT_OPTS = "--reverse --exit-0 --border --ansi"
+MISE_COMPLETION_REG = "~/.zfunc/.mise-completions"
+EZA_CONFIG_DIR = "~/.config/eza/theme.yml"
+
+[alias]
+kubectx = 'github:ahmetb/kubectx'
+kubens = 'github:ahmetb/kubectx'
+
+[tools]
+eksctl = "latest"
+"npm:@google/gemini-cli" = "latest"
+usage = "latest"
+goreleaser = "latest"
+hugo = "latest"
+node = "latest"
+packer = "latest"
+terraform = "latest"
+java = "latest"
+sentinel = "latest"
+awscli = "latest"
+terraform-docs = "latest"
+go = "latest"
+rust = "latest"
+tflint = "latest"
+slsa-verifier = "latest"
+cosign = "latest"
+watchexec = "latest"
+"github:jesseduffield/lazydocker" = "latest"
+"github:jesseduffield/lazygit" = "latest"
+"github:phiresky/ripgrep-all" = "latest"
+"github:afnanenayet/diffsitter" = "latest"
+"github:matsuyoshi30/gitsu" = "latest"
+"github:sters/yaml-diff" = "latest"
+"github:benibela/xidel" = "latest"
+"github:block/goose" = "latest"
+"github:sachaos/viddy" = "latest"
+"github:neovim/neovim" = "latest"
+"github:wader/fq" = "latest"
+"github:nektos/act" = "latest"
+"github:PaulJuliusMartinez/jless" = "latest"
+"github:ms-jpq/sad" = "latest"
+"github:topgrade-rs/topgrade" = "latest"
+"npm:task-master-ai" = "latest"
+"github:plutov/oq" = "latest"
+
+[tools."python"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+pip completion --zsh > "$MISE_TOOL_INSTALL_PATH/functions/_pip"
+"""
+
+[tools."kubectl"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+kubectl completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_kubectl"
+"""
+
+[tools."kubectx"]
+version = "latest"
+postinstall = """
+version="$(basename "$MISE_TOOL_INSTALL_PATH")"
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+
+targs=()
+tar --version 2>/dev/null | grep -qi gnu && targs=(--wildcards)
+
+curl -fsSL https://github.com/ahmetb/kubectx/archive/refs/tags/v${version}.tar.gz -o- |
+  tar --extract --gzip --verbose --file=- --to-stdout ${targs[@]} '*/completion/_kubectx.zsh' > "$MISE_TOOL_INSTALL_PATH/functions/_kubectx"
+"""
+
+[tools."kubens"]
+version = "latest"
+asset_pattern = "kubens_*"
+postinstall = """
+version="$(basename "$MISE_TOOL_INSTALL_PATH")"
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+
+targs=()
+tar --version 2>/dev/null | grep -qi gnu && targs=(--wildcards)
+
+curl -fsSL https://github.com/ahmetb/kubectx/archive/refs/tags/v${version}.tar.gz -o- |
+  tar --extract --gzip --verbose --file=- --to-stdout ${targs[@]} '*/completion/_kubens.zsh' > "$MISE_TOOL_INSTALL_PATH/functions/_kubens"
+"""
+
+[tools."github:koalaman/shellcheck"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+curl -fsSO https://github.com/zchee/zsh-completions/raw/refs/heads/main/src/zsh/_shellcheck -o "$MISE_TOOL_INSTALL_PATH/functions/_shellcheck"
+"""
+
+[tools."github:reproducible-containers/diffoci"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+mv "$MISE_TOOL_INSTALL_PATH/diffoci-"* "$MISE_TOOL_INSTALL_PATH/diffoci"
+diffoci completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_diffoci"
+"""
+
+[tools."go:github.com/cpuguy83/go-md2man/v2"]
+version = "latest"
+postinstall = """
+version="$(basename "$MISE_TOOL_INSTALL_PATH")"
+mkdir -p $MISE_TOOL_INSTALL_PATH/share/man/man1
+
+mv "$MISE_TOOL_INSTALL_PATH/bin/go-md2man" "$MISE_TOOL_INSTALL_PATH/bin/md2man"
+
+targs=()
+tar --version 2>/dev/null | grep -qi gnu && targs=(--wildcards)
+
+curl -fsSL https://github.com/cpuguy83/go-md2man/archive/refs/tags/v${version}.tar.gz -o- |
+  tar --extract --gzip --verbose --file=- --to-stdout ${targs[@]} '*/go-md2man.1.md' |
+  md2man > $MISE_TOOL_INSTALL_PATH/share/man/man1/md2man.1
+"""
+
+[tools."github:dandavison/delta"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+delta --generate-completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_golangci-lint
+"""
+
+[tools."github:golangci/golangci-lint"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+golangci-lint completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_golangci-lint
+"""
+
+[tools."github:cli/cli"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+gh completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_gh
+"""
+
+[tools."github:BurntSushi/ripgrep"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
+ln -fs $plugin_dir/complete/_rg $MISE_TOOL_INSTALL_PATH/functions/_rg
+cp -vf doc/rg.1 $MISE_TOOL_INSTALL_PATH/share/man/man1
+"""
+
+[tools."github:junegunn/fzf"]
+version = "latest"
+# language=shell script
+postinstall = """
+version="$(basename "$MISE_TOOL_INSTALL_PATH")"
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share
+
+targs=()
+tar --version 2>/dev/null | grep -qi gnu && targs=(--wildcards)
+
+curl -fsSL https://github.com/junegunn/fzf/archive/refs/tags/v${version}.tar.gz -o- |
+  tar \
+    --extract \
+    --gzip \
+    --verbose \
+    --file=- \
+    --strip-components=1 \
+    --directory="$MISE_TOOL_INSTALL_PATH" \
+    ${targs[@]} \
+    '*/shell/' \
+    '*/plugin/' \
+    '*/bin/' \
+    '*/man/'
+
+ln -fs $MISE_TOOL_INSTALL_PATH/fzf $MISE_TOOL_INSTALL_PATH/bin/fzf
+ln -fs $MISE_TOOL_INSTALL_PATH/shell/completion.zsh $MISE_TOOL_INSTALL_PATH/functions/_fzf
+ln -fs $MISE_TOOL_INSTALL_PATH/man $MISE_TOOL_INSTALL_PATH/share/man
+
+# todo run: fzf --zsh
+"""
+
+[tools."github:ast-grep/ast-grep"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+sg completions zsh > $MISE_TOOL_INSTALL_PATH/functions/_sg
+ast-grep completions zsh > $MISE_TOOL_INSTALL_PATH/functions/_ast-grep
+"""
+
+[tools."github:itchyny/gojq"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+ln -fs "$MISE_TOOL_INSTALL_PATH/gojq" "$MISE_TOOL_INSTALL_PATH/functions/jq"
+ln -fs "$MISE_TOOL_INSTALL_PATH/_gojq" "$MISE_TOOL_INSTALL_PATH/functions/_gojq"
+# todo need to allow for completions for jq symlink
+"""
+
+[tools."github:mikefarah/yq"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
+
+mv $MISE_TOOL_INSTALL_PATH/yq_* $MISE_TOOL_INSTALL_PATH/yq
+yq completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_yq
+cp "$MISE_TOOL_INSTALL_PATH/yq.1" "$MISE_TOOL_INSTALL_PATH/share/man/man1/"
+"""
+
+[tools."github:wagoodman/dive"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+dive completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_dive
+"""
+
+[tools."github:wallix/awless"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+awless completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_awless
+"""
+
+[tools."github:homeport/dyff"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+dyff completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_dyff
+"""
+
+[tools."aqua:tree-sitter/tree-sitter"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+tree-sitter complete --shell zsh > $MISE_TOOL_INSTALL_PATH/functions/_tree-sitter
+"""
+
+#[tools."github:eza-community/eza"]
+#version = "latest"
+#linux-x64 = { asset_pattern = " eza_x86_64-unknown-linux-musl.tar.gz " }
+#linux-arm64 = { asset_pattern = " eza_aarch64-unknown-linux-musl.tar.gz " }
+##macos-arm64 = { asset_pattern = "gh_*_macOS_arm64.tar.gz" }
+# language=shell script
+#postinstall = """
+#set -x
+#mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man
+#version="$(mise current github:eza-community/eza)"
+#
+#download_url_prefix="https://github.com/eza-community/eza/releases/download/v${version}/"
+#curl -fsSL "${download_url_prefix}/completions-${version}.tar.gz" -o- |
+#  tar --extract --gzip --verbose --file=- --strip-components=3 --directory=$MISE_TOOL_INSTALL_PATH/functions
+#
+#tmp="$(mktemp -d "${TMPDIR:-/tmp}"/eza.man.extractor.XXXXXXXXXX)"
+#trap 'rm -rf "$tmp"' EXIT
+#
+#mkdir -p "$tmp/extracted"
+#curl -fsSL "${download_url_prefix}/man-${version}.tar.gz" -o "$tmp/eza.man.tar.gz" |
+#  tar --extract --gzip --verbose --file=- --strip-components=3 --directory="$tmp/extracted"
+#
+#while IFS= read -r -d '' f; do
+#  name="$(basename "$f")"
+#  ext="${name##*.}"                         # e.g., "1", "5", "3p"
+#  sect="$(printf %s "$ext" | sed -E 's/^([0-9]+).*/\\1/')"  # leading digits
+#  [ -n "$sect" ] || continue
+#  mkdir -p "$MISE_TOOL_INSTALL_PATH/share/man/man$sect"
+#  mv "$f" "$MISE_TOOL_INSTALL_PATH/share/man/man$sect/$name"
+#done < <(find "$tmp/extracted" -type f -print0)
+#"""
+
+[tools."github:sharkdp/bat"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
+mv $MISE_TOOL_INSTALL_PATH/autocomplete/bat.zsh $MISE_TOOL_INSTALL_PATH/functions/_bat
+mv $MISE_TOOL_INSTALL_PATH/*.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
+"""
+[tools."github:eth-p/bat-extras"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/share/man/man1
+mv $MISE_TOOL_INSTALL_PATH/man/*.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
+"""
+
+[tools."github:sharkdp/fd"]
+version = "latest"
+# language=shell script
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
+mv $MISE_TOOL_INSTALL_PATH/autocomplete/_fd $MISE_TOOL_INSTALL_PATH/functions/_fd
+mv $MISE_TOOL_INSTALL_PATH/*.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
+"""
+
+[hooks.enter]
+shell = "zsh"
+script = '''
+echo > /tmp/wot.enter.log
+printenv >> /tmp/wot.enter.log
+mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.enter.log
+'''
+[hooks.leave]
+shell = "zsh"
+script = '''
+echo > /tmp/wot.leave.log
+printenv >> /tmp/wot.leave.log
+mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.leave.log
+'''
+
+[settings]
+idiomatic_version_file_enable_tools = ["go", "node"]
+experimental = true
