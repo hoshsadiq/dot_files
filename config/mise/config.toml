@@ -1,15 +1,19 @@
+[plugins]
+#zerobrew = "https://github.com/kennyg/mise-zerobrew"
+
 [env]
 FZF_DEFAULT_OPTS = "--reverse --exit-0 --border --ansi"
 MISE_COMPLETION_REG = "~/.zfunc/.mise-completions"
 EZA_CONFIG_DIR = "~/.config/eza/theme.yml"
 
-[alias]
+[tool_alias]
 kubectx = 'github:ahmetb/kubectx'
 kubens = 'github:ahmetb/kubectx'
+zb = 'github:lucasgelfond/zerobrew'
+zbx = 'github:lucasgelfond/zerobrew'
 
 [tools]
 eksctl = "latest"
-"npm:@google/gemini-cli" = "latest"
 usage = "latest"
 goreleaser = "latest"
 hugo = "latest"
@@ -18,7 +22,6 @@ packer = "latest"
 terraform = "latest"
 java = "latest"
 sentinel = "latest"
-awscli = "latest"
 terraform-docs = "latest"
 go = "latest"
 rust = "latest"
@@ -43,12 +46,168 @@ watchexec = "latest"
 "github:topgrade-rs/topgrade" = "latest"
 "npm:task-master-ai" = "latest"
 "github:plutov/oq" = "latest"
+minikube = "latest"
+mkcert = "latest"
+"github:flosell/iam-policy-json-to-terraform" = "latest"
+"github:cooklang/cookcli" = "latest"
+uv = "latest"
+"pipx:mullvad-closest" = "latest"
+"github:fullstorydev/grpcurl" = "latest"
+"github:minamijoyo/hcledit" = "latest"
+"github:kaushiksrini/parqeye" = "latest"
+"github:Genymobile/scrcpy" = "latest"
+vault = "latest"
+"github:huseyinbabal/taws" = "latest"
+claude = "latest"
+"github:Mikescher/better-docker-ps" = "latest"
+"npm:typescript-language-server" = "latest"
+"npm:typescript" = "latest"
+"github:cert-manager/cmctl" = "latest"
+"github:tmccombs/hcl2json" = "latest"
+"github:owenthereal/upterm" = "latest"
+gemini = "latest"
+"go:sigs.k8s.io/kubectl-validate" = "latest"
+yamllint = "latest"
+"npm:oh-my-opencode" = "latest"
+tree-sitter = "latest"
+"pipx:pynvim" = "latest"
+bun = "latest"
+shfmt = "latest"
+"github:slackapi/slack-cli" = "latest"
+"github:grafana/alloy" = { version = "latest", rename_exe = "alloy" }
+"github:zellij-org/zellij" = "latest"
+"github:rtk-ai/rtk" = "0.37.1"
+"github:ankitpokhrel/jira-cli" = { version = "latest", exe = "jira" }
+aube = "latest"
+"npm:ccusage" = "latest"
+"pipx:opencode-monitor" = "latest"
+"github:dgunzy/flux9s" = "latest"
+yt-dlp = { version = "latest", rename_exe = "yt-dlp" }
+rclone = "latest"
+"github:simulot/immich-go" = "latest"
+"npm:@immich/cli" = "latest"
+"npm:pake-cli" = "latest"
+#"zerobrew:pv" = "latest"
+#"zerobrew:bash" = "latest"
+#"zerobrew:eza" = "latest"
+
+[tools."github:linkerd/linkerd2"]
+version = "latest"
+bin = "linkerd"
+
+[tools."zb"]
+version = "latest"
+matching = "zb-"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+zb completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_zb"
+"""
+
+[tools."zbx"]
+version = "latest"
+matching = "zbx-"
+rename_exe = "zbx"
+
+[tools."github:aviator-co/av"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share
+av completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_av"
+ln -fs "$MISE_TOOL_INSTALL_PATH/man" "$MISE_TOOL_INSTALL_PATH/share"
+"""
+
+[tools."github:tbcrawford/opm"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+opm completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_opm"
+"""
+
+[tools."github:Arthur-Ficial/apfel"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/share/man/man1
+mv $MISE_TOOL_INSTALL_PATH/*.1 "$MISE_TOOL_INSTALL_PATH/share/man/man1"
+"""
+
+[tools."github:anomalyco/opencode"]
+version = "latest"
+asset_pattern = "opencode-darwin-arm64*"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+opencode completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_opencode"
+"""
+
+[tools."loki-logcli"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+logcli --completion-script-zsh > "$MISE_TOOL_INSTALL_PATH/functions/_logcli"
+"""
+
+[tools."argocd"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+argocd completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_argocd"
+"""
+
+[tools."http:helm"]
+version = "4.2.3"
+version_list_url = "https://api.github.com/repos/helm/helm/releases"
+version_json_path = ".[].tag_name"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+helm completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_helm"
+"""
+
+[tools."http:helm".platforms]
+linux-x64 = { url = "https://get.helm.sh/helm-v{{version}}-linux-amd64.tar.gz" }
+linux-arm64 = { url = "https://get.helm.sh/helm-v{{version}}-linux-arm64.tar.gz" }
+macos-arm64 = { url = "https://get.helm.sh/helm-v{{version}}-darwin-arm64.tar.gz" }
+
+[tools."github:hmans/beans"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+beans completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_beans"
+"""
+
+[tools."awscli"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+aws_completer=$(find "$MISE_TOOL_INSTALL_PATH" -name "aws_completer" -type f 2>/dev/null | head -1)
+if [[ -n "$aws_completer" && -x "$aws_completer" ]]; then
+  cat > "$MISE_TOOL_INSTALL_PATH/functions/_aws" <<EOF
+#compdef aws
+# AWS CLI completion using bash completer
+# This file needs to be sourced (not autoloaded) to execute complete -C
+# The __load_mise_extras function will handle sourcing files that contain complete -C
+complete -C "$aws_completer" aws
+EOF
+fi
+"""
+
+[tools."github:atuinsh/atuin"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+atuin gen-completions --shell zsh > "$MISE_TOOL_INSTALL_PATH/functions/_atuin"
+"""
 
 [tools."python"]
 version = "latest"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 pip completion --zsh > "$MISE_TOOL_INSTALL_PATH/functions/_pip"
+"""
+
+[tools."github:derailed/k9s"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+k9s completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_k9s"
 """
 
 [tools."kubectl"]
@@ -94,9 +253,9 @@ curl -fsSO https://github.com/zchee/zsh-completions/raw/refs/heads/main/src/zsh/
 
 [tools."github:reproducible-containers/diffoci"]
 version = "latest"
+bin = "diffoci"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
-mv "$MISE_TOOL_INSTALL_PATH/diffoci-"* "$MISE_TOOL_INSTALL_PATH/diffoci"
 diffoci completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_diffoci"
 """
 
@@ -144,8 +303,8 @@ version = "latest"
 # language=shell script
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
-ln -fs $plugin_dir/complete/_rg $MISE_TOOL_INSTALL_PATH/functions/_rg
-cp -vf doc/rg.1 $MISE_TOOL_INSTALL_PATH/share/man/man1
+ln -fs ../complete/_rg $MISE_TOOL_INSTALL_PATH/functions/_rg
+ln -fs ../../../doc/rg.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
 """
 
 [tools."github:junegunn/fzf"]
@@ -188,25 +347,31 @@ sg completions zsh > $MISE_TOOL_INSTALL_PATH/functions/_sg
 ast-grep completions zsh > $MISE_TOOL_INSTALL_PATH/functions/_ast-grep
 """
 
+[tools."github:jqlang/jq"]
+version = "latest"
+# language=shell script
+postinstall = """
+mv $MISE_TOOL_INSTALL_PATH/jq $MISE_TOOL_INSTALL_PATH/ojq
+"""
+
 [tools."github:itchyny/gojq"]
 version = "latest"
 # language=shell script
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
-ln -fs "$MISE_TOOL_INSTALL_PATH/gojq" "$MISE_TOOL_INSTALL_PATH/functions/jq"
+ln -fs gojq "$MISE_TOOL_INSTALL_PATH/jq"
 ln -fs "$MISE_TOOL_INSTALL_PATH/_gojq" "$MISE_TOOL_INSTALL_PATH/functions/_gojq"
 # todo need to allow for completions for jq symlink
 """
 
 [tools."github:mikefarah/yq"]
 version = "latest"
-# language=shell script
+bin = "yq"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man/man1
 
-mv $MISE_TOOL_INSTALL_PATH/yq_* $MISE_TOOL_INSTALL_PATH/yq
 yq completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_yq
-cp "$MISE_TOOL_INSTALL_PATH/yq.1" "$MISE_TOOL_INSTALL_PATH/share/man/man1/"
+ln -fs "../../../yq.1" "$MISE_TOOL_INSTALL_PATH/share/man/man1/"
 """
 
 [tools."github:wagoodman/dive"]
@@ -233,35 +398,24 @@ mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 dyff completion zsh > $MISE_TOOL_INSTALL_PATH/functions/_dyff
 """
 
-[tools."aqua:tree-sitter/tree-sitter"]
-version = "latest"
-# language=shell script
-postinstall = """
-mkdir -p $MISE_TOOL_INSTALL_PATH/functions
-tree-sitter complete --shell zsh > $MISE_TOOL_INSTALL_PATH/functions/_tree-sitter
-"""
-
 #[tools."github:eza-community/eza"]
 #version = "latest"
-#linux-x64 = { asset_pattern = " eza_x86_64-unknown-linux-musl.tar.gz " }
-#linux-arm64 = { asset_pattern = " eza_aarch64-unknown-linux-musl.tar.gz " }
-##macos-arm64 = { asset_pattern = "gh_*_macOS_arm64.tar.gz" }
-# language=shell script
+#asset_pattern = "eza_*" # doesn't work on macos, need to wait for https://github.com/eza-community/eza/issues/228
+## language=shell script
 #postinstall = """
-#set -x
 #mkdir -p $MISE_TOOL_INSTALL_PATH/functions $MISE_TOOL_INSTALL_PATH/share/man
-#version="$(mise current github:eza-community/eza)"
+#version="$(basename "$MISE_TOOL_INSTALL_PATH")"
 #
-#download_url_prefix="https://github.com/eza-community/eza/releases/download/v${version}/"
+#download_url_prefix="https://github.com/eza-community/eza/releases/download/v${version}"
 #curl -fsSL "${download_url_prefix}/completions-${version}.tar.gz" -o- |
-#  tar --extract --gzip --verbose --file=- --strip-components=3 --directory=$MISE_TOOL_INSTALL_PATH/functions
+#  tar --extract --gzip --file=- --strip-components=3 --directory=$MISE_TOOL_INSTALL_PATH/functions
 #
 #tmp="$(mktemp -d "${TMPDIR:-/tmp}"/eza.man.extractor.XXXXXXXXXX)"
 #trap 'rm -rf "$tmp"' EXIT
 #
 #mkdir -p "$tmp/extracted"
-#curl -fsSL "${download_url_prefix}/man-${version}.tar.gz" -o "$tmp/eza.man.tar.gz" |
-#  tar --extract --gzip --verbose --file=- --strip-components=3 --directory="$tmp/extracted"
+#curl -fsSL "${download_url_prefix}/man-${version}.tar.gz" -o - |
+#  tar --extract --gzip --file=- --strip-components=3 --directory="$tmp/extracted"
 #
 #while IFS= read -r -d '' f; do
 #  name="$(basename "$f")"
@@ -298,20 +452,27 @@ mv $MISE_TOOL_INSTALL_PATH/autocomplete/_fd $MISE_TOOL_INSTALL_PATH/functions/_f
 mv $MISE_TOOL_INSTALL_PATH/*.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
 """
 
-[hooks.enter]
-shell = "zsh"
-script = '''
-echo > /tmp/wot.enter.log
-printenv >> /tmp/wot.enter.log
-mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.enter.log
-'''
-[hooks.leave]
-shell = "zsh"
-script = '''
-echo > /tmp/wot.leave.log
-printenv >> /tmp/wot.leave.log
-mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.leave.log
-'''
+[tools."http:platform-tools"]
+version = "latest"
+
+[tools."http:platform-tools".platforms]
+macos-x64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-darwin.zip" }
+macos-arm64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-darwin.zip" }
+linux-x64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-linux.zip" }
+linux-arm64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-linux.zip" }
+
+#[hooks]
+#enter = '''
+#echo > /tmp/wot.enter.log
+#printenv >> /tmp/wot.enter.log
+#mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.enter.log
+#'''
+#leave = '''
+#echo > /tmp/wot.leave.log
+#printenv >> /tmp/wot.leave.log
+#mise list --json | jq -r '[.[] | map(.install_path)[]]' >> /tmp/wot.leave.log
+#'''
+#postinstall = "echo installed: $MISE_INSTALLED_TOOLS"
 
 [settings]
 idiomatic_version_file_enable_tools = ["go", "node"]

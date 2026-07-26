@@ -95,3 +95,4 @@ PS1="$PS1\[\e[32m\]]\[\e[m\]"
 PS1="$PS1\[\e[32m\]\\$\[\e[m\] "
 
 export PIP_ROOT_USER_ACTION=ignore
+export PATH="$PATH:$HOME/.local/bin"

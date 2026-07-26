@@ -1,7 +1,7 @@
 # https://grml.org/zsh/zsh-lovers.html
 
 rationalise-dot() {
-  if [[ $LBUFFER == *"go "* ]]; then
+  if [[ $LBUFFER == *"go "* || $LBUFFER == *"git "* ]]; then
     LBUFFER+=.
     return
   fi

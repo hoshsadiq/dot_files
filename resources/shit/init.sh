@@ -13,6 +13,7 @@ set -eux
 if command -v apt-get >/dev/null; then
   printf >&2 "\e[33mSetting DEBIAN_FRONTEND=noninteractive; Remember to set it in your Dockerfile if you need.\e[m\n"
   export DEBIAN_FRONTEND=noninteractive
+  [ -f /etc/apt/apt.conf.d/docker-clean ] && rm -f /etc/apt/apt.conf.d/docker-clean
 fi
 
 if [ ! -f /etc/os-release ]; then
@@ -31,10 +32,14 @@ command -v microdnf >/dev/null && packages="$(printf %s "$packages" | sed 's/neo
 >&2 echo "installing packages '$packages' first..."
 {
   command -v apt-get >/dev/null && echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf.d/quiet && apt-get update -qq && apt-get -qq install -o=Dpkg::Use-Pty=0 -y $packages
-  command -v apk >/dev/null && apk add --no-cache -q --no-progress $packages
+  command -v apk >/dev/null && apk add -q --no-progress $packages
   command -v yum >/dev/null && yum install -q -y $packages
- command -v microdnf >/dev/null && microdnf install -y $packages >/dev/null 2>&1
+  command -v microdnf >/dev/null && microdnf install -y $packages >/dev/null 2>&1
 } 2>&1 | tee /tmp/container-setup.log
+
+root_home="$(getent passwd root | cut -d: -f 6)"
+shit_real_user_home="$(getent passwd "$SHIT_REAL_USERNAME" | cut -d: -f 6)"
+shit_docker_user_home="$(getent passwd "$SHIT_DOCKER_USER" | cut -d: -f 6)"
 
 env | grep -E -v '^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)' >> /etc/environment
 if command -v nvim >/dev/null; then
@@ -53,10 +58,10 @@ fi
   echo "$SHIT_REAL_USERNAME ALL=(ALL:ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$SHIT_REAL_USERNAME"
 } 2>&1 | tee /tmp/container-setup.log
 
-cat /etc/shit/profile.sh >> "$(getent passwd root | cut -d: -f 6)/.bash_profile"
-cat /etc/shit/profile.sh >> "$(getent passwd "$SHIT_REAL_USERNAME" | cut -d: -f 6)/.bash_profile"
+cat /etc/shit/profile.sh >> "${root_home}/.bash_profile"
+cat /etc/shit/profile.sh >> "${shit_real_user_home}/.bash_profile"
 if [ -n "${SHIT_DOCKER_USER:-}" ] && [ "$SHIT_DOCKER_USER" != "$SHIT_REAL_USERNAME" ] && [ "$SHIT_DOCKER_USER" != "root" ]; then
-  cat /etc/shit/profile.sh >> "$(getent passwd "$SHIT_DOCKER_USER" | cut -d: -f 6)/.bash_profile"
+  cat /etc/shit/profile.sh >> "${shit_docker_user_home}/.bash_profile"
 fi
 
 cat <<EOF > /etc/pip.conf
@@ -64,4 +69,11 @@ cat <<EOF > /etc/pip.conf
 break-system-packages = true
 EOF
 
-exec sudo -u "$SHIT_DOCKER_USER" /bin/sh -c "cd $PWD; exec bash --login -i"
+mkdir -p "${root_home}/.local/bin" "${shit_real_user_home}/.local/bin" "${shit_docker_user_home}/.local/bin"
+
+if [ $# -eq 0 ]; then
+  set -- bash --login -i
+fi
+
+#exec sudo -u "$SHIT_DOCKER_USER" /bin/sh -c "cd $PWD; exec bash --login -i"
+exec sudo -u "$SHIT_DOCKER_USER" /bin/sh -c 'cd "$1"; shift; exec "$@"' sh "$PWD" "$@"

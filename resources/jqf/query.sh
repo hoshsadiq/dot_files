@@ -61,7 +61,6 @@ while (( $# > 0 )); do
       continue
     fi
     panic "unknown arg %q" "$1"
-    shift
     ;;
   esac
 done

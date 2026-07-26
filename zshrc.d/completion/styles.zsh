@@ -1,3 +1,10 @@
+# fzf-tab can't interpret zsh prompt escapes like %F{yellow}, so use plain text.
+# Zim's completion module sets '%F{yellow}-- %d --%f' which shows as literal text in fzf.
+zstyle ':completion:*:descriptions' format '[%d]'
+
+# fzf-tab prepends '·' to each item when groups exist. Disable it.
+zstyle ':fzf-tab:*' prefix ''
+
 ## ignores filenames already in the line
 zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
 

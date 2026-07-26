@@ -15,6 +15,9 @@
     navigate = true
     true-color = always
 
+[include]
+    path = ~/dot_files/config/git/delta.theme.gitconfig
+
 [merge]
     conflictStyle = zdiff3
 

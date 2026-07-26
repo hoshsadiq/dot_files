@@ -24,3 +24,23 @@ $tf_modules
 EOF
 }
 
+tf-plan-destroy-to-import(){
+  awk '
+    /^[[:space:]]*- resource .* \{$/ {
+      print; in_resource=1; depth=1; next
+    }
+    in_resource {
+      t=$0; o=gsub(/\{/,"&",t)
+      t=$0; c=gsub(/\}/,"&",t)
+      depth += o - c
+      if (depth == 0) { print; in_resource=0; next }
+      if (depth == 1 && $0 ~ /^[[:space:]]*- id[[:space:]]/) {
+        sub(/- id[[:space:]]+=/, "id =>", $0)
+        sub(/[[:space:]]*->[[:space:]]*null[[:space:]]*$/, "", $0)
+        print
+      }
+      next
+    }
+    { print }
+  '
+}

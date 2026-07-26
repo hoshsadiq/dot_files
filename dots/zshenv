@@ -9,6 +9,63 @@ export EDITOR='nvim'
 export VISUAL="$EDITOR"
 export GIT_EDITOR="$EDITOR"
 
+# Disable telemetry by default
+# Some of these are not even used, but it's good to default this.
+# See also https://donottrack.sh/
+export DO_NOT_TRACK=1
+export SAM_CLI_TELEMETRY=0
+export AZURE_CORE_COLLECT_TELEMETRY=0
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export GATSBY_TELEMETRY_DISABLED=1
+export GATSBY_TELEMETRY_DISABLED=1
+export HOMEBREW_NO_ANALYTICS=1
+export STNOUPGRADE=1
+export HOMEBREW_NO_ANALYTICS=1
+export OMO_SEND_ANONYMOUS_TELEMETRY=0
+export OMO_DISABLE_POSTHOG=1
+export OMO_CODEX_SEND_ANONYMOUS_TELEMETRY=0
+export OMO_CODEX_DISABLE_POSTHOG=1
+
+# set_env 'HOMEBREW_NO_ANALYTICS_THIS_RUN' '1'
+# set_env 'HOMEBREW_NO_AUTO_UPDATE' '1'
+# set_env 'LYNX_ANALYTICS' '0'
+# set_env 'CLOUDSDK_CORE_DISABLE_USAGE_REPORTING' 'true'
+# set_env 'HOOKDECK_CLI_TELEMETRY_OPTOUT' 'ANY_VALUE'
+
+# # Quickwit
+# # https://quickwit.io/
+# export QW_DISABLE_TELEMETRY=1
+
+# # https://docs.microsoft.com/en-us/deployoffice/privacy/overview-privacy-controls#diagnostic-data-sent-from-microsoft-365-apps-for-enterprise-to-microsoftd
+# case "$OSTYPE" in
+#   darwin*)
+#     if [[ "${toptout_exec}" == 'True' ]]
+#     then
+#       if in_path 'winword'
+#       then
+#         if in_path 'defaults'
+#         then
+#           run_cmd 'defaults' 'write com.microsoft.office DiagnosticDataTypePreference -string ZeroDiagnosticData'
+#         fi
+#       fi
+#     fi
+#   ;;
+# esac
+# if [[ "${toptout_exec}" == 'True' ]]
+# then
+#   if in_path 'netlify'
+#   then
+#     run_cmd 'netlify' '--telemetry-disable'
+#   fi
+# fi
+# if [[ "${toptout_exec}" == 'True' ]]
+# then
+#   if in_path 'scw'
+#   then
+#     run_cmd 'scw' 'config set send-telemetry=false'
+#   fi
+# fi
+
 # page
 export PAGER='less'
 export LESS=' -FRX'
@@ -22,5 +79,12 @@ export GPG_TTY=$(tty)
 # don't use the built-in virtualenv prompt
 export VIRTUAL_ENV_DISABLE_PROMPT=true
 
-[ "$OSTYPE" = "cygwin" ] && export CYGWIN="winsymlinks:native"
-[ "$OSTYPE" = "msys" ] && export MSYS="winsymlinks:native"
+[[ "$OSTYPE" = "cygwin" ]] && export CYGWIN="winsymlinks:native"
+[[ "$OSTYPE" = "msys" ]] && export MSYS="winsymlinks:native"
+
+[[ -d "$HOME/Library/Application Support/JetBrains/Toolbox/scripts" ]] && export PATH="$PATH:/Users/hoshsadiq/Library/Application Support/JetBrains/Toolbox/scripts"
+
+[[ -f ~/.local/bin/mise ]] && eval "$(~/.local/bin/mise activate zsh)"
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+PATH="$HOME/workspace/dev/bin:$PATH"

@@ -28,6 +28,20 @@ set findcase smart
 " Smooth scrolling, yes please. This is still a bit janky in Tridactyl.
 set smoothscroll true
 
+" Sometimes the status bar in the bottom left corner overlaps the Tridactyl
+" command line, so set an option to move the status bar to the right.
+guiset_quiet hoverlink right
+
+" Switch to frequent sites
+bind gm taball mail.google.com
+bind gc taball calendar.google.com
+bind nm taball office-sso.mailbox.org
+bind nc taball nx10836.your-storageshare.de/apps/calendar
+bind mw taball web.whatsapp.com
+
+" ============================================================================
+" SITE-SPECIFIC CONFIGURATIONS
+" ============================================================================
 " Don't run Tridactyl on some web sites because it doesn't work well, or
 " because the web site has its own keybindings.
 blacklistadd docs\.google\.com/.*/edit.*
@@ -43,16 +57,16 @@ unbindurl mail\.protonmail\.com x
 unbindurl mail\.protonmail\.com a
 " unbindurl mail\.protonmail\.com t " For now we can use C-v t
 
-" Sometimes the status bar in the bottom left corner overlaps the Tridactyl
-" command line, so set an option to move the status bar to the right.
-guiset_quiet hoverlink right
+" Improved WhatsApp
+bindurl web.whatsapp.com --mode=normal <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com --mode=insert <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com --mode=input <Escape> composite hint -f m2 ; fillcmdline ; ex.hide_and_clear
+bindurl web.whatsapp.com f hint -c [tabindex]:not(.two)>div,a
+bindurl web.whatsapp.com F hint -bc [tabindex]:not(.two)>div,a
 
 " Comment toggler for Reddit, Hacker News and Lobste.rs
-bind ;c hint -Jc [class*="expand"],[class="togg"],[class="comment_folder"]
+bind ;c hint -Jc [class*="expand"],[class=".togg.clicky"],[class="comment_folder"]
 bind ;u hint -Jc [class*="arrow"]
-
-" Make gu take you back to subreddit from comments
-bindurl reddit\.com gu urlparent 4
 
 " Google hinting
 bindurl www\.google\.com f hint -Jc .rc > .r > a
@@ -61,22 +75,28 @@ bindurl www\.google\.com gF hint -Jqbc .rc > .r > a
 
 " DuckDuckGo hinting
 bindurl duckduckgo\.com / focusinput 2
-bindurl duckduckgo\.com f hint -Jc .result__a,.result__url__domain
-bindurl duckduckgo\.com F hint -Jtc .result__a,.result__url__domain
-bindurl duckduckgo\.com gF hint -Jqbc .result__a,.result__url__domain
+bindurl duckduckgo\.com f hint -Jc [data-testid="result-title-a"]
+bindurl duckduckgo\.com F hint -Jtc [data-testid="result-title-a"]
+bindurl duckduckgo\.com gF hint -Jqbc [data-testid="result-title-a"]
 
 " Hacker News hinting
-bindurl news\.ycombinator\.com f hint -Jc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
-bindurl news\.ycombinator\.com F hint -Jtc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
-bindurl news\.ycombinator\.com gF hint -Jqbc span.pagetop > a,td.title > a,td.subtext > a:last-of-type
+bindurl news\.ycombinator\.com f hint -Jc span.pagetop a,.titleline > a,.subline > a:last-of-type
+bindurl news\.ycombinator\.com F hint -Jtc span.pagetop a,.titleline > a,.subline > a:last-of-type
+bindurl news\.ycombinator\.com gF hint -Jqbc span.pagetop a,.titleline > a,.subline > a:last-of-type
 
-bindurl news\.ycombinator\.com/item f hint -Jc span.pagetop > a,a.storylink,a.hnuser,div.comment a
-bindurl news\.ycombinator\.com/item F hint -Jtc span.pagetop > a,a.storylink,a.hnuser,div.comment a
-bindurl news\.ycombinator\.com/item gF hint -Jqbc span.pagetop > a,a.storylink,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item f hint -Jc span.pagetop a,.titleline > a,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item F hint -Jtc span.pagetop a,.titleline > a,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item gF hint -Jqbc span.pagetop a,.titleline > a,a.hnuser,div.comment a
+bindurl news\.ycombinator\.com/item pf hint -Jc span.pagetop a,.titleline > a,a.hnuser,div.comment a
+
+" Make gu take you back to home from comments
+bindurl news\.ycombinator\.com/item gu urlparent 2
 
 bindurl github\.com / focusinput 0
 
 " Reddit hinting
+" Make gu take you back to subreddit from comments
+bindurl reddit\.com gu urlparent 4
 " bindurl www.reddit.com f hint -Jc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link
 " bindurl www.reddit.com F hint -Jtc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link
 " bindurl www.reddit.com F hint -Jqbc a[data-click-id="subreddit"],a[data-click-id="body"],a.styled-outbound-link

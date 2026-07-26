@@ -13,5 +13,17 @@ path-add "$HOME/.local/bin"
 path-add "$HOME/.cargo/bin"
 path-add "$HOME/workspace/dev/bin"
 
+# Force Homebrew to win over system bins. zim-mise caches a frozen PATH snapshot
+# (~/.config/zim/modules/zim-mise/mise-activate.zsh) and re-exports it during
+# zim init, which clobbers the ordering set by ~/.zprofile's brew shellenv and
+# leaves /opt/homebrew/bin sitting after /bin. Force the prepend here, after
+# every other PATH mutation has run.
+if [[ -d /opt/homebrew/bin ]]; then
+  path-rm /opt/homebrew/bin
+  path-rm /opt/homebrew/sbin
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+fi
+typeset -U path PATH
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f $DOT_FILES/config/zsh/plugins/p10k.zsh ]] || source $DOT_FILES/config/zsh/plugins/p10k.zsh

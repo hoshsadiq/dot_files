@@ -1,18 +1,9 @@
 # shellcheck disable=SC2016
 
-# Start configuration added by Zim install {{{
-#
-# This is not sourced during shell startup, and it's only used to configure the
-# zimfw plugin manager.
-#
-
-#
-# Modules
-#
-
 zmodule joke/zim-mise
 
 zmodule ohmyzsh/ohmyzsh --root lib \
+    --use degit \
     --source functions.zsh \
     --source grep.zsh \
     --source spectrum.zsh \
@@ -66,18 +57,28 @@ alias gds="gd --staged"
 export PATH="$PATH:{}/bin"
 '
 
-zmodule marlonrichert/zsh-autocomplete
+#zmodule marlonrichert/zsh-autocomplete
 
-if (( ${+commands[atuin]} )); then
-  zmodule atuin-init --use mkdir --if-command atuin \
-    --cmd 'if [[ ! {}/init.zsh -nt ${commands[atuin]} ]]; then
-      atuin init --disable-up-arrow zsh > {}/init.zsh
-      zcompile -UR {}/init.zsh
-    fi' \
-    --source init.zsh
-else
-  zmodule zdharma-continuum/history-search-multi-word --use degit
-fi
+#zmodule cursor-agent-init --use mkdir --if-command cursor-agent \
+#  --cmd '
+#  if [[ ! {}/init.zsh -nt ${commands[cursor-agent]} ]]; then
+#    cursor-agent shell-integration zsh | sed -E \
+#        -e "/^export PATH/d" \
+#        -e "s#~/.local/bin/cursor-agent#${commands[cursor-agent]}#g" \
+#        >! {}/init.zsh
+#    zcompile -UR {}/init.zsh
+#  fi
+#  ' \
+#  --source init.zsh
+
+zmodule jeffreytse/zsh-vi-mode
+
+zmodule atuin-init --use mkdir --if-command atuin \
+  --cmd 'if [[ ! {}/init.zsh -nt ${commands[atuin]} ]]; then
+    atuin init zsh >! {}/init.zsh
+    zcompile -UR {}/init.zsh
+  fi' \
+  --source init.zsh
 
 #zmodule mviereck/x11docker \
 #  --source etc/git-extras-completion.zsh \
@@ -104,22 +105,16 @@ zmodule zchee/zsh-completions --name zchee-completions --fpath src/zsh
 zmodule completion
 
 # enhancd calls compdef, which needs to be loaded, and it is loaded as part of completion package above
-zmodule babarot/enhancd
+# enhancd writes outside Cursor sandboxes and breaks cd; disable when cursor-agent sets up the env
+zmodule babarot/enhancd --if '[[ -z "${CURSOR_AGENT:-}" ]]'
 
 #
 # Modules that must be initialized last
 #
 
-# Fish-like syntax highlighting for Zsh.
 # zsh-users/zsh-syntax-highlighting must be sourced after completion
 zmodule zsh-users/zsh-syntax-highlighting
-zmodule zdharma-continuum/history-search-multi-word
-# Fish-like history search (up arrow) for Zsh.
-# zsh-users/zsh-history-substring-search must be sourced after zsh-users/zsh-syntax-highlighting
-zmodule zsh-users/zsh-history-substring-search
-# Fish-like autosuggestions for Zsh.
 zmodule zsh-users/zsh-autosuggestions
-# }}} End configuration added by Zim install
 
 zmodule "$DOT_FILES/config/zsh/plugins/path-updates.zsh" \
   --name path-updates

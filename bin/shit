@@ -13,9 +13,9 @@ run_usage() {
   cat <<EOF
 usage: $0 [options] image
   options:
-    -cr, --container-runtime    Forces the container-runtime.
-                                Valid values are podman or docker.
-                                Defaults to binary detection with podman taking precedence.
+    --engine    Forces the container engine.
+                Valid values are podman or docker.
+                Defaults to binary detection with podman taking precedence.
 
 All docker run and podman run options are permitted.
 
@@ -39,6 +39,10 @@ warn() {
   log WARNING "$@"
 }
 
+err() {
+  log ERROR "$@"
+}
+
 # todo maybe utilise: https://github.com/LEI/porcelain/blob/master/porcelain.sh
 cleanup_bash_history() {
   bashHistDir="$1"
@@ -52,31 +56,54 @@ cleanup_bash_history() {
 }
 
 shit() {
-  local user args container runtime dind
+  local user args container engine dind
 
   user=""
   container=""
-  runtime=""
+  engine=""
+  other_cid=""
   dind=""
 
-  if [[ -z $runtime ]]; then
+  if [[ -z $engine ]]; then
     if command -v podman >/dev/null; then
-      runtime="podman"
+      engine="podman"
+    elif command -v docker >/dev/null; then
+      engine="docker"
     else
-      runtime="docker"
+      err "could not determine a container engine, no podman or docker binary found."
+      exit 1
     fi
   fi
 
-  args=()
+  declare -a args=()
+  declare -a cmd=()
   while [[ $# -gt 0 ]]; do
     arg="$1"
     case $arg in
-    -cr=* | --container-runtime=*)
-      runtime="${arg#*=}"
+    --entrypoint=*)
+      cmd+=("${arg#*=}")
       shift
       ;;
-    -cr | --container-runtime)
-      runtime="$2"
+    --entrypoint)
+      cmd+=("$2")
+      shift
+      shift
+      ;;
+    --engine=*)
+      engine="${arg#*=}"
+      shift
+      ;;
+    --engine)
+      engine="$2"
+      shift
+      shift
+      ;;
+    --nsenter=*)
+      other_cid="${arg#*=}"
+      shift
+      ;;
+    --nsenter)
+      other_cid="$2"
       shift
       shift
       ;;
@@ -102,7 +129,11 @@ shit() {
       shift
       ;;
     *)
-      if [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)= ]]; then
+      if [[ $arg == -- ]]; then
+        shift
+        cmd+=("$@")
+        break
+      elif [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)= ]]; then
         args+=("$arg")
         shift
       elif [[ $arg =~ ^(-[a-zA-Z]|--[a-zA-Z\-]+)$ ]]; then
@@ -121,9 +152,26 @@ shit() {
     esac
   done
 
+  if [[ -n $other_cid ]]; then
+    args+=(
+      --privileged
+      --security-opt=label=disable
+      "--pid=container:$other_cid"
+      "--net=container:$other_cid"
+      "--ipc=container:$other_cid"
+      "--uts=container:$other_cid"
+      "--cap-add=SYS_ADMIN"
+      "--cap-add=SYS_PTRACE"
+      "--cap-add=SYS_CHROOT"
+    )
+  else
+    args+=(--init)
+  fi
+
   if [[ $dind == true ]]; then
-    [[ $runtime == "docker" ]] && warn "TODO: -dind needs docker support" && exit 1
-    local socket="$(systemctl --user show podman.socket --value --property=Listen | sed 's/ (Stream)$//')"
+    [[ $engine == "docker" ]] && warn "TODO: -dind needs docker support" && exit 1
+    local socket
+    socket="$(systemctl --user show podman.socket --value --property=Listen | sed 's/ (Stream)$//')"
     args=(--security-opt label:type:container_runtime_t --volume "$socket:/var/run/docker.sock:Z" "${args[@]}")
   fi
 
@@ -131,11 +179,11 @@ shit() {
     local format
 
     format=".User"
-    if [[ $runtime == "docker" ]]; then
+    if [[ $engine == "docker" ]]; then
       format=".ContainerConfig$format"
     fi
 
-    user="$("$runtime" image inspect --format="{{ $format }}" "$container" || true)"
+    user="$("$engine" image inspect --format="{{ $format }}" "$container" || true)"
   fi
   user="${user:-root}"
 
@@ -152,19 +200,23 @@ shit() {
   remoteBashHistoryFile="$(mktemp -t 'XXXXXXXX.bash_history' --dry-run)"
 
   if [[ -z "${args[*]}" ]]; then
-    info "Running %s container '%s'" "$runtime" "$container"
+    info "Running %s container '%s'" "$engine" "$container"
   else
-    info "Running %s container '%s' with args '%s'" "$runtime" "$container" "${args[*]}"
+    info "Running %s container '%s' with args '%s'" "$engine" "$container" "${args[*]}"
   fi
   info "The container's bash_history is at '%s'" "$localBashHistoryFile"
-  "$runtime" run --interactive \
+  "$engine" run --interactive \
       --tty \
       --rm \
-      --init \
       --entrypoint /bin/sh \
       --volume "$SCRIPT_DIR/../resources/shit:/etc/shit:z,ro" \
       --volume "$localBashHistoryFile:$remoteBashHistoryFile" \
       --volume "$PWD:$PWD:z" \
+      --mount type=volume,source=apt-lists-cache,target=/var/lib/apt/lists \
+      --mount type=volume,source=apt-cache,target=/var/cache/apt \
+      --mount type=volume,source=apk-cache,target=/var/cache/apk \
+      --mount type=volume,source=yum-cache,target=/var/cache/yum \
+      --mount type=volume,source=dnf-cache,target=/var/cache/dnf \
       --env SHIT_REAL_USERNAME="$USER" \
       --env SHIT_DOCKER_USER="$user" \
       --env SHIT_USER_UID="$(id -u)" \
@@ -172,7 +224,8 @@ shit() {
       --user root \
       --workdir "$PWD" \
       "${args[@]}" \
-      "$container" -c /etc/shit/init.sh
+      "$container" \
+      -c 'exec /etc/shit/init.sh "$@"' _ ${cmd[@]+"${cmd[@]}"}
 
   # todo add cron to clean up bash histories
 }

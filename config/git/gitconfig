@@ -69,7 +69,18 @@
 	prune = fetch --prune
 	undo = reset --soft HEAD^
 
-    pwd = "!realpath --relative-to=$(git rev-parse --show-toplevel) $(cd -- ${GIT_PREFIX:-.}; pwd)"
+	tidy = "!f() { \
+          main=$(git main-branch); \
+          git fetch --prune && \
+          git branch --merged \"$main\" | \
+            awk -v m=\"$main\" '!/^[*+]/ && $1 != m {print $1}' | \
+            xargs -r git branch -D && \
+          git branch -v | \
+            awk '!/^[*+]/ && /\\[gone\\]/ {print $1}' | \
+            xargs -r git branch -D; \
+	    }; f"
+
+    pwd = rev-parse --show-prefix
 
 	branch-name = rev-parse --abbrev-ref HEAD
 	show-unpushed = log --branches --not --remotes
@@ -97,16 +108,7 @@
                 git checkout -b \"$1\" \"origin/$(git main-branch)\"; \
             }; f"
 
-    main-branch = "!f() { \
-                        set -eu; \
-                        for branch in main trunk; do \
-                            if command git show-ref -q --verify refs/heads/$branch; then \
-                                echo $branch; \
-                                return; \
-                            fi; \
-                        done; \
-                        echo master; \
-                    }; f"
+    main-branch = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
 
 	patch = --no-pager diff --no-color
     permission-reset = "!f() { \

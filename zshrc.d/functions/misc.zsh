@@ -135,7 +135,7 @@ mans() {
 function _calc {
     zcalc -e "$*"
 }
-aliases[=]='noglob _calc'
+# aliases[=]='noglob _calc'
 
 timer() {
   sleep $1
@@ -155,4 +155,8 @@ trimstdin() {
   while IFS= read -r line; do
      printf "%s\n" "$(trim "$line")"
   done
+}
+
+show_whitespace() {
+  sed 's/\t/→/g; s/ /·/g; s/$/¶/'
 }

@@ -106,4 +106,4 @@ function _zshaddhistory_ignore_command {
   return 0
 }
 
-add-zsh-hook zshaddhistory _zshaddhistory_ignore_command
+#add-zsh-hook zshaddhistory _zshaddhistory_ignore_command

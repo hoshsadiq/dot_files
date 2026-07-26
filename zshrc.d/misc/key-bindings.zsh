@@ -1,5 +1,7 @@
 [[ -o vi ]] || bindkey -v
 
+zmodload -F zsh/terminfo +p:terminfo
+
 # Make sure that the terminal is in application mode when zle is active, since
 # only then values from $terminfo are valid
 if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
@@ -49,69 +51,81 @@ function() {
     [[ -z $sequence ]] && return 1
 
     for i in "${maps[@]}"; do
-      bindkey -M "$i" "$sequence" "$widget"
+      if [[ $i == main ]]; then
+        bindkey "$sequence" "$widget"
+      else
+        bindkey -M "$i" "$sequence" "$widget"
+      fi
     done
   }
 
-  bind2maps emacs             -- BackSpace   backward-delete-char
-  bind2maps       viins       -- BackSpace   vi-backward-delete-char
-  bind2maps             vicmd -- BackSpace   vi-backward-char
-  bind2maps emacs             -- Home        beginning-of-line
-  bind2maps       viins vicmd -- Home        vi-beginning-of-line
-  bind2maps emacs             -- End         end-of-line
-  bind2maps       viins vicmd -- End         vi-end-of-line
-  bind2maps emacs viins       -- Insert      overwrite-mode
-  bind2maps             vicmd -- Insert      vi-insert
-  bind2maps emacs             -- Delete      delete-char
-  bind2maps       viins vicmd -- Delete      vi-delete-char
-  bind2maps emacs viins vicmd -- Up          up-line-or-history
-  bind2maps emacs viins vicmd -- Down        down-line-or-history
-  bind2maps emacs             -- Left        backward-char
-  bind2maps       viins vicmd -- Left        vi-backward-char
-  bind2maps emacs             -- Right       forward-char
-  bind2maps       viins vicmd -- Right       vi-forward-char
+  bind2maps      emacs             -- BackSpace   backward-delete-char
+  bind2maps            viins       -- BackSpace   vi-backward-delete-char
+  bind2maps                  vicmd -- BackSpace   vi-backward-char
+  bind2maps      emacs             -- Home        beginning-of-line
+  bind2maps            viins vicmd -- Home        vi-beginning-of-line
+  bind2maps      emacs             -- End         end-of-line
+  bind2maps            viins vicmd -- End         vi-end-of-line
+  bind2maps      emacs viins       -- Insert      overwrite-mode
+  bind2maps                  vicmd -- Insert      vi-insert
+  bind2maps      emacs             -- Delete      delete-char
+  bind2maps            viins vicmd -- Delete      vi-delete-char
+  # bind2maps      emacs viins vicmd -- Up          up-line-or-history
+  # bind2maps      emacs viins vicmd -- Down        down-line-or-history
+  bind2maps      emacs             -- Left        backward-char
+  bind2maps            viins vicmd -- Left        vi-backward-char
+  bind2maps      emacs             -- Right       forward-char
+  bind2maps            viins vicmd -- Right       vi-forward-char
 }
 
-bindkey '^[[1~' beginning-of-line # [Home] - Go to beginning of line
-bindkey '^A' beginning-of-line # Ctrl+A - Go to beginning of line
-bindkey '^[[4~' end-of-line # [End] - Go to end of line
-bindkey '^E' end-of-line # Ctrl+E - Go to end of line
+function _apply_custom_keybindings() {
+  bindkey '^[[1~' beginning-of-line # [Home] - Go to beginning of line
+  bindkey '^A' beginning-of-line # Ctrl+A - Go to beginning of line
+  bindkey '^[[4~' end-of-line # [End] - Go to end of line
+  bindkey '^E' end-of-line # Ctrl+E - Go to end of line
 
-bindkey '^?' backward-delete-char # [Backspace] - delete backward
-bindkey "^[[3~" delete-char # [Delete] - delete char
-bindkey "^H" backward-delete-word # [Ctrl+Backspace] - delete word backwards
-bindkey "^[[3;5~" delete-word # Ctrl+Del - delete word
-bindkey "^[d" delete-word # Ctrl+Del - delete word
+  bindkey '^?' backward-delete-char # [Backspace] - delete backward
+  bindkey "^[[3~" delete-char # [Delete] - delete char
+  bindkey "^H" backward-delete-word # [Ctrl+Backspace] - delete word backwards
+  bindkey "^[[3;5~" delete-word # Ctrl+Del - delete word
+  bindkey "^[d" delete-word # Ctrl+Del - delete word
 
-bindkey ' ' magic-space # [Space] - do history expansion
+  bindkey ' ' magic-space # [Space] - do history expansion
 
-# todo should probably have Ctrl+Left/Right arrow on Linux only, and on Mac should be Alt+Left/Right
-bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
-bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word
-bindkey '^[f' forward-word # [Alt+F] - move forward one word
-bindkey '^[b' backward-word # [Alt+B] - move backward one word
+  # todo should probably have Ctrl+Left/Right arrow on Linux only, and on Mac should be Alt+Left/Right
+  bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
+  bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word
+  bindkey '^[f' forward-word # [Alt+F] - move forward one word
+  bindkey '^[b' backward-word # [Alt+B] - move backward one word
 
-bindkey '^K' kill-line # Ctrl+K kill cursor to end of line
-bindkey '^U' kill-whole-line # Ctrl+U kill whole line
-bindkey "^[w" kill-region # Alt+w kill cursor to beginning of line
-bindkey '^w' backward-kill-word # ctrl-w removed word backwards
-bindkey "^Y" yank # Ctrl+Y paste what was previously killed
+  bindkey '^K' kill-line # Ctrl+K kill cursor to end of line
+  bindkey '^U' backward-kill-line # Ctrl+U kill cursor to beginning of line
+  bindkey "^[w" kill-region # Alt+w kill cursor to beginning of line
+  bindkey '^w' backward-kill-word # ctrl-w removed word backwards
+  bindkey "^Y" yank # Ctrl+Y paste what was previously killed
 
-# These two lines are the same, but for some reason it doesn't work within tmux
-bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
+  # These two lines are the same, but for some reason it doesn't work within tmux
+  bindkey "^[[Z" reverse-menu-complete # [Shift-Tab] - move through the completion menu backwards
 
-# Edit the current command line in $EDITOR
-# autoload -U edit-command-line
-# zle -N edit-command-line
-# bindkey '\C-x\C-e' edit-command-line
+  bindkey "^[m" copy-prev-shell-word
 
-bindkey "^[m" copy-prev-shell-word
+  bindkey "^@" set-mark-command
 
-bindkey '^R' history-search-multi-word
+  bindkey "^[[6~" down-line-or-history
+  bindkey "^[[5~" up-line-or-history
 
-bindkey "^@" set-mark-command
+  bindkey '^[?' run-help
+}
 
-bindkey "^[[6~" down-line-or-history
-bindkey "^[[5~" up-line-or-history
+_apply_custom_keybindings
 
-bindkey '^[?' run-help
+# zsh-vi-mode runs deferred init on first zle-line-init, which clobbers
+# keybindings. Use the array-based hook so multiple files can append
+# without clobbering each other.
+zvm_after_init_commands+=(_apply_custom_keybindings)
+
+function _register_atuin_bindings() {
+  zvm_bindkey viins '^R' atuin-search-viins
+  zvm_bindkey vicmd '^R' atuin-search-vicmd
+}
+zvm_after_init_commands+=(_register_atuin_bindings)

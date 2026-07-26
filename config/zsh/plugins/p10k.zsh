@@ -1262,57 +1262,70 @@
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_FOREGROUND=28
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_VISUAL_IDENTIFIER_EXPANSION='⭐'
   #   typeset -g POWERLEVEL9K_KUBECONTEXT_TEST_CONTENT_EXPANSION='> ${P9K_CONTENT} <'
+  # Context classes control color/icon per-context. Patterns are matched against P9K_CONTENT before
+  # content expansion — i.e. the raw context name from `kubectl config current-context`.
+  # Patterns are tried in order; first match wins.
+  #
+  # Sample contexts this covers:
+  #   361-antarctica/dev/microservice   → DEV
+  #   361-global/global-preprod/…       → PREPROD  (matched before PROD)
+  #   361-malawi/prod/utility           → PROD
+  #   k3s-tailscale                     → K3S
   typeset -g POWERLEVEL9K_KUBECONTEXT_CLASSES=(
-      # '*prod*'  PROD    # These values are examples that are unlikely
-      # '*test*'  TEST    # to match your needs. Customize them as needed.
-      '*'       DEFAULT)
-  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_FOREGROUND=134
+      'k3s-*'     K3S      # local k3s clusters (e.g. k3s-tailscale)
+      '*preprod*' PREPROD  # must come before *prod* to avoid false match
+      '*staging*' PREPROD
+      '*prod*'    PROD
+      '*dev*'     DEV
+      '*'         DEFAULT
+  )
+  typeset -g POWERLEVEL9K_KUBECONTEXT_PROD_FOREGROUND=196     # red   — danger, eyes up
+  typeset -g POWERLEVEL9K_KUBECONTEXT_PREPROD_FOREGROUND=214  # orange — caution
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEV_FOREGROUND=76       # green  — safe
+  typeset -g POWERLEVEL9K_KUBECONTEXT_K3S_FOREGROUND=39       # cyan   — local/personal
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_FOREGROUND=134  # purple — unknown/other
   # typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
-  # Use POWERLEVEL9K_KUBECONTEXT_CONTENT_EXPANSION to specify the content displayed by kubecontext
-  # segment. Parameter expansions are very flexible and fast, too. See reference:
+  # Use POWERLEVEL9K_KUBECONTEXT_CONTENT_EXPANSION to control what is displayed.
+  # Parameter expansions are very flexible. See reference:
   # http://zsh.sourceforge.net/Doc/Release/Expansion.html#Parameter-Expansion.
   #
-  # Within the expansion the following parameters are always available:
+  # Available parameters:
   #
-  # - P9K_CONTENT                The content that would've been displayed if there was no content
-  #                              expansion defined.
-  # - P9K_KUBECONTEXT_NAME       The current context's name. Corresponds to column NAME in the
-  #                              output of `kubectl config get-contexts`.
-  # - P9K_KUBECONTEXT_CLUSTER    The current context's cluster. Corresponds to column CLUSTER in the
-  #                              output of `kubectl config get-contexts`.
-  # - P9K_KUBECONTEXT_NAMESPACE  The current context's namespace. Corresponds to column NAMESPACE
-  #                              in the output of `kubectl config get-contexts`. If there is no
-  #                              namespace, the parameter is set to "default".
-  # - P9K_KUBECONTEXT_USER       The current context's user. Corresponds to column AUTHINFO in the
-  #                              output of `kubectl config get-contexts`.
+  # - P9K_CONTENT                The content that would've been displayed without a content expansion.
+  # - P9K_KUBECONTEXT_NAME       Full context name (= `kubectl config current-context`).
+  # - P9K_KUBECONTEXT_CLUSTER    Cluster field from kubeconfig.
+  # - P9K_KUBECONTEXT_NAMESPACE  Namespace field; "default" when unset.
+  # - P9K_KUBECONTEXT_USER       User/authinfo field.
   #
-  # If the context points to Google Kubernetes Engine (GKE) or Elastic Kubernetes Service (EKS),
-  # the following extra parameters are available:
+  # For GKE/EKS contexts, additional parsed fields are available:
+  # - P9K_KUBECONTEXT_CLOUD_NAME     "gke" or "eks"
+  # - P9K_KUBECONTEXT_CLOUD_ACCOUNT  Account/project ID
+  # - P9K_KUBECONTEXT_CLOUD_ZONE     Availability zone
+  # - P9K_KUBECONTEXT_CLOUD_CLUSTER  Cluster short-name
   #
-  # - P9K_KUBECONTEXT_CLOUD_NAME     Either "gke" or "eks".
-  # - P9K_KUBECONTEXT_CLOUD_ACCOUNT  Account/project ID.
-  # - P9K_KUBECONTEXT_CLOUD_ZONE     Availability zone.
-  # - P9K_KUBECONTEXT_CLOUD_CLUSTER  Cluster.
+  # Display option examples (uncomment ONE block at a time):
   #
-  # P9K_KUBECONTEXT_CLOUD_* parameters are derived from P9K_KUBECONTEXT_CLUSTER. For example,
-  # if P9K_KUBECONTEXT_CLUSTER is "gke_my-account_us-east1-a_my-cluster-01":
+  # Option A — full context name + non-default namespace (current):
+  #   361-antarctica/dev/microservice:my-ns
   #
-  #   - P9K_KUBECONTEXT_CLOUD_NAME=gke
-  #   - P9K_KUBECONTEXT_CLOUD_ACCOUNT=my-account
-  #   - P9K_KUBECONTEXT_CLOUD_ZONE=us-east1-a
-  #   - P9K_KUBECONTEXT_CLOUD_CLUSTER=my-cluster-01
+  # Option B — alias map: replace known long names with short labels:
+  #   ${${${P9K_KUBECONTEXT_NAME}:gs/361-antarctica\/dev/ant-dev}:gs/361-global\/global-prod/global-prod}
+  #   (chain :gs// substitutions as needed)
   #
-  # If P9K_KUBECONTEXT_CLUSTER is "arn:aws:eks:us-east-1:123456789012:cluster/my-cluster-01":
+  # Option C — cluster + namespace only (ignores context name):
+  #   ${P9K_KUBECONTEXT_CLUSTER}${${:-/$P9K_KUBECONTEXT_NAMESPACE}:#/default}
   #
-  #   - P9K_KUBECONTEXT_CLOUD_NAME=eks
-  #   - P9K_KUBECONTEXT_CLOUD_ACCOUNT=123456789012
-  #   - P9K_KUBECONTEXT_CLOUD_ZONE=us-east-1
-  #   - P9K_KUBECONTEXT_CLOUD_CLUSTER=my-cluster-01
+  # Option D — truncate to last N chars of context name (keep the tail):
+  #   ${P9K_KUBECONTEXT_NAME: -20}${${:-/$P9K_KUBECONTEXT_NAMESPACE}:#/default}
+  #
+  # Option E — truncate to first N chars:
+  #   ${P9K_KUBECONTEXT_NAME:0:30}${${:-/$P9K_KUBECONTEXT_NAMESPACE}:#/default}
+
+  # Option A (full context name — explicitly uses NAME, not CLOUD_CLUSTER).
   typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION=
-  # Show P9K_KUBECONTEXT_CLOUD_CLUSTER if it's not empty and fall back to P9K_KUBECONTEXT_NAME.
-  POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION+='${P9K_KUBECONTEXT_CLOUD_CLUSTER:-${P9K_KUBECONTEXT_NAME}}'
-  # Append the current context's namespace if it's not "default".
+  POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION+='${P9K_KUBECONTEXT_NAME}'
+  # Append namespace only when it's not "default".
   POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION+='${${:-/$P9K_KUBECONTEXT_NAMESPACE}:#/default}'
 
   # Custom prefix.
