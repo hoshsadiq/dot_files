@@ -1,0 +1,74 @@
+{
+  "routes": {
+    "reasoning": {
+      "name": "Reasoning & Architecture",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 200000,
+      "maxTokens": 128000,
+      "targets": [
+        {
+          "provider": "anthropic",
+          "modelId": "claude-opus-4-7",
+          "label": "L1: Claude Opus 4.7"
+        },
+        {
+          "provider": "anthropic",
+          "modelId": "claude-sonnet-4-6",
+          "label": "L2: Claude Sonnet 4.6"
+        }
+      ]
+    },
+    "balanced": {
+      "name": "Balanced Coding",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 200000,
+      "maxTokens": 128000,
+      "targets": [
+        {
+          "provider": "anthropic",
+          "modelId": "claude-sonnet-4-6",
+          "label": "L1: Claude Sonnet 4.6"
+        },
+        {
+          "provider": "anthropic",
+          "modelId": "claude-opus-4-7",
+          "label": "L2: Claude Opus 4.7"
+        }
+      ]
+    },
+    "fast": {
+      "name": "Fast & Lightweight",
+      "reasoning": false,
+      "input": ["text", "image"],
+      "contextWindow": 200000,
+      "maxTokens": 16384,
+      "targets": [
+        {
+          "provider": "anthropic",
+          "modelId": "claude-haiku-4-5",
+          "label": "L1: Claude Haiku 4.5"
+        },
+        {
+          "provider": "anthropic",
+          "modelId": "claude-sonnet-4-6",
+          "label": "L2: Claude Sonnet 4.6"
+        }
+      ]
+    }
+  },
+  "aliases": {
+    "reasoning": ["auto-router/reasoning"],
+    "balanced": ["auto-router/balanced"],
+    "fast": ["auto-router/fast"]
+  },
+  "policyRules": [
+    {
+      "name": "prefer-subscription",
+      "type": "prefer-provider",
+      "provider": "anthropic",
+      "priority": 10
+    }
+  ]
+}

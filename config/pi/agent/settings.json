@@ -1,0 +1,21 @@
+{
+  "defaultModel": "claude-opus-4-7",
+  "defaultProvider": "anthropic",
+  "enableInstallTelemetry": false,
+  "enabledProviders": [
+    "anthropic"
+  ],
+  "lastChangelogVersion": "0.82.1",
+  "model": "claude-opus-4-6",
+  "packages": [
+    "npm:pi-auto-router",
+    "npm:pi-lean-ctx",
+    "npm:pi-agents-team",
+    "npm:@gotgenes/pi-anthropic-auth"
+  ],
+  "provider": "anthropic",
+  "theme": "catppuccin-mocha",
+  "warnings": {
+    "anthropicExtraUsage": false
+  }
+}

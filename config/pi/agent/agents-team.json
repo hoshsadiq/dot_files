@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 4,
+  "enabled": true,
+  "routingMode": "team",
+  "roles": {
+    "explorer": {
+      "whenToUse": "Use for fast reconnaissance. Best for 'where is X?', 'how does Y work?', 'list files that touch Z.'",
+      "model": "anthropic/claude-haiku-4-5",
+      "thinkingLevel": "low",
+      "access": {
+        "tools": ["read", "grep", "find", "ls", "bash"],
+        "write": false
+      },
+      "prompt": "default"
+    },
+    "librarian": {
+      "whenToUse": "Use for external reference lookup. Official docs, library APIs, OSS implementation examples.",
+      "model": "anthropic/claude-haiku-4-5",
+      "thinkingLevel": "low",
+      "access": {
+        "tools": ["read", "grep", "find", "ls", "bash"],
+        "write": false
+      },
+      "prompt": "default"
+    },
+    "oracle": {
+      "whenToUse": "Use for architecture judgment, root-cause analysis, and complex debugging. Thinks slowly, answers carefully.",
+      "model": "anthropic/claude-opus-4-7",
+      "thinkingLevel": "high",
+      "access": {
+        "tools": ["read", "grep", "find", "ls", "bash"],
+        "write": false
+      },
+      "prompt": "default"
+    },
+    "fixer": {
+      "whenToUse": "Use for bounded code changes. Implement a fix, add a test, edit one file.",
+      "model": "anthropic/claude-sonnet-4-6",
+      "thinkingLevel": "medium",
+      "access": {
+        "tools": ["read", "bash", "edit", "write"],
+        "write": true
+      },
+      "prompt": "default"
+    },
+    "reviewer": {
+      "whenToUse": "Use for code review, quality checks, and plan critique. Security, correctness, style.",
+      "model": "anthropic/claude-sonnet-4-6",
+      "thinkingLevel": "medium",
+      "access": {
+        "tools": ["read", "grep", "find", "ls", "bash"],
+        "write": false
+      },
+      "prompt": "default"
+    },
+    "designer": {
+      "whenToUse": "Use for UI/UX, frontend, visual design, CSS, and styling work.",
+      "model": "anthropic/claude-sonnet-4-6",
+      "thinkingLevel": "medium",
+      "access": {
+        "tools": ["read", "bash", "edit", "write"],
+        "write": true
+      },
+      "prompt": "default"
+    }
+  }
+}
