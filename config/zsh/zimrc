@@ -104,10 +104,6 @@ zmodule zchee/zsh-completions --name zchee-completions --fpath src/zsh
 # completion must be sourced after all modules that add completion definitions.
 zmodule completion
 
-# enhancd calls compdef, which needs to be loaded, and it is loaded as part of completion package above
-# enhancd writes outside Cursor sandboxes and breaks cd; disable when cursor-agent sets up the env
-zmodule babarot/enhancd --if '[[ -z "${CURSOR_AGENT:-}" ]]'
-
 #
 # Modules that must be initialized last
 #

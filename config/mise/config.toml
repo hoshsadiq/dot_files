@@ -1,5 +1,5 @@
 [plugins]
-#zerobrew = "https://github.com/kennyg/mise-zerobrew"
+zerobrew = "https://github.com/kennyg/mise-zerobrew"
 
 [env]
 FZF_DEFAULT_OPTS = "--reverse --exit-0 --border --ansi"
@@ -51,7 +51,6 @@ mkcert = "latest"
 "github:flosell/iam-policy-json-to-terraform" = "latest"
 "github:cooklang/cookcli" = "latest"
 uv = "latest"
-"pipx:mullvad-closest" = "latest"
 "github:fullstorydev/grpcurl" = "latest"
 "github:minamijoyo/hcledit" = "latest"
 "github:kaushiksrini/parqeye" = "latest"
@@ -69,14 +68,14 @@ gemini = "latest"
 "go:sigs.k8s.io/kubectl-validate" = "latest"
 yamllint = "latest"
 "npm:oh-my-opencode" = "latest"
+"npm:@earendil-works/pi-coding-agent" = "latest"
+"github:yvgude/lean-ctx" = "latest"
 tree-sitter = "latest"
 "pipx:pynvim" = "latest"
 bun = "latest"
 shfmt = "latest"
 "github:slackapi/slack-cli" = "latest"
-"github:grafana/alloy" = { version = "latest", rename_exe = "alloy" }
 "github:zellij-org/zellij" = "latest"
-"github:rtk-ai/rtk" = "0.37.1"
 "github:ankitpokhrel/jira-cli" = { version = "latest", exe = "jira" }
 aube = "latest"
 "npm:ccusage" = "latest"
@@ -87,13 +86,30 @@ rclone = "latest"
 "github:simulot/immich-go" = "latest"
 "npm:@immich/cli" = "latest"
 "npm:pake-cli" = "latest"
-#"zerobrew:pv" = "latest"
-#"zerobrew:bash" = "latest"
-#"zerobrew:eza" = "latest"
+"zerobrew:pv" = "latest"
+"zerobrew:bash" = "latest"
+"zerobrew:eza" = "latest"
+"github:YoanWai/agent-manager" = "latest"
+"github:herdrdev/herdr" = "latest"
 
 [tools."github:linkerd/linkerd2"]
 version = "latest"
 bin = "linkerd"
+
+[tools."github:grafana/alloy" ]
+version = "latest"
+rename_exe = "alloy"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+alloy completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_alloy"
+"""
+
+[tools."github:grafana/gcx" ]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+gcx completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_gcx"
+"""
 
 [tools."zb"]
 version = "latest"
@@ -194,6 +210,20 @@ version = "latest"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 atuin gen-completions --shell zsh > "$MISE_TOOL_INSTALL_PATH/functions/_atuin"
+"""
+
+[tools."github:ajeetdsouza/zoxide"]
+version = "latest"
+postinstall = """
+mkdir -p "$MISE_TOOL_INSTALL_PATH/functions"
+ln -fs ../completions/_zoxide "$MISE_TOOL_INSTALL_PATH/functions/_zoxide"
+zoxide init zsh --cmd cd > "$MISE_TOOL_INSTALL_PATH/init.zsh"
+# --cmd cd replaces z/zi with cd/cdi; add z/zi back as aliases
+cat >> "$MISE_TOOL_INSTALL_PATH/init.zsh" << 'EOF'
+alias z=__zoxide_z
+alias zi=__zoxide_zi
+EOF
+zsh -c 'zcompile -UR "$0/init.zsh"' "$MISE_TOOL_INSTALL_PATH"
 """
 
 [tools."python"]
