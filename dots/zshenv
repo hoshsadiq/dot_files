@@ -84,7 +84,27 @@ export VIRTUAL_ENV_DISABLE_PROMPT=true
 
 [[ -d "$HOME/Library/Application Support/JetBrains/Toolbox/scripts" ]] && export PATH="$PATH:/Users/hoshsadiq/Library/Application Support/JetBrains/Toolbox/scripts"
 
-[[ -f ~/.local/bin/mise ]] && eval "$(~/.local/bin/mise activate zsh)"
-[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+# Cache `mise activate` and `brew shellenv` — both are pure functions of the
+# binary they inspect, so we only need to regenerate when the binary changes.
+# Saves ~200ms on every shell invocation.
+__cache_eval() {
+  # $1 = cache file, $2 = binary, $3.. = argv to run to (re)generate cache
+  local cache=$1 bin=$2
+  shift 2
+  if [[ ! -s $cache || $bin -nt $cache ]]; then
+    mkdir -p "${cache:h}"
+    "$@" >| "$cache"
+  fi
+  source "$cache"
+}
+
+[[ -f ~/.local/bin/mise ]] && \
+  __cache_eval ~/.cache/zsh/mise-activate.zsh ~/.local/bin/mise \
+    ~/.local/bin/mise activate zsh
+[[ -f /opt/homebrew/bin/brew ]] && \
+  __cache_eval ~/.cache/zsh/brew-shellenv.zsh /opt/homebrew/bin/brew \
+    /opt/homebrew/bin/brew shellenv
+
+unset -f __cache_eval
 
 PATH="$HOME/workspace/dev/bin:$PATH"

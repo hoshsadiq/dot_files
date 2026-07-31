@@ -1,5 +1,8 @@
 PATH_DEBUG=false
 
+# path/PATH are tied by zsh; keep unique entries so we can rely on array ops.
+typeset -U path PATH
+
 join_by() {
   local IFS="$1"
   shift
@@ -13,56 +16,44 @@ inArray () {
   return 1
 }
 
-#__path_ensure_before=()
-
+# path-add: append (or --before prepend) one or more directories to $PATH.
+# Skips non-existent paths and already-present entries. Pure zsh, no forks.
 path-add() {
-  local paths add_before # ensure_before
+  local dir add_before=false
+  local -a paths
 
-  paths=()
-  add_before=false
-#  ensure_before=false
-  for arg in "$@"; do
-    if [[ "$arg" == "--before" ]]; then
+  for dir in "$@"; do
+    if [[ "$dir" == "--before" ]]; then
       add_before=true
       continue
-#    elif [[ "$arg" == "--ensure-first" ]]; then
-#      ensure_before=true
-#      add_before=true
-#      continue
     fi
 
-    dir="${arg%/}"
-#    paths=("$dir")
-    if [ -d "$dir" ] && ! echo "$PATH" | grep -Eq "(^|:)$dir($|:)" && ! inArray "$dir" "${paths[@]}"; then
-      paths=("$dir")
-    fi
+    dir="${dir%/}"
+    [[ -d "$dir" ]] || continue
+    # (Ie) = "index of exact match"; 0 means not present.
+    (( ${path[(Ie)$dir]} )) && continue
+    (( ${paths[(Ie)$dir]} )) && continue
+    paths+=("$dir")
   done
 
-#  if [[ "$ensure_before" == "true" ]]; then
-#    __path_ensure_before+=("${paths[@]}")
-#  fi
-
-  paths_sep="$(join_by ":" "${paths[@]}")"
-
-#  [[ "$ensure_before" == "true" ]] && PATH="$(join_by ":" "${__path_ensure_before[@]}"):$PATH"
-  if [[ -z "$paths_sep" ]]; then
-    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: skipping empty path (args: '%s')\n" "$*"
+  (( ${#paths} )) || {
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: nothing to add (args: '%s')\n" "$*"
     return
-  fi
+  }
 
   if [[ "$add_before" == "true" ]]; then
-    PATH="$paths_sep:$PATH"
-    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: added '%s' before\n" "$paths_sep"
+    path=("${paths[@]}" "${path[@]}")
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: prepended '%s'\n" "${(j.:.)paths}"
   else
-    PATH="$PATH:$paths_sep"
-    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: added '%s' after" "$paths_sep"
+    path=("${path[@]}" "${paths[@]}")
+    [[ ${PATH_DEBUG:-false} == "true" ]] && >&2 printf "path-add: appended '%s'\n" "${(j.:.)paths}"
   fi
-  PATH="$(echo "$PATH" | sed -e 's;^:\+\|:\+$;;g' -e 's;::\*;:;g')"
-#  typeset -U path
 }
 
+# path-rm: remove a directory from $PATH. Pure zsh.
 path-rm() {
-    PATH="$(echo "$PATH" | sed -e "s;\(^\|:\)${1%/}\(:\|\$\);\1\2;g" -e 's;^:\|:$;;g' -e 's;::*;:;g')"
+  local target="${1%/}"
+  path=("${(@)path:#$target}")
 }
 
 path-show() {

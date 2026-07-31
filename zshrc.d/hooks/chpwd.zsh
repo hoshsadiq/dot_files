@@ -10,14 +10,27 @@ add-zsh-hook -Uz chpwd _z_chpwd
 _z_chpwd
 
 _last_git_bin=""
+# Walk parents in pure zsh looking for a .git entry. Skips the double `git`
+# fork (~20ms on shell start when cwd is inside a repo).
+_z_find_gitroot() {
+  local dir=$PWD
+  while [[ -n $dir && $dir != / ]]; do
+    [[ -e $dir/.git ]] && { print -r -- "$dir"; return 0; }
+    dir=${dir:h}
+  done
+  return 1
+}
+
 _z_path_add_gitroot() {
-  if [[ "$_last_git_bin" != "" ]]; then
+  if [[ -n "$_last_git_bin" ]]; then
     path-rm "$_last_git_bin"
     _last_git_bin=""
   fi
 
-  if [[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" == "true" ]]; then
-    git_bin="$(git rev-parse --show-toplevel)/bin"
+  local root
+  if root=$(_z_find_gitroot); then
+    local git_bin="$root/bin"
+    [[ -d $git_bin ]] || return 0
     path-add "$git_bin"
     _last_git_bin="$git_bin"
   fi
