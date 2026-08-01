@@ -1,0 +1,8 @@
+# Automatically detect theme based on macOS appearance setting
+--theme="auto:system"
+
+# Theme for dark mode
+--theme-dark="Catppuccin Mocha"
+
+# Theme for light mode
+--theme-light="Catppuccin Latte"
