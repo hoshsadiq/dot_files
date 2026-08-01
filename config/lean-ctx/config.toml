@@ -1,0 +1,8 @@
+compression_level = "standard"
+excluded_commands = ["jq"]
+
+[tools]
+profile = "power"
+
+[archive]
+enabled = true

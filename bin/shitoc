@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+declare -a project_args=()
+while [[ $# -gt 0 ]]; do
+  arg="$1"
+  case $arg in
+  --project=*)
+    project_args+=("--volume" "$HOME/workspace/${arg#*=}:$HOME/workspace/${arg#*=}:z")
+    shift
+    ;;
+  --project)
+    project_args+=("--volume" "$HOME/workspace/${2}:$HOME/workspace/${2}:z")
+    shift
+    shift
+    ;;
+  *)
+    if [[ $arg == -- ]]; then
+      shift
+      break
+    fi
+    ;;
+  esac
+done
+
+
+exec "$SCRIPT_DIR/shit" \
+    --volume /Users/hoshsadiq/.config/opencode:/root/.config/opencode:z \
+    --volume /Users/hoshsadiq/.local/state/opencode:/root/.local/state/opencode:z \
+    --volume /Users/hoshsadiq/.local/share/opencode:/root/.local/share/opencode:z \
+    --volume /Users/hoshsadiq/.opencode:/root/.opencode:z \
+    --volume /Users/hoshsadiq/.cache/oh-my-opencode:/root/.cache/oh-my-opencode:z \
+    --volume /Users/hoshsadiq/.cache/opencode:/root/.cache/opencode:z \
+    --volume /Users/hoshsadiq/.gemini:/root/.gemini:z \
+    --volume /Users/hoshsadiq/dot_files/config/claude:/root/dot_files/config/claude:z \
+    --volume /Users/hoshsadiq/.claude:/root/.claude:z \
+    --volume /Users/hoshsadiq/.claude.json:/root/.claude.json:z \
+    "${project_args[@]}" \
+    --env CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
+    --env CLAUDE_CODE_ENABLE_TELEMETRY=0 \
+    --entrypoint opencode \
+    ghcr.io/anomalyco/opencode \
+    "$@"
