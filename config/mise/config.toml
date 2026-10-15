@@ -1,6 +1,3 @@
-[plugins]
-zerobrew = "https://github.com/kennyg/mise-zerobrew"
-
 [env]
 FZF_DEFAULT_OPTS = "--reverse --exit-0 --border --ansi"
 MISE_COMPLETION_REG = "~/.zfunc/.mise-completions"
@@ -9,8 +6,6 @@ EZA_CONFIG_DIR = "~/.config/eza/theme.yml"
 [tool_alias]
 kubectx = 'github:ahmetb/kubectx'
 kubens = 'github:ahmetb/kubectx'
-zb = 'github:lucasgelfond/zerobrew'
-zbx = 'github:lucasgelfond/zerobrew'
 
 [tools]
 eksctl = "latest"
@@ -36,7 +31,6 @@ watchexec = "latest"
 "github:matsuyoshi30/gitsu" = "latest"
 "github:sters/yaml-diff" = "latest"
 "github:benibela/xidel" = "latest"
-"github:block/goose" = "latest"
 "github:sachaos/viddy" = "latest"
 "github:neovim/neovim" = "latest"
 "github:wader/fq" = "latest"
@@ -57,7 +51,6 @@ uv = "latest"
 "github:Genymobile/scrcpy" = "latest"
 vault = "latest"
 "github:huseyinbabal/taws" = "latest"
-claude = "latest"
 "github:Mikescher/better-docker-ps" = "latest"
 "npm:typescript-language-server" = "latest"
 "npm:typescript" = "latest"
@@ -67,9 +60,7 @@ claude = "latest"
 gemini = "latest"
 "go:sigs.k8s.io/kubectl-validate" = "latest"
 yamllint = "latest"
-"npm:oh-my-opencode" = "latest"
 "npm:@earendil-works/pi-coding-agent" = "latest"
-"github:yvgude/lean-ctx" = "latest"
 tree-sitter = "latest"
 "pipx:pynvim" = "latest"
 bun = "latest"
@@ -86,17 +77,26 @@ rclone = "latest"
 "github:simulot/immich-go" = "latest"
 "npm:@immich/cli" = "latest"
 "npm:pake-cli" = "latest"
-"zerobrew:pv" = "latest"
-"zerobrew:bash" = "latest"
-"zerobrew:eza" = "latest"
 "github:YoanWai/agent-manager" = "latest"
-"github:herdrdev/herdr" = "latest"
+"github:rhysd/actionlint" = "latest"
+"github:docker/buildx" = { version = "latest", bin = "buildx" }
+"gitlab:gitlab-org/cli" = "latest"
+"github:j178/prek" = "latest"
+"npm:@ikigai-digital/lightspeed" = "latest"
+pandoc = "latest"
+
+[tools."github:herdrdev/herdr"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+herdr completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_herdr"
+"""
 
 [tools."github:linkerd/linkerd2"]
 version = "latest"
 bin = "linkerd"
 
-[tools."github:grafana/alloy" ]
+[tools."github:grafana/alloy"]
 version = "latest"
 rename_exe = "alloy"
 postinstall = """
@@ -104,25 +104,12 @@ mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 alloy completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_alloy"
 """
 
-[tools."github:grafana/gcx" ]
+[tools."github:grafana/gcx"]
 version = "latest"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 gcx completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_gcx"
 """
-
-[tools."zb"]
-version = "latest"
-matching = "zb-"
-postinstall = """
-mkdir -p $MISE_TOOL_INSTALL_PATH/functions
-zb completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_zb"
-"""
-
-[tools."zbx"]
-version = "latest"
-matching = "zbx-"
-rename_exe = "zbx"
 
 [tools."github:aviator-co/av"]
 version = "latest"
@@ -161,8 +148,9 @@ mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 logcli --completion-script-zsh > "$MISE_TOOL_INSTALL_PATH/functions/_logcli"
 """
 
-[tools."argocd"]
+[tools."github:argoproj/argo-cd"]
 version = "latest"
+rename_exe = "argocd"
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 argocd completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_argocd"
@@ -172,22 +160,12 @@ argocd completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_argocd"
 version = "4.2.3"
 version_list_url = "https://api.github.com/repos/helm/helm/releases"
 version_json_path = ".[].tag_name"
+url = 'https://get.helm.sh/helm-v{{ version }}-{{ os(macos="darwin") }}-{{ arch(x64="amd64") }}.tar.gz'
 postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 helm completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_helm"
 """
 
-[tools."http:helm".platforms]
-linux-x64 = { url = "https://get.helm.sh/helm-v{{version}}-linux-amd64.tar.gz" }
-linux-arm64 = { url = "https://get.helm.sh/helm-v{{version}}-linux-arm64.tar.gz" }
-macos-arm64 = { url = "https://get.helm.sh/helm-v{{version}}-darwin-arm64.tar.gz" }
-
-[tools."github:hmans/beans"]
-version = "latest"
-postinstall = """
-mkdir -p $MISE_TOOL_INSTALL_PATH/functions
-beans completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_beans"
-"""
 
 [tools."awscli"]
 version = "latest"
@@ -246,6 +224,23 @@ postinstall = """
 mkdir -p $MISE_TOOL_INSTALL_PATH/functions
 kubectl completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_kubectl"
 """
+
+[tools."github:stern/stern"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+stern --completion=zsh > "$MISE_TOOL_INSTALL_PATH/functions/_stern"
+"""
+
+[tools."github:itaysk/kubectl-neat"]
+version = "latest"
+postinstall = """
+mkdir -p $MISE_TOOL_INSTALL_PATH/functions
+kubectl-neat completion zsh > "$MISE_TOOL_INSTALL_PATH/functions/_kubectl-neat"
+"""
+
+[tools."github:ahmetb/kubectl-tree"]
+version = "latest"
 
 [tools."kubectx"]
 version = "latest"
@@ -482,14 +477,13 @@ mv $MISE_TOOL_INSTALL_PATH/autocomplete/_fd $MISE_TOOL_INSTALL_PATH/functions/_f
 mv $MISE_TOOL_INSTALL_PATH/*.1 $MISE_TOOL_INSTALL_PATH/share/man/man1/
 """
 
+# Google publishes no JSON version endpoint; only repository2-3.xml.
+# Check for updates: https://developer.android.com/tools/releases/platform-tools
 [tools."http:platform-tools"]
 version = "latest"
-
-[tools."http:platform-tools".platforms]
-macos-x64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-darwin.zip" }
-macos-arm64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-darwin.zip" }
-linux-x64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-linux.zip" }
-linux-arm64 = { url = "https://dl.google.com/android/repository/platform-tools-latest-linux.zip" }
+version_list_url = "https://dl.google.com/android/repository/repository2-3.xml"
+version_regex = 'platform-tools_r([0-9]+\.[0-9]+\.[0-9]+)-darwin\.zip'
+url = 'https://dl.google.com/android/repository/platform-tools_r{{ version }}-{{ os(macos="darwin", windows="win") }}.zip'
 
 #[hooks]
 #enter = '''
@@ -507,3 +501,9 @@ linux-arm64 = { url = "https://dl.google.com/android/repository/platform-tools-l
 [settings]
 idiomatic_version_file_enable_tools = ["go", "node"]
 experimental = true
+fetch_remote_versions_timeout = "30s"
+
+[task_config]
+# File tasks live in the repo so they are versioned with the rest of the config;
+# the default dir is kept so ad-hoc tasks in ~/.config/mise/tasks still work.
+includes = [".config/mise/tasks", "dot_files/config/mise/tasks"]
