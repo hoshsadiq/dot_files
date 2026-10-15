@@ -5,5 +5,7 @@ import = [
 ]
 
 [terminal.shell]
-program = "/opt/homebrew/bin/tmux"
-args = ["-u", "-l", "new-session", "-A", "-s", "main"]
+program = "/Users/hoshsadiq/.local/share/mise/installs/github-herdrdev-herdr/latest/herdr"
+# [terminal.shell]
+# program = "/opt/homebrew/bin/tmux"
+# args = ["-u", "-l", "new-session", "-A", "-s", "main"]

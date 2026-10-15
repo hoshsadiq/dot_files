@@ -1,0 +1,55 @@
+# Reload: cmux reload-config
+
+# Follow macOS appearance (replaces the alacritty symlink/LaunchAgent dance)
+theme = light:Catppuccin Latte, dark:Catppuccin Mocha
+
+# Launch/attach the persistent herdr session in every new window (alacritty `program` parity)
+# mise shim: absolute + survives mise upgrades, unlike the installs/latest path
+command = /Users/hoshsadiq/.local/share/mise/shims/herdr
+
+# Option key
+# true = both Options act as Alt (Alt+B/F work, no ƒ ∫ … composition)
+# left = left Option = Alt, right Option composes
+# right = mirror
+# false = macOS default (composition only)
+macos-option-as-alt = true
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+# Scrollback (bytes, not lines)
+scrollback-limit = 100000000
+
+# Clipboard
+copy-on-select = clipboard
+clipboard-read = allow
+clipboard-write = allow
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+
+# Visual bell, no audio
+bell-features = attention,title
+
+# Padding
+window-padding-x = 8
+window-padding-y = 8
+window-padding-balance = true
+
+confirm-close-surface = false
+wait-after-command = false
+
+# Shell integration (zsh/bash/fish/elvish)
+shell-integration = detect
+shell-integration-features = no-cursor,sudo,title
+
+# macOS window (cmux may override)
+macos-titlebar-style = tabs
+macos-non-native-fullscreen = true
+macos-window-shadow = true
+
+# >>> herdr-radar font block
+font-codepoint-map = U+E1A0-U+E1BA=Herdr Agent Icons Max
+font-codepoint-map = U+E1C0-U+E1C5=Herdr Agent Icons Max
+# <<< herdr-radar font block
