@@ -129,3 +129,14 @@ function _register_atuin_bindings() {
   zvm_bindkey vicmd '^R' atuin-search-vicmd
 }
 zvm_after_init_commands+=(_register_atuin_bindings)
+
+# Edit the command line in $EDITOR. zsh-vi-mode claims ^X as a key prefix and
+# forces KEYTIMEOUT=1, so the usual ^X^E chord only lands if both keys arrive
+# within 10ms. Alt+e is one keypress, which the plugin's reader handles itself.
+function _register_edit_command_line() {
+  autoload -Uz edit-command-line
+  zle -N edit-command-line
+  zvm_bindkey viins '^[e' edit-command-line
+  zvm_bindkey vicmd '^[e' edit-command-line
+}
+zvm_after_init_commands+=(_register_edit_command_line)

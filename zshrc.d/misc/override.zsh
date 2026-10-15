@@ -1,8 +1,8 @@
 if (( $+commands[eza] )); then
   alias ls='eza'
   alias la='eza -a'
-  alias ll='eza -al --git --icons'
-  alias tree='eza -T --icons'
+  alias ll='eza -al --git --icons always'
+  alias tree='eza -T --icons always'
 fi
 
 if (( $+commands[bat] )); then
