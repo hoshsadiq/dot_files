@@ -2,3 +2,17 @@
 !/backup/.gitkeep
 .idea
 config/tmux/plugins
+!config/agent/AGENTS.md
+
+# Local harness state: skills, sessions and transcripts installed per machine.
+# The tracked copies live in config/agent and config/pi.
+.claude/
+.pi/
+.juggler/
+.playwright-mcp/
+
+# Local tooling leftovers
+__pycache__/
+package.json
+package-lock.json
+code.code-workspace
