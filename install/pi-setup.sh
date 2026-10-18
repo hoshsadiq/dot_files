@@ -26,7 +26,6 @@ pi install npm:pi-lean-ctx
 pi install npm:@gotgenes/pi-anthropic-auth
 
 ln -sfn "$PI_CONFIG/agent/extensions/provider-whitelist" "$PI_DIR/agent/extensions/provider-whitelist"
-ln -sfn "$PI_CONFIG/agent/extensions/mac-system-theme" "$PI_DIR/agent/extensions/mac-system-theme"
 
 # Override built-in dark/light themes with Catppuccin so pi boots with correct
 # colours (avoids flash of default theme before custom theme loads).

@@ -14,7 +14,7 @@
     "npm:@gotgenes/pi-anthropic-auth"
   ],
   "provider": "anthropic",
-  "theme": "catppuccin-mocha",
+  "theme": "system",
   "warnings": {
     "anthropicExtraUsage": false
   }
