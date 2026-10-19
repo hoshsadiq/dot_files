@@ -1,0 +1,1078 @@
+#!/usr/bin/env bash
+# wt — Git worktrees for agent work, surfaced as herdr worktree workspaces.
+#
+# Inside herdr, creation goes through `herdr worktree create`, so a worktree
+# becomes a workspace grouped under its repo and `worktree.created` fires for the
+# plugins that hook it. Outside herdr it falls back to `git worktree add` with the
+# same layout, so the same commands work in a plain terminal.
+#
+# Creation prints the worktree path on stdout and nothing else, so callers can
+# chain: `cd "$(wt fix-queue-scroll)"`.
+set -euo pipefail
+shopt -s inherit_errexit
+
+readonly PROG="wt"
+readonly STATE_NAME="wt-sessions.json"
+readonly START_INTERVAL=1 # seconds between agent-start attempts
+readonly START_BUDGET=20  # seconds to keep trying while a pane boots
+
+# Field separator for rows a caller reads with `read`. A tab will not do: tab is
+# IFS whitespace, so `read` collapses runs of it and drops empty fields, which
+# silently shifts a row that has a missing column.
+readonly FS=$'\x1f'
+
+log() { printf '%s: %s\n' "$PROG" "$*" >&2; }
+
+die() {
+  printf '%s: %s\n' "$PROG" "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+wt — Git worktrees for agent work, grouped under their repo when run inside herdr.
+
+  wt <branch> [--base <ref>]   create .worktrees/<slug>, print its path
+  wt spawn <branch> "<prompt>" create it, start a pi in its pane, send the prompt
+                               the prompt gets a "Launcher session:" line with
+                               $PI_SESSION_ID appended, so the child can ask back
+                               --base <ref>     branch from this ref
+                               --wait           block until the prompt's turn ends
+                               --approve        trust project-local files (default:
+                                                follow ~/.pi/agent/trust.json)
+                               --no-approve     never trust them
+  wt sessions [--json]         every worktree, with its session and where it came from
+  wt resume [<branch>] [--print] bring a worktree's session back. From a shell in
+                               that worktree's own workspace pi takes this pane.
+                               branch defaults to the one you are on
+  wt backfill [--force]        one-off: record sessions for worktrees that predate
+                               the store
+                               --all            every repo on this machine
+  wt list                      list worktrees with any herdr workspace id
+  wt adopt <branch>...         give existing worktrees a herdr workspace
+  wt adopt --all               adopt every worktree of this repo that lacks one
+  wt rm <branch>               remove the worktree (and its herdr workspace)
+                               --force          discard a dirty checkout
+                               --delete-branch  also delete the branch
+
+Base defaults to origin/<default-branch>, else HEAD.
+EOF
+}
+
+in_herdr() { [[ -n ${HERDR_ENV:-} ]] && command -v herdr >/dev/null 2>&1; }
+
+need_herdr() { in_herdr || die "this command needs herdr"; }
+
+need_jq() { command -v jq >/dev/null 2>&1 || die "this command needs jq"; }
+
+repo_root() {
+  git rev-parse --show-toplevel || die "not inside a git repository"
+}
+
+git_common_dir() {
+  local dir
+  dir="$(git rev-parse --path-format=absolute --git-common-dir)" \
+    || dir="$(git rev-parse --git-common-dir)" \
+    || die "cannot locate the git directory"
+  printf '%s\n' "$dir"
+}
+
+sessions_root() { printf '%s\n' "${PI_SESSIONS_DIR:-$HOME/.pi/agent/sessions}"; }
+
+# Newest *.jsonl in a directory, in bash: `ls -t` would mangle an unusual name,
+# and an unmatched glob would hand it the current directory instead.
+newest_transcript() {
+  local dir=$1 file newest=""
+  for file in "$dir"/*.jsonl; do
+    [[ -f $file ]] || continue
+    [[ -z $newest || $file -nt $newest ]] && newest=$file
+  done
+  printf '%s\n' "$newest"
+}
+
+# pi names a session directory after its working directory: leading slash dropped,
+# remaining slashes to dashes, wrapped in double dashes.
+slug_path() {
+  local path=${1#/}
+  printf '%s\n' "--${path//\//-}--"
+}
+
+# A transcript path and nothing else. A stored value that is not one is not a
+# session, which is how a pane id once ended up in the session field.
+usable_session() {
+  local session=${1:-}
+  [[ $session == */* && $session == *.jsonl ]]
+}
+
+slug_branch() {
+  local branch=${1//\//-}
+  printf '%s\n' "${branch//[^[:alnum:].-]/}"
+}
+
+worktree_path_for() { printf '%s/.worktrees/%s\n' "$1" "$(slug_branch "$2")"; }
+
+# Remote default branch when origin is reachable, otherwise HEAD.
+default_base() {
+  local ref
+  ref="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD)" || ref=""
+  printf '%s\n' "${ref:-HEAD}"
+}
+
+warn_unignored() {
+  git -C "$1" check-ignore -q .worktrees \
+    || log "note: .worktrees/ is not ignored here, add it to .gitignore"
+}
+
+# Linked worktrees as "<path><FS><branch>". The repo's own checkout is excluded,
+# because it is not something wt manages.
+worktrees() {
+  local root path="" line branch
+  root="$(repo_root)"
+  while IFS= read -r line; do
+    case $line in
+      "worktree "*) path=${line#worktree } ;;
+      "branch "*)
+        branch=${line#branch }
+        branch=${branch#refs/heads/}
+        [[ $path == "$root" ]] || printf '%s%s%s\n' "$path" "$FS" "$branch"
+        ;;
+      "detached")
+        [[ $path == "$root" ]] || printf '%s%s%s\n' "$path" "$FS" "(detached)"
+        ;;
+      *) ;;
+    esac
+  done < <(git -C "$root" worktree list --porcelain)
+}
+
+# The worktree's path: what git reports when it still exists, else where wt would
+# have put it, so a removed worktree can still be named.
+worktree_path_for_branch() {
+  local want=$1 path branch
+  while IFS=$FS read -r path branch; do
+    if [[ $branch == "$want" ]]; then
+      printf '%s\n' "$path"
+      return 0
+    fi
+  done < <(worktrees)
+  worktree_path_for "$(repo_root)" "$want"
+}
+
+herdr_workspace_for_branch() {
+  local out
+  out="$(herdr worktree list --cwd "$(repo_root)")" || return 0
+  jq -r --arg b "$1" '.result.worktrees[]? | select(.branch == $b) | .open_workspace_id // empty' <<<"$out" \
+    | head -1
+}
+
+# These lookups answer "nothing found" on a failed or unreadable response rather
+# than returning non-zero: they are used to refine a decision that already has a
+# safe default, so a herdr hiccup must not abort the command that asked.
+herdr_session_for_pane() {
+  local out
+  [[ -n ${1:-} ]] || return 0
+  out="$(herdr agent list)" || return 0
+  jq -r --arg p "$1" '.result.agents[]? | select(.pane_id == $p) | .agent_session.value // empty' <<<"$out" \
+    | head -1 || return 0
+}
+
+herdr_pane_for_path() {
+  local out
+  out="$(herdr pane list)" || return 0
+  jq -r --arg cwd "$1" '[.result.panes[] | select(.cwd == $cwd or .foreground_cwd == $cwd)] | .[0].pane_id // empty' <<<"$out" \
+    | head -1 || return 0
+}
+
+herdr_pane_for_session() {
+  local out
+  [[ -n ${1:-} ]] || return 0
+  out="$(herdr agent list)" || return 0
+  jq -r --arg s "$1" '.result.agents[]? | select(.agent_session.value == $s) | .pane_id' <<<"$out" \
+    | head -1 || return 0
+}
+
+workspace_alive() { [[ -n ${1:-} ]] && herdr workspace get "$1" >/dev/null 2>&1; }
+
+# herdr numbers panes in base 36 (`p9`, `pB`, `p1H`), so an id sorts by length
+# first and then as text. One definition, because every pane query below orders
+# the same way.
+# shellcheck disable=SC2016 # jq source, not a shell expansion
+readonly PANE_ORDER='sort_by(.pane_id | ltrimstr($ws + ":p") | [length, .])'
+
+# The workspace's root shell: herdr numbers panes in creation order, so the lowest
+# pane with no agent on it is the one the workspace opened with. A failed lookup
+# returns non-zero: empty output would read as "no free pane".
+root_pane_of() {
+  local out pane
+  out="$(herdr pane list)" || return 1
+  pane="$(jq -r --arg ws "$1" '
+      [.result.panes[] | select(.workspace_id == $ws) | select((.agent // null) == null)]
+      | '"$PANE_ORDER"'
+      | .[0].pane_id // empty' <<<"$out")" || return 1
+  printf '%s\n' "$pane"
+}
+
+# Split a pane and print the new pane's id. Its shell needs the same startup grace
+# a freshly opened workspace does, which the caller's retry loop provides. Only
+# stdout is JSON, so stderr is left to reach the operator. An id that could not be
+# read is a failure, not an empty pane to start an agent in.
+split_pane() {
+  local out pane
+  [[ -n ${1:-} && -n ${2:-} ]] || return 1
+  if ! out="$(herdr pane split --pane "$1" --direction right --cwd "$2")"; then
+    log "pane split of $1 failed"
+    return 1
+  fi
+  pane="$(jq -r '.result.pane.pane_id // empty' <<<"$out")" || return 1
+  [[ -n $pane ]] || return 1
+  printf '%s\n' "$pane"
+}
+
+# Where a resumed agent goes, as "<how><FS><pane>": "here" hands the caller's own
+# pane over, "root" names a free shell in the workspace, "split" names the pane to
+# split, "none" means the workspace has no pane at all. Decided in one place so
+# the printed plan and the real run cannot drift apart. A failed query returns
+# non-zero, so an unreachable herdr is never reported as a workspace without panes.
+resume_target() {
+  local out
+  [[ -n ${1:-} ]] || return 1
+  out="$(herdr pane list)" || return 1
+  jq -r --arg ws "$1" --arg self "${HERDR_PANE_ID:-}" --arg here "${HERDR_WORKSPACE_ID:-}" \
+    --arg fs "$FS" '
+      [.result.panes[] | select(.workspace_id == $ws)] as $panes
+      | [$panes[] | select((.agent // null) == null)] as $free
+      | ([$free[] | select(.pane_id != $self)] | '"$PANE_ORDER"' | .[0].pane_id // "") as $root
+      | ([$panes[]] | '"$PANE_ORDER"' | .[0].pane_id // "") as $any
+      | if ($here == $ws) and ($self != "") and any($free[]; .pane_id == $self) then "here"
+        elif $root != "" then "root\($fs)\($root)"
+        elif $any != "" then "split\($fs)\($any)"
+        else "none" end' <<<"$out"
+}
+
+# The argv pi is started with, for a worktree at $3 (default: here). Shared so the
+# printed plan and the real run agree on the flags, including a trust grant.
+resume_pi_args() {
+  RESUME_PI_ARGS=(--name "$1" --session "$2")
+  # Not `pi_trusts_repo && ...`: as the last command that would make an untrusted
+  # repo fail the whole call under errexit.
+  if pi_trusts_repo "${3:-}"; then RESUME_PI_ARGS+=(--approve); fi
+}
+
+# The store lives in the repo's git directory, not in the worktree: an entry then
+# outlives `wt rm`, which is what makes a removed worktree restorable.
+state_file() {
+  [[ -n ${WT_STATE_FILE_OVERRIDE:-} ]] && { printf '%s\n' "$WT_STATE_FILE_OVERRIDE"; return 0; }
+  printf '%s/%s\n' "$(git_common_dir)" "$STATE_NAME"
+}
+
+# The store is read once per run into associative arrays: every branch's fields
+# are needed by every listing, and jq would otherwise read the file per field.
+declare -A STORE_PATH=() STORE_WORKSPACE=() STORE_PANE=() STORE_SESSION=() STORE_CREATED=()
+declare -a STORE_BRANCHES=()
+
+# load_store [file] — defaults to this repo's store.
+load_store() {
+  local file branch path workspace pane session created dump
+  file="${1:-$(state_file)}"
+  STORE_PATH=() STORE_WORKSPACE=() STORE_PANE=() STORE_SESSION=() STORE_CREATED=()
+  STORE_BRANCHES=()
+  [[ -f $file ]] || return 0
+
+  dump="$(jq -r --arg fs "$FS" '
+      to_entries[]
+      | [ .key,
+          (.value.path // ""),
+          (.value.workspace // ""),
+          (.value.pane // ""),
+          (.value.session // ""),
+          (.value.createdAt // "") ]
+      | join($fs)' "$file")" || die "cannot read $file"
+
+  while IFS=$FS read -r branch path workspace pane session created; do
+    [[ -n $branch ]] || continue
+    usable_session "$session" || session=""
+    STORE_BRANCHES+=("$branch")
+    STORE_PATH[$branch]=$path
+    STORE_WORKSPACE[$branch]=$workspace
+    STORE_PANE[$branch]=$pane
+    STORE_SESSION[$branch]=$session
+    STORE_CREATED[$branch]=$created
+  done <<<"$dump"
+}
+
+# Merge one entry, atomically: a failed run cannot truncate the store.
+state_put() {
+  local branch=$1 json=$2 file tmp
+  file="$(state_file)"
+  tmp="$(mktemp "$file.XXXXXX")"
+  if ! (cat "$file" 2>/dev/null || printf '{}\n') \
+      | jq --arg k "$branch" --argjson v "$json" '.[$k] = ((.[$k] // {}) + $v)' >"$tmp"; then
+    rm -f "$tmp"
+    die "could not update $file"
+  fi
+  mv "$tmp" "$file"
+}
+
+# An entry is worth refreshing only when it already carries a fact: a session or
+# a workspace. Listing must not turn a derived guess into a recorded one.
+state_has_fact() {
+  [[ -n ${STORE_SESSION[$1]:-}${STORE_WORKSPACE[$1]:-} ]]
+}
+
+state_put_fields() {
+  local branch=$1 path=${2:-} workspace=${3:-} pane=${4:-} session=${5:-} json
+  json="$(jq -nc \
+    --arg b "$branch" --arg p "$path" --arg w "$workspace" --arg pane "$pane" \
+    --arg s "$session" --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    '{branch: $b, path: $p, workspace: $w, pane: $pane, session: $s, updatedAt: $now}')"
+  state_put "$branch" "$json"
+  STORE_PATH[$branch]=$path
+  STORE_WORKSPACE[$branch]=$workspace
+  STORE_PANE[$branch]=$pane
+  STORE_SESSION[$branch]=$session
+  STORE_CREATED[$branch]="${STORE_CREATED[$branch]:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
+}
+
+# Record what herdr reports for a pane, waiting up to $5 seconds for pi to
+# register itself. An empty lookup never erases a stored session: herdr forgets a
+# pane when it goes away, and the session file is the part worth keeping.
+record_session() {
+  local branch=$1 path=$2 workspace=${3:-} pane=${4:-} budget=${5:-0} explicit=${6:-}
+  local session="" deadline
+  deadline=$((SECONDS + budget))
+
+  while [[ -n $pane && -z $session && $SECONDS -lt $deadline ]]; do
+    session="$(herdr_session_for_pane "$pane")"
+    [[ -n $session ]] || sleep "$START_INTERVAL"
+  done
+  session=${session:-${explicit:-${STORE_SESSION[$branch]:-}}}
+  usable_session "$session" || session=""
+
+  state_put_fields "$branch" "$path" "$workspace" "$pane" "$session"
+  [[ -n $session ]] && log "recorded session $(basename "$session")"
+  return 0
+}
+
+# A session the store has never seen: branch -> worktree path -> pi's session
+# directory -> newest transcript. The file's own cwd is checked, so a drift in
+# pi's naming rule cannot hand back a session from somewhere else.
+derive_session() {
+  local branch=$1 path dir newest cwd
+  path="$(worktree_path_for_branch "$branch")"
+  dir="$(sessions_root)/$(slug_path "$path")"
+  [[ -d $dir ]] || return 0
+  newest="$(newest_transcript "$dir")"
+  [[ -n $newest ]] || return 0
+  cwd="$(head -1 "$newest" | jq -r '.cwd // empty')" || return 0
+  [[ -z $cwd || $cwd == "$path" ]] || return 0
+  printf '%s\n' "$newest"
+}
+
+# How a worktree's session is found, in order of authority: a live pane, then the
+# recorded fact, then a derived guess. Prints
+# "<source><FS><session><FS><pane><FS><workspace><FS><path>".
+resolve_session() {
+  local branch=$1 path pane workspace session="" source="none" live_ws
+  path=${STORE_PATH[$branch]:-}
+  [[ -n $path ]] || path="$(worktree_path_for_branch "$branch")"
+  pane=${STORE_PANE[$branch]:-}
+  workspace=${STORE_WORKSPACE[$branch]:-}
+
+  if in_herdr; then
+    session="$(herdr_session_for_pane "$pane")"
+    if [[ -z $session ]]; then
+      pane="$(herdr_pane_for_path "$path")"
+      session="$(herdr_session_for_pane "$pane")"
+    fi
+    [[ -n $session ]] && source="live"
+    if [[ -z $workspace ]] || ! workspace_alive "$workspace"; then
+      live_ws="$(herdr_workspace_for_branch "$branch")"
+      [[ -n $live_ws ]] && workspace=$live_ws
+    fi
+  fi
+  if [[ -z $session && -n ${STORE_SESSION[$branch]:-} ]]; then
+    session=${STORE_SESSION[$branch]}
+    source="recorded"
+  fi
+  if [[ -z $session ]]; then
+    session="$(derive_session "$branch")"
+    [[ -n $session ]] && source="derived"
+  fi
+  printf '%s%s%s%s%s%s%s%s%s\n' "$source" "$FS" "$session" "$FS" "$pane" "$FS" "$workspace" "$FS" "$path"
+}
+
+# Start a pi agent in an existing shell pane, retrying while a freshly opened
+# workspace's shell finishes booting: agent start rejects a pane that is not at a
+# prompt yet, which is the usual state right after `herdr worktree open`.
+# agent_not_ready is not retried: there the agent did start and is waiting on a
+# startup dialog, and the caller reports that truthfully.
+start_pi_in_pane() {
+  local pane=$1 name=$2 session=${3:-} approve=${4:-} path=${5:-}
+  local deadline remaining_ms start_err=""
+  local -a args=(agent start "$name" --kind pi --pane "$pane")
+  local -a agent_args=(-- --name "$name")
+  [[ -n $session ]] && agent_args+=(--session "$session")
+  if [[ -z $approve ]]; then
+    if pi_trusts_repo "$path"; then approve=1; else approve=0; fi
+  fi
+  [[ $approve == 1 ]] && agent_args+=(--approve)
+
+  # Each attempt is capped by the budget still left, not a fixed timeout, so the
+  # deadline governs. That also shortens a spawn's single attempt from the 60s it
+  # used to hold to at most START_BUDGET.
+  deadline=$((SECONDS + START_BUDGET))
+  while :; do
+    remaining_ms=$(((deadline - SECONDS) * 1000))
+    # herdr's schema puts the floor for a start attempt at 3000ms, so a smaller
+    # one would be rejected rather than tried.
+    if ((remaining_ms < 3000)); then
+      printf '%s\n' "$start_err" >&2
+      return 1
+    fi
+    if start_err="$(herdr "${args[@]}" --timeout "$remaining_ms" "${agent_args[@]}" 2>&1)"; then
+      return 0
+    fi
+    case $start_err in
+      *agent_not_ready*) return 0 ;;
+      *) ;;
+    esac
+    sleep "$START_INTERVAL"
+  done
+}
+
+# Mirror the operator's trust decision for a worktree rather than inventing one.
+# Keyed on the directory that will actually hold pi's cwd, defaulting to here.
+pi_trusts_repo() {
+  local tf="$HOME/.pi/agent/trust.json" root
+  [[ -f $tf ]] || return 1
+  # No default: an omitted directory used to resolve through `git -C ""` to the
+  # caller's checkout, which granted trust for a worktree nobody looked at.
+  [[ -n ${1:-} ]] || return 1
+  root="$(git -C "$1" rev-parse --show-toplevel 2>/dev/null)" || return 1
+  # `== true` rather than a truthiness test, to match pi's own store.
+  jq -e --arg p "$root" '.[$p] == true' "$tf" >/dev/null
+}
+
+# Sets WT_PATH and WT_WORKSPACE.
+create_worktree() {
+  local branch=$1 base=$2 root out
+  root="$(repo_root)"
+  WT_PATH="$(worktree_path_for "$root" "$branch")"
+  WT_WORKSPACE=""
+
+  [[ -e $WT_PATH ]] && die "already exists: $WT_PATH"
+  [[ -n $base ]] || base="$(default_base)"
+  warn_unignored "$root"
+
+  if ! in_herdr; then
+    git -C "$root" worktree add "$WT_PATH" -b "$branch" "$base" >&2
+    return 0
+  fi
+
+  if out="$(herdr worktree create --cwd "$root" --branch "$branch" --path "$WT_PATH" \
+    --base "$base" --no-focus 2>&1)"; then
+    WT_WORKSPACE="$(jq -r '.result.worktree.open_workspace_id // empty' <<<"$out")" || WT_WORKSPACE=""
+    if [[ -n $WT_WORKSPACE ]]; then
+      log "herdr workspace $WT_WORKSPACE (grouped under this repo)"
+    else
+      log "created via herdr, no workspace id in the response"
+    fi
+  else
+    log "herdr worktree create failed, falling back to git:"
+    log "$out"
+    git -C "$root" worktree add "$WT_PATH" -b "$branch" "$base" >&2
+  fi
+}
+
+# Undo a spawn whose agent never started: the worktree, its branch and its
+# workspace were created seconds ago. Best effort, and reported rather than
+# fatal, because the die that follows carries the actual reason. Leaving these
+# behind would block a retry on the same slug with "already exists".
+rollback_spawn() {
+  local branch=$1 workspace=$2 path=$3 root
+  root="$(repo_root)"
+  remove_worktree "$root" "$path" "$workspace" 1 \
+    || log "rollback: worktree left at $path"
+  git -C "$root" branch -D "$branch" >/dev/null 2>&1 \
+    || log "rollback: branch $branch left in place"
+}
+
+# Remove a worktree checkout, through herdr when it owns a workspace so the
+# workspace goes with it, else straight through git.
+remove_worktree() {
+  local root=$1 path=$2 workspace=${3:-} force=${4:-0}
+  if [[ -n $workspace ]] && workspace_alive "$workspace"; then
+    local -a args=(worktree remove --workspace "$workspace")
+    [[ $force == 1 ]] && args+=(--force)
+    herdr "${args[@]}" >/dev/null
+    return 0
+  fi
+  if [[ $force == 1 ]]; then
+    git -C "$root" worktree remove --force "$path"
+  else
+    git -C "$root" worktree remove "$path"
+  fi
+}
+
+# Each parser fills globals prefixed with its command name, so the command body
+# stays a sequence of steps rather than a second nest of branches.
+
+parse_create_args() {
+  CR_BRANCH="" CR_BASE=""
+  while (($#)); do
+    case $1 in
+      --base) CR_BASE=${2:?--base needs a ref}; shift 2 ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) CR_BRANCH=$1; shift ;;
+    esac
+  done
+  [[ -n $CR_BRANCH ]] || die "usage: wt <branch> [--base <ref>]"
+}
+
+parse_spawn_args() {
+  SP_BRANCH="" SP_PROMPT="" SP_BASE="" SP_WAIT=0 SP_APPROVE=""
+  while (($#)); do
+    case $1 in
+      --base) SP_BASE=${2:?--base needs a ref}; shift 2 ;;
+      --wait) SP_WAIT=1; shift ;;
+      --approve) SP_APPROVE=1; shift ;;
+      --no-approve) SP_APPROVE=0; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *)
+        if [[ -z $SP_BRANCH ]]; then SP_BRANCH=$1; else SP_PROMPT=$1; fi
+        shift
+        ;;
+    esac
+  done
+  [[ -n $SP_BRANCH && -n $SP_PROMPT ]] \
+    || die 'usage: wt spawn <branch> "<prompt>" [--base <ref>] [--wait] [--approve|--no-approve]'
+}
+
+parse_resume_args() {
+  RS_BRANCH="" RS_PRINT=0
+  while (($#)); do
+    case $1 in
+      --print) RS_PRINT=1; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) RS_BRANCH=$1; shift ;;
+    esac
+  done
+  # Resuming the worktree the shell is already in is the common case, so the
+  # branch is read from HEAD when it is not given. Only a detached HEAD or a
+  # non-repo leaves nothing to read.
+  if [[ -z $RS_BRANCH ]]; then
+    RS_BRANCH="$(git symbolic-ref --quiet --short HEAD)" || RS_BRANCH=""
+  fi
+  [[ -n $RS_BRANCH ]] || die \
+    "cannot tell which branch to resume: no branch given, and HEAD is detached or not in a git repository. Pass one: wt resume <branch>"
+}
+
+parse_rm_args() {
+  RM_BRANCH="" RM_FORCE=0 RM_DELETE_BRANCH=0
+  while (($#)); do
+    case $1 in
+      --force | -f) RM_FORCE=1; shift ;;
+      --delete-branch | -d) RM_DELETE_BRANCH=1; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) RM_BRANCH=$1; shift ;;
+    esac
+  done
+  [[ -n $RM_BRANCH ]] || die "usage: wt rm <branch> [--force] [--delete-branch]"
+}
+
+parse_adopt_args() {
+  AD_ALL=0 AD_BRANCHES=()
+  while (($#)); do
+    case $1 in
+      --all) AD_ALL=1; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) AD_BRANCHES+=("$1"); shift ;;
+    esac
+  done
+  if [[ $AD_ALL == 0 && ${#AD_BRANCHES[@]} -eq 0 ]]; then
+    die "usage: wt adopt <branch>... | wt adopt --all"
+  fi
+}
+
+parse_backfill_args() {
+  BF_FORCE=0 BF_ALL=0
+  while (($#)); do
+    case $1 in
+      --force) BF_FORCE=1; shift ;;
+      --all | --all-repos) BF_ALL=1; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) shift ;;
+    esac
+  done
+}
+
+cmd_create() {
+  parse_create_args "$@"
+  create_worktree "$CR_BRANCH" "$CR_BASE"
+  record_session "$CR_BRANCH" "$WT_PATH" "$WT_WORKSPACE" ""
+  printf '%s\n' "$WT_PATH"
+}
+
+# The child is a peer, not a subagent: pi records no parent for it, so this id is
+# the only address back to the launcher. Skipped when pi gave no session id
+# (ephemeral or SDK runs), rather than naming something unaddressable.
+with_launcher_session() {
+  local prompt=$1
+  [[ -n ${PI_SESSION_ID:-} ]] || { printf '%s' "$prompt"; return 0; }
+  printf '%s\n\nLauncher session: %s. Use session_send_message (set requestResponse) when you need a decision, the launcher is live and will answer.' \
+    "$prompt" "$PI_SESSION_ID"
+}
+
+cmd_spawn() {
+  local pane slug prompt
+  parse_spawn_args "$@"
+  need_herdr
+  need_jq
+
+  create_worktree "$SP_BRANCH" "$SP_BASE"
+  [[ -n $WT_WORKSPACE ]] || die "no herdr workspace for $WT_PATH, cannot spawn"
+
+  pane="$(root_pane_of "$WT_WORKSPACE")" || die "cannot read the panes of $WT_WORKSPACE"
+  [[ -n $pane ]] || die "no idle shell pane in workspace $WT_WORKSPACE"
+
+  slug="$(slug_branch "$SP_BRANCH")"
+  # The trust key is the worktree pi will start in, not the checkout wt ran from.
+  if ! start_pi_in_pane "$pane" "$slug" "" "$SP_APPROVE" "$WT_PATH"; then
+    rollback_spawn "$SP_BRANCH" "$WT_WORKSPACE" "$WT_PATH"
+    die "herdr agent start failed in $pane within ${START_BUDGET}s"
+  fi
+  log "pi running in $pane (workspace $WT_WORKSPACE)"
+  record_session "$SP_BRANCH" "$WT_PATH" "$WT_WORKSPACE" "$pane" "$START_BUDGET"
+
+  prompt="$(with_launcher_session "$SP_PROMPT")"
+  if [[ $SP_WAIT == 1 ]]; then
+    herdr agent prompt "$pane" "$prompt" --wait >/dev/null || die "prompt failed"
+    log "prompt completed"
+  else
+    herdr agent prompt "$pane" "$prompt" >/dev/null || die "prompt failed"
+    log "task handed off, follow it in $pane"
+  fi
+  printf '%s\n' "$WT_PATH"
+}
+
+cmd_adopt() {
+  local root path branch workspace failed=0
+  parse_adopt_args "$@"
+  need_herdr
+  root="$(repo_root)"
+
+  if [[ $AD_ALL == 1 ]]; then
+    while IFS=$FS read -r path branch; do
+      [[ -z $(herdr_workspace_for_branch "$branch") ]] && AD_BRANCHES+=("$branch")
+    done < <(worktrees)
+    ((${#AD_BRANCHES[@]})) || { log "every worktree here already has a workspace"; return 0; }
+    log "adopting ${#AD_BRANCHES[@]} worktree(s)"
+  fi
+
+  for branch in "${AD_BRANCHES[@]}"; do
+    path="$(worktree_path_for_branch "$branch")"
+    if [[ ! -d $path ]]; then
+      log "$branch: not a known worktree of this repo"
+      failed=1
+      continue
+    fi
+    if workspace="$(open_worktree_workspace "$root" "$branch")" && [[ -n $workspace ]]; then
+      log "$branch -> workspace $workspace"
+      record_session "$branch" "$path" "$workspace" ""
+    else
+      log "$branch: adopt failed"
+      failed=1
+    fi
+  done
+  return "$failed"
+}
+
+# Open a branch's worktree as a herdr workspace; prints its id, or nothing when
+# herdr refused (the reason goes to stderr).
+open_worktree_workspace() {
+  local root=$1 branch=$2 out
+  out="$(herdr worktree open --cwd "$root" --branch "$branch" --no-focus --trust-repository)" || return 1
+  jq -r '.result.workspace.workspace_id // empty' <<<"$out"
+}
+
+cmd_rm() {
+  local root path workspace
+  parse_rm_args "$@"
+  root="$(repo_root)"
+  path="$(worktree_path_for_branch "$RM_BRANCH")"
+  [[ -d $path ]] || die "no worktree at $path"
+  workspace=${STORE_WORKSPACE[$RM_BRANCH]:-}
+
+  remove_worktree "$root" "$path" "$workspace" "$RM_FORCE" \
+    || die "worktree removal failed (dirty checkout? use --force)"
+  if [[ -n $workspace ]]; then
+    log "removed worktree and closed workspace $workspace"
+  else
+    log "removed worktree"
+  fi
+
+  if [[ $RM_DELETE_BRANCH == 1 ]]; then
+    git -C "$root" branch -d "$RM_BRANCH" >/dev/null && log "deleted branch $RM_BRANCH"
+  else
+    log "branch $RM_BRANCH kept (use --delete-branch to remove it)"
+  fi
+}
+
+cmd_list() {
+  local branch path workspace
+  while IFS=$FS read -r path branch; do
+    if in_herdr; then
+      workspace="$(herdr_workspace_for_branch "$branch")"
+    else
+      workspace=""
+    fi
+    printf '%-28s %s\tws=%s\n' "$branch" "$path" "${workspace:--}"
+  done < <(worktrees)
+}
+
+# Every worktree of the repo, plus any recorded branch whose worktree is gone.
+# Recorded branches first, then the repo's worktrees, each branch once.
+session_branches() {
+  local branch path
+  declare -A emitted=()
+  for branch in "${STORE_BRANCHES[@]}"; do
+    [[ -n ${emitted[$branch]:-} ]] && continue
+    emitted[$branch]=1
+    printf '%s\n' "$branch"
+  done
+  while IFS=$FS read -r path branch; do
+    [[ -n ${emitted[$branch]:-} ]] && continue
+    emitted[$branch]=1
+    printf '%s\n' "$branch"
+  done < <(worktrees)
+}
+
+print_session_row() {
+  local branch=$1 source=$2 session=$3 pane=$4 workspace=$5 path=$6 label="-"
+  [[ -n $session ]] && label="$(basename "$session")"
+  printf '%-28s %-8s %-10s %-12s %-14s %s\n' \
+    "$branch" "${workspace:--}" "${pane:--}" "$label" "$source" \
+    "$(age_of "${STORE_CREATED[$branch]:-}")"
+  [[ -n $path ]] || return 0
+  if [[ -d $path ]]; then
+    printf '  %s\n' "$path"
+  else
+    printf '  %s  (worktree removed)\n' "$path"
+  fi
+}
+
+cmd_sessions() {
+  local json_out=0 branch source session pane workspace path
+  while (($#)); do
+    case $1 in
+      --json) json_out=1; shift ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1" ;;
+      *) shift ;;
+    esac
+  done
+  need_jq
+
+  local -a branches=()
+  mapfile -t branches < <(session_branches)
+
+  if [[ $json_out == 1 ]]; then
+    for branch in "${branches[@]}"; do
+      IFS=$FS read -r source session pane workspace path < <(resolve_session "$branch")
+      jq -nc --arg b "$branch" --arg p "$path" --arg w "$workspace" --arg pane "$pane" \
+        --arg s "$session" --arg src "$source" \
+        '{branch: $b, path: $p, workspace: $w, pane: $pane, session: $s, source: $src}'
+    done | jq -s 'map({(.branch): .}) | add // {}'
+    return 0
+  fi
+
+  printf '%-28s %-8s %-10s %-12s %-14s %s\n' BRANCH WORKSPACE PANE SESSION SOURCE AGE
+  for branch in "${branches[@]}"; do
+    IFS=$FS read -r source session pane workspace path < <(resolve_session "$branch")
+    state_has_fact "$branch" \
+      && state_put_fields "$branch" "$path" "$workspace" "$pane" "$session"
+    print_session_row "$branch" "$source" "$session" "$pane" "$workspace" "$path"
+  done
+}
+
+# Prints the commands a real resume would run, so nothing is touched. The pane
+# choice and pi's flags come from the same helpers the real run calls, so the two
+# cannot disagree. A workspace that is gone has no panes to ask about: the run
+# opens it first and lands in its root shell, so the plan says the same.
+print_resume_plan() {
+  local branch=$1 slug=$2 session=$3 source=$4 workspace=$5 path=$6 how pane live target
+  live="$(herdr_pane_for_session "$session")"
+  if [[ -n $live ]]; then
+    printf 'herdr agent focus %q   # %s session is live there\n' "$live" "$source"
+    return 0
+  fi
+  resume_pi_args "$slug" "$session" "$path"
+  if ! workspace_alive "$workspace"; then
+    printf 'herdr worktree open --cwd %q --branch %q --no-focus --trust-repository\n' \
+      "$(repo_root)" "$branch"
+    printf 'herdr agent start %q --kind pi --pane <root pane of the new workspace> --' "$slug"
+    printf ' %q' "${RESUME_PI_ARGS[@]}"
+    printf '   # %s session\n' "$source"
+    return 0
+  fi
+  target="$(resume_target "$workspace")" || die "cannot read the panes of workspace $workspace"
+  IFS=$FS read -r how pane <<<"$target"
+  case $how in
+    here)
+      printf 'cd %q && exec pi' "$path"
+      printf ' %q' "${RESUME_PI_ARGS[@]}"
+      printf '   # takes this pane, %s session\n' "$source"
+      ;;
+    root)
+      printf 'herdr agent start %q --kind pi --pane %q --' "$slug" "$pane"
+      printf ' %q' "${RESUME_PI_ARGS[@]}"
+      printf '   # %s session\n' "$source"
+      ;;
+    split)
+      printf 'herdr pane split --pane %q --direction right --cwd %q\n' "$pane" "$path"
+      printf 'herdr agent start %q --kind pi --pane <new pane from the split> --' "$slug"
+      printf ' %q' "${RESUME_PI_ARGS[@]}"
+      printf '   # %s session\n' "$source"
+      ;;
+    *)
+      printf 'nothing to start pi in: workspace %s has no pane\n' "$workspace"
+      ;;
+  esac
+}
+
+# pi takes the caller's own pane, which is the case wt resume exists for: herdr
+# cannot start an agent in a pane that is busy running wt, and waiting on one that
+# can never reach a prompt burns the whole start budget. exec replaces wt with pi,
+# and herdr still tracks the result because pi reports its own session from inside
+# the pane. The store is written first, since exec leaves nothing to come back to.
+resume_here() {
+  local branch=$1 slug=$2 session=$3 path=$4 workspace=$5 source=$6 common
+  command -v pi >/dev/null 2>&1 || die "pi is not on PATH"
+  common="$(git_common_dir)"
+  # pi takes its worktree from its cwd, and the caller's pane may have cd-ed away.
+  cd -- "$path" || die "cannot enter $path"
+  # A path inside another repository would put pi, the store and the trust lookup
+  # somewhere the operator never chose.
+  [[ "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" == "$common" ]] \
+    || die "$path is not a worktree of this repository"
+  resume_pi_args "$slug" "$session" "$path"
+  state_put_fields "$branch" "$path" "$workspace" "${HERDR_PANE_ID:-}" "$session"
+  log "resuming $branch in this pane (${HERDR_PANE_ID:--}, $source session)"
+  exec pi "${RESUME_PI_ARGS[@]}"
+}
+
+# Put pi in the pane the target named, splitting one first when that is the case.
+# Sets RESUME_PANE, and dies rather than leaving a pane this run created behind.
+start_resumed_pi() {
+  local how=$1 pane=$2 name=$3 session=$4 path=$5 approve=$6 workspace=$7
+  case $how in
+    root) ;;
+    split) pane="$(split_pane "$pane" "$path")" || die "could not split a pane in workspace $workspace" ;;
+    *) die "no pane to start pi in for workspace $workspace, open a pane there and run wt resume again" ;;
+  esac
+  if ! start_pi_in_pane "$pane" "$name" "$session" "$approve" "$path"; then
+    if [[ $how == split ]]; then herdr pane close "$pane" >/dev/null 2>&1 || true; fi
+    die "herdr agent start failed in $pane within ${START_BUDGET}s"
+  fi
+  RESUME_PANE=$pane
+}
+
+cmd_resume() {
+  local source session pane workspace path slug live target how
+  parse_resume_args "$@"
+  need_herdr
+  need_jq
+
+  IFS=$FS read -r source session pane workspace path < <(resolve_session "$RS_BRANCH")
+  [[ -n $session ]] || die "no session found for $RS_BRANCH (see: wt sessions)"
+  [[ -d $path ]] || die "worktree is gone: $path (re-create it with: wt $RS_BRANCH, then resume)"
+  slug="$(slug_branch "$RS_BRANCH")"
+
+  if [[ $RS_PRINT == 1 ]]; then
+    print_resume_plan "$RS_BRANCH" "$slug" "$session" "$source" "$workspace" "$path"
+    return 0
+  fi
+
+  # Two pi processes on one session file would corrupt it, so a session that is
+  # already running is pointed at instead of started again. Checked before the
+  # workspace is touched: an occupied pane is not a failure.
+  live="$(herdr_pane_for_session "$session")"
+  if [[ -n $live ]]; then
+    herdr agent focus "$live" >/dev/null 2>&1 || true
+    log "that session is already live in $live"
+    return 0
+  fi
+
+  if ! workspace_alive "$workspace"; then
+    workspace="$(open_worktree_workspace "$(repo_root)" "$RS_BRANCH")" \
+      || die "could not open a herdr workspace for $RS_BRANCH"
+    [[ -n $workspace ]] || die "herdr opened no workspace for $RS_BRANCH"
+    log "opened workspace $workspace"
+  fi
+  target="$(resume_target "$workspace")" || die "cannot read the panes of workspace $workspace"
+  IFS=$FS read -r how pane <<<"$target"
+  if [[ $how == here ]]; then
+    resume_here "$RS_BRANCH" "$slug" "$session" "$path" "$workspace" "$source"
+  fi
+
+  start_resumed_pi "$how" "$pane" "$slug" "$session" "$path" "" "$workspace"
+  record_session "$RS_BRANCH" "$path" "$workspace" "$RESUME_PANE" "$START_BUDGET" "$session"
+  log "resumed $RS_BRANCH in $RESUME_PANE ($source session)"
+}
+
+# One-off pass over worktrees that predate the store: find each one's newest pi
+# session on disk and record it. Transcripts outlive the panes that made them, so
+# a closed session is still findable.
+cmd_backfill() {
+  local path branch session workspace existing added=0 counted=0
+  parse_backfill_args "$@"
+  [[ $BF_ALL == 1 ]] && { backfill_all; return 0; }
+  need_jq
+
+  while IFS=$FS read -r path branch; do
+    counted=$((counted + 1))
+    session="$(derive_session "$branch")"
+    if [[ -z $session ]]; then
+      log "$branch: no pi session found"
+      continue
+    fi
+    existing=${STORE_SESSION[$branch]:-}
+    if [[ -n $existing && $BF_FORCE == 0 ]]; then
+      log "$branch: already recorded (use --force to replace)"
+      continue
+    fi
+    if in_herdr; then workspace="$(herdr_workspace_for_branch "$branch")"; else workspace=""; fi
+    record_session "$branch" "$path" "$workspace" "" 0 "$session"
+    added=$((added + 1))
+  done < <(worktrees)
+  log "backfill: $added recorded of $counted worktree(s)"
+}
+
+# Every pi session on this machine that ran inside a linked worktree, recorded
+# into the store of the repo that owns it. Includes sessions that have closed, and
+# worktrees that have been removed when their branch still exists.
+backfill_all() {
+  local root dir newest cwd gitdir dir_git branch store recorded=0 recovered=0 lost=0
+  need_jq
+  root="$(sessions_root)"
+  [[ -d $root ]] || die "no pi sessions at $root"
+
+  for dir in "$root"/*/; do
+    newest="$(newest_transcript "${dir%/}")"
+    [[ -n $newest ]] || continue
+    cwd="$(head -1 "$newest" | jq -r '.cwd // empty')" || continue
+    [[ -n $cwd ]] || continue
+
+    if [[ -d $cwd ]]; then
+      if backfill_live_worktree "$cwd" "$newest"; then
+        recorded=$((recorded + 1))
+      fi
+      continue
+    fi
+
+    if backfill_missing_worktree "$cwd" "$newest"; then
+      recovered=$((recovered + 1))
+    else
+      lost=$((lost + 1))
+    fi
+  done
+  log "backfill --all: $recorded recorded in place, $recovered recovered from removed worktrees, $lost skipped with no branch to match"
+}
+
+# A worktree that is still on disk: its own git dir says which branch it is.
+# A path inside the repo's main checkout is skipped, since that is not a worktree.
+backfill_live_worktree() {
+  local cwd=$1 newest=$2 gitdir dir_git branch store
+  gitdir="$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir)" || return 1
+  dir_git="$(git -C "$cwd" rev-parse --path-format=absolute --git-dir)" || return 1
+  [[ $gitdir != "$dir_git" ]] || return 1
+  branch="$(git -C "$cwd" symbolic-ref --short HEAD)" || return 1
+  store="$gitdir/$STATE_NAME"
+  load_store "$store"
+  [[ ${STORE_SESSION[$branch]:-} == "$newest" ]] && return 1
+  WT_STATE_FILE_OVERRIDE="$store" record_session "$branch" "$cwd" "" "" 0 "$newest"
+  WT_STATE_FILE_OVERRIDE=""
+  return 0
+}
+
+# A removed worktree: the path convention encodes the branch
+# (<repo>/.worktrees/<slug>) and the branch usually survives, so the slug is
+# matched back against the repo's branch list.
+backfill_missing_worktree() {
+  local cwd=$1 newest=$2 repo slug branch gitdir store
+  repo="$(repo_for_missing_path "$cwd")" || return 1
+  slug="${cwd##*/}"
+  branch="$(branch_for_slug "$repo" "$slug")" || return 1
+  gitdir="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)" || return 1
+  store="$gitdir/$STATE_NAME"
+  load_store "$store"
+  [[ ${STORE_SESSION[$branch]:-} == "$newest" ]] && return 1
+  WT_STATE_FILE_OVERRIDE="$store" record_session "$branch" "$cwd" "" "" 0 "$newest"
+  WT_STATE_FILE_OVERRIDE=""
+  return 0
+}
+
+# "<repo-root>/.worktrees/<slug>" -> the repo root, when it still exists.
+repo_for_missing_path() {
+  local path=$1
+  case $path in
+    */.worktrees/*) printf '%s\n' "${path%/.worktrees/*}" ;;
+    *) return 1 ;;
+  esac
+}
+
+# The branch whose slug matches, from the repo's own branch list.
+branch_for_slug() {
+  local repo=$1 slug=$2 want
+  [[ -d $repo ]] || return 1
+  git -C "$repo" rev-parse --git-dir >/dev/null 2>&1 || return 1
+  while IFS= read -r want; do
+    if [[ $(slug_branch "$want") == "$slug" ]]; then
+      printf '%s\n' "$want"
+      return 0
+    fi
+  done < <(git -C "$repo" branch --format='%(refname:short)')
+  return 1
+}
+
+age_of() {
+  local then=${1:-} delta
+  [[ -n $then ]] || { printf -- '-'; return 0; }
+  then="$(date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$then" +%s)" || { printf -- '-'; return 0; }
+  delta=$(($(date -u +%s) - then))
+  if ((delta < 3600)); then printf '%dm' $((delta / 60))
+  elif ((delta < 86400)); then printf '%dh' $((delta / 3600))
+  else printf '%dd' $((delta / 86400))
+  fi
+}
+
+# Anything not named here is a branch name, so `wt <branch>` stays the default.
+declare -A COMMANDS=(
+  [list]=cmd_list [ls]=cmd_list
+  [spawn]=cmd_spawn
+  [sessions]=cmd_sessions
+  [resume]=cmd_resume
+  [backfill]=cmd_backfill
+  [adopt]=cmd_adopt
+  [rm]=cmd_rm [remove]=cmd_rm
+)
+
+main() {
+  local cmd=${1:-help} handler
+  shift || true
+  case $cmd in
+    help | -h | --help | "") usage; return 0 ;;
+  esac
+  [[ $cmd == -* ]] && die "unknown option: $cmd (try: wt help)"
+  need_jq
+  load_store
+  handler=${COMMANDS[$cmd]:-}
+  if [[ -n $handler ]]; then "$handler" "$@"; else cmd_create "$cmd" "$@"; fi
+}
+
+main "$@"
